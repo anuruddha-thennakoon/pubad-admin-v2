@@ -1,0 +1,97 @@
+.logo-preview{
+    width: 100px;
+}
+.icon-preview{
+    width: 50px;
+}
+.shop-preview{
+    width: 200px;
+    height: 100px;
+}
+.fb-profile img.fb-image-lg{
+    z-index: 0;
+    width: 100%;  
+    margin-bottom: 10px;
+    height: 250px;
+}
+.fb-image-profile{
+    margin: -90px 10px 0px 50px;
+    z-index: 9;
+    width: 20%; 
+}
+.fb-profile-text>h1{
+    font-weight: 700;
+    font-size:16px;
+    margin: 0px;
+}
+.fb-image-profile{
+    margin: -45px 10px 0px 25px;
+    z-index: 9;
+    width: 20%; 
+}
+.product-card{
+    margin-top: 15px;
+    .ant-card-body {
+        padding: 10px !important;
+    }
+}
+.image-card{
+    .ant-card-body {
+        padding: 0px 0px 10px 0px !important;
+    }
+}
+.detail-card{
+    margin-top: 15px;
+    .ant-card-body {
+        padding: 10px !important;
+    }
+}
+.search-form {
+    padding: 20px 20px 0 0;
+    background: #fbfbfb;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    width: 60%;
+    margin: 1% 0 1% 0;
+  }
+  
+.search-form .ant-form-item {
+    display: flex;
+}
+  
+.search-form .ant-form-item-control-wrapper {
+    flex: 1;
+}
+.antd-pro-pages-account-center-center-avatarHolder {
+    margin-bottom: 24px;
+    text-align: center;
+}
+.antd-pro-pages-account-center-center-avatarHolder .antd-pro-pages-account-center-center-name {
+    margin-bottom: 4px;
+    margin-top: 10px;
+    color: rgba(0,0,0,.85);
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 28px;
+}
+.card-magrin{
+    margin: 25px;
+}
+.nav-border {
+    border: 1px solid #e8e8e8
+}
+.ant-modal-header {
+    border: 0 !important
+}
+.rc-time-from{
+    margin-right: 15px;
+}
+.rc-time-to{
+    margin-left: 15px;
+}
+.rc-time-picker-input {
+    font-size: 14px !important;
+}
+.ant-form-item {
+    margin-bottom: 10px !important;
+}
