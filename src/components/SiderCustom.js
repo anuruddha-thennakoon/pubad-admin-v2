@@ -94,7 +94,6 @@ class SiderCustom extends Component {
                         <SubMenu key="sub2" title={<span><Icon type="bank" /><span>Institutes</span></span>}>
                             <Menu.Item key="2"><Link to={'/all-institutes'}>All Institutes</Link></Menu.Item>
                             <Menu.Item key="3"><Link to={'/add-institute'}>Add Institute</Link></Menu.Item>
-                            {/* <Menu.Item key="4"><Link to={'/add-cadre'}>Add Cadre</Link></Menu.Item> */}
                         </SubMenu>
                     }
                     {(role == '1') &&
@@ -117,12 +116,6 @@ class SiderCustom extends Component {
                             <Menu.Item key="27"><Link to={'/grade-iii-officers'}>Grade III Officers</Link></Menu.Item>
                             <Menu.Item key="13"><Link to={'/summary'}>Summary Report</Link></Menu.Item>
                             <Menu.Item key="23"><Link to={'/officer-report'}>Officers</Link></Menu.Item>
-                            {/* <Menu.ItemGroup key="g2" title="Special Grade Officers">
-                                <Menu.Item key="12"><Link to={'/secondment-list'}>Secondment/Other Posts</Link></Menu.Item>
-                                <Menu.Item key="13"><Link to={'/pool-attached-list'}>Pool Attached List</Link></Menu.Item>
-                                <Menu.Item key="11"><Link to={'/secretary-list'}>Secretary List</Link></Menu.Item>
-                                <Menu.Item key="14"><Link to={'/class-1-downgraded-list'}>Class I Downgraded List</Link></Menu.Item>
-                            </Menu.ItemGroup> */}
                         </SubMenu>
                     }
                     {(role == '1') &&
@@ -132,7 +125,7 @@ class SiderCustom extends Component {
                         </SubMenu>
                     }
                     {(role == '4') &&
-                        <SubMenu key="sub6" title={<span><Icon type="fund" /><span>Application</span></span>}>
+                        <SubMenu key="sub6" title={<span><Icon type="fund" /><span>Applications</span></span>}>
                             <Menu.Item key="18"><Link to={'/new-application'}>New Application</Link></Menu.Item>
                         </SubMenu>
                     }

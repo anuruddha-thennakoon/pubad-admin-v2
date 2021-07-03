@@ -16,6 +16,7 @@ import authStore from './stores/authStore';
 import userStore from './stores/userStore';
 import appStore from './stores/appStore';
 import RegisterOfficer from './components/officers/RegisterOfficer';
+import UserRegistration from './components/profile/UserRegistration';
 
 const store = rehydrate();
 
@@ -65,6 +66,7 @@ export default class App extends Component {
 					<Router history={history}>
 						<Switch>
 							{!appState.isLogged && <Route exact path="/login" name="Login Page" component={Login} />}
+							<Route exact path="/register-user" name="Register User" component={UserRegistration} />
 							<Route exact path="/register-officer" name="Register Officer" component={RegisterOfficer} />
 							<Route exact path="/resetpassword" name="Reset Password Page" component={ResetPassword} />
 							<Route path="/" name="page" component={Page} />

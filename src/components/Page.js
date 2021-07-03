@@ -21,7 +21,6 @@ import GradeVise from './reports/vacancy/GradeVise';
 import DesignationsVise from './reports/vacancy/DesignationsVise';
 import Designations from './masterdata/Designations';
 import CadrePositions from './masterdata/CadrePositions';
-import AddCadre from './institutes/AddCadre';
 import RetireOfficer from './officers/RetireOfficer';
 import Institute from './institutes/Institute';
 import GradeViseInfo from './reports/vacancy/GradeViseInfo';
@@ -32,15 +31,13 @@ import PoolAttachedReprt from './reports/PoolAttachedReprt';
 import ClassIDowngradedReport from './reports/ClassIDowngradedReport';
 import SpecialGradeOfficers from './reports/SpecialGradeOfficers';
 import SummaryReport from './reports/SummaryReport';
-import NewApplication from './actin/NewApplication';
-import ApplicationsList from "./actin/ApplicationsList";
 import EditOfficer from './officers/EditOfficer';
 import ViewOfficer from './officers/ViewOfficer';
 import OfficerReport from './reports/OfficerReport';
-import Application from './actin/Application';
 import GradeIOfficers from './reports/GradeIOfficers';
 import GradeIIOfficers from './reports/GradeIIOfficers';
 import GradeIIIOfficers from './reports/GradeIIIOfficers';
+import NewApplication from './application/NewApplication';
 
 const { Content, Footer } = Layout;
 
@@ -86,7 +83,6 @@ class Page extends Component {
                             {/* Institutes */}
                             {(role == '1') && <Route path="/all-institutes" component={AllInstitutes} />}
                             {(role == '1') && <Route path="/add-institute" component={AddInstitute} />}
-                            {(role == '1') && <Route path="/add-cadre" component={AddCadre} />}
                             {(role == '1') && <Route path="/view-institute" component={Institute} />}
 
                             {/* Officers */}
@@ -118,10 +114,8 @@ class Page extends Component {
                             {(role == '1') && <Route path="/designations" component={Designations} />}
                             {(role == '1') && <Route path="/cadre-positions" component={CadrePositions} />}
 
-                            {/*Act In*/}
-                            {(role == '4') && <Route path="/new-application" component={Application} />}
-                            {(role == '1' || role == '2' || role == '3' || role == '4')
-                                && <Route path="/view-application" component={ApplicationsList} />}
+                            {/*Application*/}
+                            {(role != '0') && <Route path="/new-application" component={NewApplication} />}
 
                             {!isLogged && <Redirect from="/" to="/login" />}
                             {isLogged && <Redirect from="/" to="/dashboard" />}

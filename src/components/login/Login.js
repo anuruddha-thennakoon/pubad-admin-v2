@@ -83,7 +83,7 @@ class NormalLoginForm extends Component {
                         <Button size="large" type="primary" htmlType="submit" className="login-form-button" loading={this.state.loading}>Log in </Button>
                     </FormItem>
                     <FormItem style={{ marginTop: 10, textAlign: 'center' }}>
-                        <Link size="large" to={'/register-officer'}>Register Officer</Link>
+                        <Link size="large" to={'/register-user'}>Register User</Link>
                     </FormItem>
                 </Form>
             </div>
