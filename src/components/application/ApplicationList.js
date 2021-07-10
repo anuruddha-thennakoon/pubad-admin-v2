@@ -123,7 +123,7 @@ class ApplicationList extends React.Component {
 
         // });
         // return temp;
-        return [{}];
+        return [];
     }
 
     render() {
