@@ -17,7 +17,7 @@ class NewApplication extends React.Component {
         super(props);
         this.state = {
             confirmLoading: false,
-            applicationType: "Acting Appointment"
+            applicationType: "Confirmation"
         };
     }
 
@@ -42,19 +42,20 @@ class NewApplication extends React.Component {
 
                     <Title level={4}>New Application</Title>
                 </Card>
+                
                 <Card style={{ margin: '25px 25px 0px 25px', textAlign: 'center' }}>
                     <Radio.Group size={'large'} value={applicationType} onChange={this.changeApplicationType}>
+                        <Radio.Button value="Confirmation">Confirmation</Radio.Button>
+                        <Radio.Button value="Transfer">Transfer</Radio.Button>
                         <Radio.Button value="Acting Appointment">Acting Appointment</Radio.Button>
                         <Radio.Button value="Class II Promotion">Class II Promotion</Radio.Button>
-                        <Radio.Button value="Confirmation">Confirmation</Radio.Button>
                         <Radio.Button value="Re-employment">Re-employment</Radio.Button>
                         <Radio.Button value="Releases">Releases</Radio.Button>
                         <Radio.Button value="Retirement">Retirement</Radio.Button>
-                        <Radio.Button value="Transfer">Transfer</Radio.Button>
                     </Radio.Group>
                 </Card>
 
-                {applicationType == "Acting Appointment" &&
+                {applicationType == "Confirmation" &&
                     <Confirmation />
                 }
             </div>
