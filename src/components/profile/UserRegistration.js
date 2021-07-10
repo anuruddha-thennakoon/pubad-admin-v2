@@ -80,7 +80,7 @@ class DataForm extends Component {
                     })
                     .catch(err => {
                         this.setState({ confirmLoading: false });
-                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in officer adding!');
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
                     });
             }
 
