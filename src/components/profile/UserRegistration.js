@@ -61,6 +61,16 @@ class DataForm extends Component {
             if (!err) {
                 this.setState({ confirmLoading: true });
 
+                if (userCategory == 'slas_officer') {
+                    values.user_roles_id = 5;
+                } else if (userCategory == 'institute_user') {
+                    values.user_roles_id = 4;
+                } else if (userCategory == 'psc_user') {
+                    values.user_roles_id = 3;
+                } else if (userCategory == 'pubad_user') {
+                    values.user_roles_id = 2;
+                }
+
                 this.props.appStore.createUserAccount(values)
                     .then(sucess => {
                         this.props.form.resetFields();
@@ -168,7 +178,7 @@ class DataForm extends Component {
                                     onChange={this.changeUserCategory}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
-                                    <Option value="slas_officer">SLAS officer</Option>
+                                    <Option value="slas_officer">SLAS Officer</Option>
                                     <Option value="institute_user">Institute User</Option>
                                     <Option value="psc_user">PSC User</Option>
                                     <Option value="pubad_user">PubAd User</Option>
