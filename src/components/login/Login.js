@@ -7,13 +7,24 @@ import { Form, Icon, Input, Button, Alert, notification, Typography } from 'antd
 const FormItem = Form.Item;
 const { Title } = Typography;
 
+const openNotificationWithIcon = (type, title, msg) => {
+    notification[type]({
+        placement: 'topRight',
+        message: title,
+        description: msg,
+    });
+};
+
 @inject('authStore', 'appState')
 @withRouter
 @observer
 class NormalLoginForm extends Component {
 
-    state = {
-        loading: false
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: false
+        }
     }
 
     handleSubmit = (e) => {
@@ -22,30 +33,22 @@ class NormalLoginForm extends Component {
             if (!err) {
                 this.setState({ loading: true });
                 var data = {
-                    "email": values.username,
+                    "user_name": values.username,
                     "password": values.password,
                     // "email": "admin@gmail.com",
                     // "password": "abc123456"
                 }
                 this.props.authStore.login(data)
-                    .then(
-                        () => this.props.history.push('/dashboard')
-                    )
+                    .then(sucess => {
+                        this.props.history.push('/dashboard')
+                    })
                     .catch(err => {
                         this.setState({ loading: false });
-                        this.openNotificationWithIcon('error', err);
+                        openNotificationWithIcon('error', 'Account not activated', 'Your account not activated. Please contact Ministry of Public Administration');
                     });
             }
         });
     }
-
-    openNotificationWithIcon = (err, msg) => {
-        notification[err]({
-            placement: 'topRight',
-            message: 'Login Error',
-            description: msg,
-        });
-    };
 
     render() {
         const { getFieldDecorator } = this.props.form;

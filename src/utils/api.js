@@ -36,7 +36,7 @@ class Api {
     VACANCY_GRADES_COUNT = this.URL + 'grade-vacancies-count';
     RETIRE_OFFICER = this.URL + 'retire-officer';
     GRADE_VACANY_DETAILS = this.URL + 'grade-vacancies-details';
-    ADD_ACTIN_APPLICATION = this.URL + 'add-application';
+    ADD_APPLICATION = this.URL + 'add-application';
     GET_ACTIN_APPLICATIONS = this.URL + 'get-actin-applications';
     UPDATE_APPLICATIONS_STATUS = this.URL + 'update-application-status';
     FILE_UPLOAD = this.URL + 'upload';

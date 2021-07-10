@@ -75,11 +75,11 @@ class AppState {
     });
   }
 
-  @action setUser(id) {
+  @action setUserId(id) {
     this.userId = id;
   }
 
-  @action getUser() {
+  @action getUserId() {
     return this.userId;
   }
 
@@ -87,16 +87,28 @@ class AppState {
     this.token = token;
   }
 
-  @action setRole(role) {
+  @action setUserRole(role) {
     this.role = role;
+  }
+
+  @action getUserRole() {
+    return localStorage.getItem('role');
   }
 
   @action setUserData(data) {
     this.userData = data;
   }
 
+  @action getUserData() {
+    return JSON.parse(localStorage.getItem('userData'));
+  }
+
   @action setIsLogged(data) {
     this.isLogged = data;
+  }
+
+  @action getIsLogged() {
+    return localStorage.getItem('isLogged');
   }
 
 }

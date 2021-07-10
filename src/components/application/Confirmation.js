@@ -20,7 +20,7 @@ const openNotificationWithIcon = (type, title, msg) => {
     });
 };
 
-@inject('appStore')
+@inject('appStore', 'appState')
 @observer
 class ConfirmationForm extends React.Component {
 
@@ -35,67 +35,58 @@ class ConfirmationForm extends React.Component {
     }
 
 
-    handleOk = (e) => {
+    submitApplication = (e) => {
         this.props.form.validateFields((err, values) => {
+            const { fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
+            let userData = this.props.appState.getUserData();
 
-            console.log('values', values);
+            this.setState({ confirmLoading: true });
 
-            // this.setState({ confirmLoading: true });
-            // const { fileList } = this.state;
+            var files = [
+                { name: "recommendation_letter_issued_by_department_of_head", file: fileList1[0] },
+                { name: "certified_copy_of_duty_assume_letter", file: fileList2[0] },
+                { name: "certified_copy_of_induction_training_completion_letter", file: fileList3[0] },
+                { name: "certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)", file: fileList4[0] },
+                { name: "certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)", file: fileList5[0] },
+                { name: "certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)", file: fileList6[0] },
+                { name: "certified_copy_of_efficiency_bar_result_sheet", file: fileList7[0] },
+                { name: "certified_copy_of_medical_certificate", file: fileList8[0] }
+            ]
 
-            // var files = [
-            //     { name: "institute_covering_letter", file: fileList1[0] },
-            //     { name: "est04", file: fileList2[0] },
-            //     { name: "est12", file: fileList3[0] },
-            //     { name: "cv", file: fileList4[0] },
-            //     { name: "nic", file: fileList5[0] },
-            //     { name: "organization_chart", file: fileList6[0] },
-            //     { name: "promotion_application", file: fileList8[0] },
-            //     { name: "est03", file: fileList10[0] },
-            //     { name: "est01", file: fileList12[0] },
-            //     { name: "medical_certificate", file: fileList13[0] },
-            //     { name: "appendix", file: fileList15[0] },
-            //     { name: "est02", file: fileList17[0] },
-            //     { name: "officer_request_letter", file: fileList18[0] },
-            //     { name: "current_institute_consent_letter", file: fileList1[0] },
-            //     { name: "to_be_transferred_institute_consent_letter", file: fileList20[0] }
-            // ]
+            this.props.appStore.uploadFiles(files)
+                .then(docs => {
 
-            // this.props.appStore.uploadFiles(files)
-            //     .then(docs => {
+                    values.documents = docs;
 
-            //         let body = {
-            //             "institutes_id": 1,
-            //             "officers_id": values.officers_id,
-            //             "present_grade": values.present_grade,
-            //             "present_post": values.present_post,
-            //             "current_work_place": values.current_work_place,
-            //             "mobile": values.mobile,
-            //             "application_type": values.application_type,
-            //             "documents": docs,
-            //             "reject_reason": values.reject_reason,
-            //             "status": 100,
-            //         }
+                    let applicationData = {
+                        institutes_id: userData.institutes_id,
+                        officers_id: 0,
+                        nic: values.nic,
+                        application: JSON.stringify(values),
+                        application_type: 'Confirmation',
+                        reject_reason: null,
+                        status: 100
+                    }
 
-            //         this.props.appStore.addActInApplication(body)
-            //             .then(sucess => {
-            //                 this.setState({
-            //                     confirmLoading: false,
-            //                     fileList: []
-            //                 });
-            //                 this.props.form.resetFields();
-            //                 openNotificationWithIcon('success', 'Success', 'Application submit successfully!');
-            //             })
-            //             .catch(err => {
-            //                 this.setState({ confirmLoading: false });
-            //                 openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
-            //             });
+                    this.props.appStore.addApplication(applicationData)
+                        .then(sucess => {
+                            this.setState({
+                                confirmLoading: false,
+                                fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
+                            });
+                            this.props.form.resetFields();
+                            openNotificationWithIcon('success', 'Success', 'Application submit successfully!');
+                        })
+                        .catch(err => {
+                            this.setState({ confirmLoading: false });
+                            openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                        });
 
-            //     })
-            //     .catch(err => {
-            //         this.setState({ confirmLoading: false });
-            //         openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
-            //     });
+                })
+                .catch(err => {
+                    this.setState({ confirmLoading: false });
+                    openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                });
         })
     };
 
@@ -306,7 +297,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('nic', {
+                            {getFieldDecorator('NIC', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Search
@@ -323,7 +314,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('officers_name', {
+                            {getFieldDecorator('officer_name', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Input style={{ width: 450 }} />
@@ -343,7 +334,7 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Place of Work : "
+                            label="Place of work : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -363,11 +354,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Mobile Number : "
+                            label="Mobile number : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('mobile', {
+                            {getFieldDecorator('mobile_number', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Input style={{ width: '250px' }} />
@@ -379,7 +370,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('dob', {
+                            {getFieldDecorator('date_of_appointment_to_SLAS', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 // initialValue: officerData.dob != null ? moment(officerData.dob) : null
                             })(
@@ -392,7 +383,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('dob', {
+                            {getFieldDecorator('duty_assumption_date', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 // initialValue: officerData.dob != null ? moment(officerData.dob) : null
                             })(
@@ -405,7 +396,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('user_category', {
+                            {getFieldDecorator('recruitment_stream', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
@@ -426,10 +417,8 @@ class ConfirmationForm extends React.Component {
                             label="Date of completing probation or acting time period (Add three years to open stream and 1 year to limited merit officers) : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
-                        // extra="Add three years to open stream and 1 year to limited merit officers"
-                        // labelAlign="left"
                         >
-                            {getFieldDecorator('dob', {
+                            {getFieldDecorator('date_of_completing_probation_or_acting_time_period', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 // initialValue: officerData.dob != null ? moment(officerData.dob) : null
                             })(
@@ -438,11 +427,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Has the officer completed the Induction training programme in SLIDA : "
+                            label="Has the officer completed the induction training program in SLIDA : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('user_category', {
+                            {getFieldDecorator('has_the_officer_completed_the_induction_training_program_in_SLIDA', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
@@ -463,7 +452,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('user_category', {
+                            {getFieldDecorator('has_the_officer_completed_the_1st_Efficiency_Bar_(EB)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
@@ -481,11 +470,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Date of completing 1st efficiency bar (EB) : "
+                            label="Date of completing 1st Efficiency Bar (EB) : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('dob', {
+                            {getFieldDecorator('date_of_completing_1st_Efficiency_Bar_(EB)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 // initialValue: officerData.dob != null ? moment(officerData.dob) : null
                             })(
@@ -498,7 +487,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('user_category', {
+                            {getFieldDecorator('has_the_officer_failed_in_passing_1st_EB_on_date', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
@@ -515,12 +504,12 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="The period to be extended on delay in passing 1st EB : "
+                            label="Period to be extended on delay in passing 1st EB : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                             extra="Under the PSC Rules No.110/Under the PSC Rules No.111"
                         >
-                            {getFieldDecorator('mobile', {
+                            {getFieldDecorator('period_to_be_extended_on_delay_in_passing_1st_EB', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Input style={{ width: '250px' }} />
@@ -528,11 +517,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Has the officer completed the Second Language Proficiency requirement : "
+                            label="Has the officer completed the second language proficiency requirement : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('user_category', {
+                            {getFieldDecorator('has_the_officer_completed_the_second_language_proficiency_requirement', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
@@ -554,7 +543,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('dob', {
+                            {getFieldDecorator('date_of_completing_the_second_language_proficiency_requirement', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 // initialValue: officerData.dob != null ? moment(officerData.dob) : null
                             })(
@@ -567,7 +556,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('user_category', {
+                            {getFieldDecorator('has_concessionary_been_given_for_the_second_language_proficiency_requirement', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
@@ -584,12 +573,12 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="The period to be extended by failing to complete the second language proficiency requirement : "
+                            label="Period to be extended by failing to complete the second language proficiency requirement : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                             extra="Under the PSC Rules No.110/Under the PSC Rules No.111"
                         >
-                            {getFieldDecorator('mobile', {
+                            {getFieldDecorator('period_to_be_extended_by_failing_to_complete_the_second_language_proficiency_requirement', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Input style={{ width: '250px' }} />
@@ -597,11 +586,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Has the officer obtained No Pay or Half Pay leave : "
+                            label="Has the officer obtained no pay or half pay leave : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('user_category', {
+                            {getFieldDecorator('has_the_officer_obtained_no_pay_or_half_pay_leave', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
@@ -618,11 +607,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="The time period of leaves : "
+                            label="Time period of leaves : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('mobile', {
+                            {getFieldDecorator('time_period_of_leaves', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Input style={{ width: '250px' }} />
@@ -634,7 +623,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('user_category', {
+                            {getFieldDecorator('is_the_officer_physically_and_mentally_fit_to_serve_according_to_the_medical_examination_report', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
@@ -656,7 +645,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('user_category', {
+                            {getFieldDecorator('has_the_recommendation_of_Secretary_received_as_to_whether_the_work,_attendance,_and_conduct_of_the_officer_are_satisfactory', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
@@ -673,12 +662,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Recommendation letter issued by Department of Head : "
+                            label="Recommendation letter issued by department of head : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
-                        // extra="Recommendation letter issued by Department of Head"
                         >
-                            {getFieldDecorator('d1', {
+                            {getFieldDecorator('recommendation_letter_issued_by_department_of_head', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Upload {...props1}>
@@ -691,9 +679,8 @@ class ConfirmationForm extends React.Component {
                             label="Certified copy of duty assume letter : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
-                        // extra="Certified copy of duty assume letter"
                         >
-                            {getFieldDecorator('d2', {
+                            {getFieldDecorator('certified_copy_of_duty_assume_letter', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Upload {...props2}>
@@ -703,12 +690,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of Induction Training completion letter : "
+                            label="Certified copy of induction training completion letter : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
-                        // extra="Certified copy of Induction Training completion letter"
                         >
-                            {getFieldDecorator('d3', {
+                            {getFieldDecorator('certified_copy_of_induction_training_completion_letter', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Upload {...props3}>
@@ -718,12 +704,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of Annual Review Report for 1st Year (APPENDIX 05, PSC rules) : "
+                            label="Certified copy of annual review report for 1st Year (APPENDIX 05, PSC Rules) : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
-                        // extra="Certified copy of Annual Review Report for 1st Year (APPENDIX 05, PSC rules)"
                         >
-                            {getFieldDecorator('d4', {
+                            {getFieldDecorator('certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Upload {...props4}>
@@ -733,12 +718,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of Annual Review Report for 2nd Year (APPENDIX 05, PSC rules) : "
+                            label="Certified copy of annual review report for 2nd Year (APPENDIX 05, PSC Rules) : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
-                        // extra="Certified copy of Annual Review Report for 2nd Year (APPENDIX 05, PSC rules)"
                         >
-                            {getFieldDecorator('d5', {
+                            {getFieldDecorator('certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Upload {...props5}>
@@ -748,12 +732,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of Annual Review Report for 3rd Year (APPENDIX 05, PSC rules) : "
+                            label="Certified copy of annual review report for 3rd Year (APPENDIX 05, PSC Rules) : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
-                        // extra="Certified copy of Annual Review Report for 3rd Year (APPENDIX 05, PSC rules)"
                         >
-                            {getFieldDecorator('d6', {
+                            {getFieldDecorator('certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Upload {...props6}>
@@ -763,12 +746,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of Efficiency bar result sheet : "
+                            label="Certified copy of efficiency bar result sheet : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
-                        // extra="Certified copy of Efficiency bar result sheet"
                         >
-                            {getFieldDecorator('d7', {
+                            {getFieldDecorator('certified_copy_of_efficiency_bar_result_sheet', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Upload {...props7}>
@@ -778,12 +760,11 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of Medical certificate : "
+                            label="Certified copy of medical certificate : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
-                        // extra="Certified copy of Medical certificate"
                         >
-                            {getFieldDecorator('d8', {
+                            {getFieldDecorator('certified_copy_of_medical_certificate', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <Upload {...props8}>
@@ -793,7 +774,7 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem {...tailFormItemLayout} style={{ marginTop: 15 }}>
-                            <Button type="primary" loading={confirmLoading} onClick={this.handleOk}>Submit</Button>
+                            <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>
                         </FormItem>
                     </Form>
 

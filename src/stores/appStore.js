@@ -319,8 +319,8 @@ class AppStore {
             }))
     }
 
-    @action addActInApplication(data) {
-        return appService.addActInDetails(data)
+    @action addApplication(data) {
+        return appService.addApplication(data)
             .then(data => {
                 return data;
             })
@@ -439,9 +439,9 @@ class AppStore {
             }))
     }
 
-    @action registerOfficer(data) {
+    @action createUserAccount(data) {
 
-        return appService.registerOfficer(data)
+        return appService.createUserAccount(data)
             .then((data) => {
                 return data;
             })

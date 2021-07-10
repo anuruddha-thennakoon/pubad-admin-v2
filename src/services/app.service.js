@@ -377,12 +377,12 @@ class AppService {
         });
     }
 
-    addActInDetails(data) {
+    addApplication(data) {
         return new Promise((resolve, reject) => {
             axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
             axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
             axios
-                .post(api.ADD_ACTIN_APPLICATION, data)
+                .post(api.ADD_APPLICATION, data)
                 .then(result => {
                     if (result.data.success) {
                         resolve(result.data.data)
@@ -550,7 +550,7 @@ class AppService {
         });
     }
 
-    registerOfficer(data) {
+    createUserAccount(data) {
         return new Promise((resolve, reject) => {
             axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
             axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');

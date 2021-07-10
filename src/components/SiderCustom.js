@@ -98,42 +98,42 @@ class SiderCustom extends Component {
                     }
                     {(role == '1') &&
                         <SubMenu key="sub3" title={<span><Icon type="team" /><span>Officers</span></span>}>
-                            <Menu.Item key="5"><Link to={'/all-officers'}>All Officers</Link></Menu.Item>
-                            <Menu.Item key="6"><Link to={'/add-officer'}>Add Officer</Link></Menu.Item>
-                            <Menu.Item key="7"><Link to={'/attach-officer'}>Transfer/Attach Officer</Link></Menu.Item>
-                            <Menu.Item key="8"><Link to={'/retire-officer'}>Retire Officer</Link></Menu.Item>
-                            <Menu.Item key="22"><Link to={'/edit-officer'}>Edit Officer</Link></Menu.Item>
+                            <Menu.Item key="4"><Link to={'/all-officers'}>All Officers</Link></Menu.Item>
+                            <Menu.Item key="5"><Link to={'/add-officer'}>Add Officer</Link></Menu.Item>
+                            <Menu.Item key="6"><Link to={'/attach-officer'}>Transfer/Attach Officer</Link></Menu.Item>
+                            <Menu.Item key="7"><Link to={'/retire-officer'}>Retire Officer</Link></Menu.Item>
+                            <Menu.Item key="8"><Link to={'/edit-officer'}>Edit Officer</Link></Menu.Item>
                         </SubMenu>
                     }
                     {(role == '1') &&
                         <SubMenu key="sub4" title={<span><Icon type="snippets" /><span>Reports</span></span>}>
                             <Menu.Item key="9"><Link to={'/grades-vacancy'}>Vacancy-Grades</Link></Menu.Item>
                             <Menu.Item key="10"><Link to={'/designation-vacancy'}>Vacancy-Designations</Link></Menu.Item>
-                            <Menu.Item key="15"><Link to={'/retire-list'}>Future Retirements</Link></Menu.Item>
+                            <Menu.Item key="11"><Link to={'/retire-list'}>Future Retirements</Link></Menu.Item>
                             <Menu.Item key="12"><Link to={'/special-grade-officers'}>Special Grade Officers</Link></Menu.Item>
-                            <Menu.Item key="25"><Link to={'/grade-i-officers'}>Grade I Officers</Link></Menu.Item>
-                            <Menu.Item key="26"><Link to={'/grade-ii-officers'}>Grade II Officers</Link></Menu.Item>
-                            <Menu.Item key="27"><Link to={'/grade-iii-officers'}>Grade III Officers</Link></Menu.Item>
-                            <Menu.Item key="13"><Link to={'/summary'}>Summary Report</Link></Menu.Item>
-                            <Menu.Item key="23"><Link to={'/officer-report'}>Officers</Link></Menu.Item>
+                            <Menu.Item key="13"><Link to={'/grade-i-officers'}>Grade I Officers</Link></Menu.Item>
+                            <Menu.Item key="14"><Link to={'/grade-ii-officers'}>Grade II Officers</Link></Menu.Item>
+                            <Menu.Item key="15"><Link to={'/grade-iii-officers'}>Grade III Officers</Link></Menu.Item>
+                            <Menu.Item key="16"><Link to={'/summary'}>Summary Report</Link></Menu.Item>
+                            <Menu.Item key="17"><Link to={'/officer-report'}>Officers</Link></Menu.Item>
                         </SubMenu>
                     }
                     {(role == '1') &&
                         <SubMenu key="sub5" title={<span><Icon type="pic-center" /><span>Master Data</span></span>}>
-                            <Menu.Item key="16"><Link to={'/designations'}>Designations</Link></Menu.Item>
-                            <Menu.Item key="17"><Link to={'/cadre-positions'}>Cadre Positions</Link></Menu.Item>
+                            <Menu.Item key="18"><Link to={'/designations'}>Designations</Link></Menu.Item>
+                            <Menu.Item key="19"><Link to={'/cadre-positions'}>Cadre Positions</Link></Menu.Item>
                         </SubMenu>
                     }
                     {(role == '4') &&
                         <SubMenu key="sub6" title={<span><Icon type="fund" /><span>Applications</span></span>}>
-                            <Menu.Item key="18"><Link to={'/new-application'}>New Application</Link></Menu.Item>
+                            <Menu.Item key="20"><Link to={'/new-application'}>New Application</Link></Menu.Item>
                         </SubMenu>
                     }
                     {/* {(role == '1' || role == '2' || role == '3') && */}
                         {/* <SubMenu key="sub7" title={<span><Icon type="fund" /><span>Applications</span></span>}> */}
-                            {/*<Menu.Item key="19"><Link to={'/view-application?status=Pending'}>Pending</Link></Menu.Item>*/}
-                            {/*<Menu.Item key="20"><Link to={'/view-application?status=Approved'}>Approved</Link></Menu.Item>*/}
-                            {/*<Menu.Item key="21"><Link to={'/view-application?status=Rejected'}>Rejected</Link></Menu.Item>*/}
+                            {/*<Menu.Item key="21"><Link to={'/view-application?status=Pending'}>Pending</Link></Menu.Item>*/}
+                            {/*<Menu.Item key="22"><Link to={'/view-application?status=Approved'}>Approved</Link></Menu.Item>*/}
+                            {/*<Menu.Item key="23"><Link to={'/view-application?status=Rejected'}>Rejected</Link></Menu.Item>*/}
                         {/* </SubMenu> */}
                     {/* } */}
                 </Menu>

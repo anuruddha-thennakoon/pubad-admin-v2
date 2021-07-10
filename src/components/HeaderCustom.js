@@ -54,7 +54,7 @@ class HeaderCustom extends Component {
                     </Menu.Item> */}
                         <SubMenu title={<span className="avatar"><img src={avater} alt="avater" /><i className="on bottom b-white" /></span>}>
                             <MenuItemGroup title="Settings">
-                                <Menu.Item key="setting:1"><Link to={'/profile'}>Profile</Link></Menu.Item>
+                                {/* <Menu.Item key="setting:1"><Link to={'/profile'}>Profile</Link></Menu.Item> */}
                                 <Menu.Item key="setting:2" onClick={this.doLogout}>Logout</Menu.Item>
                             </MenuItemGroup>
                         </SubMenu>

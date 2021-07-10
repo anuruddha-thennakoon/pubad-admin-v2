@@ -55,7 +55,7 @@ class ResetPasswordForm extends Component {
                 if (values.password == values.confirmpassword) {
                     this.verified = true;
                     var data = {
-                        "userid": this.props.appState.getUser(),
+                        "userid": this.props.appState.getUserId(),
                         "password": values.password
                     }
                     this.props.authStore.resetPassword(data)

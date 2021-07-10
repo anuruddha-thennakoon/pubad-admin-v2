@@ -32,29 +32,40 @@ class DataForm extends Component {
     constructor(props) {
         super(props);
 
-        this.state = { visible: false, confirmLoading: false, sucess: false }
+        this.state = {
+            visible: false,
+            confirmLoading: false,
+            sucess: false,
+            agree: false,
+            userCategory: ''
+        }
+
+        this.props.appStore.getInstitutes();
+        this.props.appStore.getDesignations();
     }
 
-    addOfficer = () => {
+    doAgree = (agree) => {
+        this.setState({ agree: !agree });
+    }
+
+    changeUserCategory = (value) => {
+        if (value) {
+            this.setState({ userCategory: value });
+        } else {
+            this.setState({ userCategory: '' });
+        }
+    }
+
+    createUserAccount = () => {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 this.setState({ confirmLoading: true });
 
-                values.family_members = this.props.appStore.familyMembers;
-                values.service_history = this.props.appStore.serviceHistory;
-                values.educational_qualification = this.props.appStore.educationalQualification;
-                values.professional_qualification = this.props.appStore.professionalQualification;
-                values.publications = this.props.appStore.publications;
-                values.expertise = this.props.appStore.subjectExpertise;
-                values.lessons = this.props.appStore.lessons;
-                values.awards = this.props.appStore.awards;
-                values.achievements = this.props.appStore.achievements;
-
-                this.props.appStore.registerOfficer(body)
+                this.props.appStore.createUserAccount(values)
                     .then(sucess => {
                         this.props.form.resetFields();
 
-                        this.setState({ current: 0, confirmLoading: false, sucess: true });
+                        this.setState({ confirmLoading: false, sucess: true });
                         openNotificationWithIcon('success', 'Success', 'Data added successfully!');
                     })
                     .catch(err => {
@@ -68,9 +79,8 @@ class DataForm extends Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { confirmLoading, sucess } = this.state;
-        const { familyMembers, officerData, serviceHistory, professionalQualification, awards,
-            educationalQualification, publications, subjectExpertise, achievements, lessons } = this.props.appStore;
+        const { confirmLoading, sucess, agree, userCategory } = this.state;
+        const { institutes, designations } = this.props.appStore;
 
         const formItemLayout = {
             labelCol: {
@@ -96,10 +106,25 @@ class DataForm extends Component {
             },
         };
 
+        let instituteValues = [];
+        let desigValues = [];
+
+        if (institutes) {
+            institutes.forEach((element, index) => {
+                instituteValues.push(<Option key={index} value={element.id}>{element.name}</Option>);
+            });
+        }
+
+        if (designations) {
+            designations.forEach((element, index) => {
+                desigValues.push(<Option key={index} value={element.id}>{element.designation}</Option>);
+            });
+        }
+
         return (
             <div>
                 <Card bordered={false} style={{ textAlign: 'center' }}>
-                    <Title level={4}>Officer Registration</Title>
+                    <Title level={4}>Create Profile</Title>
                 </Card>
 
                 <Card bordered={false}>
@@ -140,6 +165,7 @@ class DataForm extends Component {
                                     style={{ width: 450 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
+                                    onChange={this.changeUserCategory}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="slas_officer">SLAS officer</Option>
@@ -149,6 +175,26 @@ class DataForm extends Component {
                                 </Select>
                             )}
                         </FormItem>
+
+                        {(userCategory == 'institute_user' || userCategory == 'slas_officer' || userCategory == '') && <FormItem
+                            label="Institute"
+                            labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('institutes_id', {
+                                rules: [{ required: true, message: 'Please input relevant data' }]
+                            })(
+                                <Select
+                                    showSearch
+                                    placeholder="Select institute"
+                                    optionFilterProp="children"
+                                    style={{ width: 450 }}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>
+                            )}
+                        </FormItem>}
 
                         <FormItem
                             label="Designation"
@@ -164,7 +210,7 @@ class DataForm extends Component {
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
-                                    <Option value="Designation">Designation</Option>
+                                    {desigValues}
                                 </Select>
                             )}
                         </FormItem>
@@ -244,22 +290,22 @@ class DataForm extends Component {
                         <FormItem {...tailFormItemLayout} style={{ marginTop: 12 }}>
                             {getFieldDecorator('remember', {
                                 valuePropName: 'checked',
-                                initialValue: true,
+                                initialValue: agree,
                             })(
-                                <Checkbox><span>I hereby agree to use my account responsibly and declare that <br></br>
+                                <Checkbox onClick={() => this.doAgree(agree)}><span>I hereby agree to use my account responsibly and declare that <br></br>
                                     I have authorization from my head of institution to create this login.</span></Checkbox>
                             )}
                         </FormItem>
 
-                        <FormItem {...tailFormItemLayout} style={{ marginTop: 12, justifyContent: 'space-between' }}>
-                            <span>Note: The official request letter issued by the Secretary/Head of the <br></br>
+                        <FormItem {...tailFormItemLayout} style={{ marginTop: 12 }}>
+                            <p>Note: The official request letter issued by the Secretary/Head of the <br></br>
                                 Department should be faxed to 01128651 for user activation. The letter <br></br>
-                                should clearly indicate the user’s Full Name and the NIC number.</span>
+                                should clearly indicate the user’s Full Name and the NIC number.</p>
                         </FormItem>
 
                         <FormItem {...tailFormItemLayout} style={{ marginTop: 25 }}>
                             <div className="steps-action">
-                                <Button type="primary" loading={confirmLoading} onClick={() => this.addOfficer()}>
+                                <Button type="primary" loading={confirmLoading} onClick={() => this.createUserAccount()}>
                                     Submit
                                 </Button>
                             </div>

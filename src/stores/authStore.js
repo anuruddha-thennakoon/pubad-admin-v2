@@ -21,14 +21,12 @@ class AuthStore {
       .then((user) => {
         appState.setToken(user.session_token);
         appState.setUserData(user.user);
-        appState.setRole(user.user.role_id);
+        appState.setUserRole(user.user.role_id);
         appState.setIsLogged(true);
       })
-      .catch(action((err) => {
-        this.errors = err.response && err.response.body && err.response.body.errors;
+      .catch((err) => {
         throw err;
-      }))
-      .finally(action(() => { this.inProgress = false; }));
+      })
   }
 
   @action requsetReset(requestData) {
@@ -37,14 +35,12 @@ class AuthStore {
 
     return authService.requsetReset(requestData)
       .then((user) => {
-        appState.setUser(user.data.userid);
+        appState.setUserId(user.data.userid);
         this.userid = user.data.userid;
       })
-      .catch(action((err) => {
-        this.errors = err.response && err.response.body && err.response.body.errors;
+      .catch((err) => {
         throw err;
-      }))
-      .finally(action(() => { this.inProgress = false; }));
+      })
   }
 
   @action resetPassword(requestData) {
@@ -55,17 +51,15 @@ class AuthStore {
       .then((user) => {
         // this.userid = user.userid;
       })
-      .catch(action((err) => {
-        this.errors = err.response && err.response.body && err.response.body.errors;
+      .catch((err) => {
         throw err;
-      }))
-      .finally(action(() => { this.inProgress = false; }));
+      })
   }
 
   @action logout() {
     this.reset();
     appState.setToken(undefined);
-    appState.setRole(undefined);
+    appState.setUserRole(undefined);
     appState.setUserData(undefined);
     appState.setIsLogged(false);
 
