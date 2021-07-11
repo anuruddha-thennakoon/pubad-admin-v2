@@ -122,7 +122,7 @@ class Applications extends React.Component {
                     <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication('Acting Appointment')}>
                             <Meta
-                                avatar={<Icon type="snippets" style={{ fontSize: '32px', padding: 10 }} />}
+                                avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title={<span>Acting <br />Appointment</span>}
                             />
                         </Card>
@@ -130,7 +130,7 @@ class Applications extends React.Component {
                     <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication('Class II Promotion')}>
                             <Meta
-                                avatar={<Icon type="snippets" style={{ fontSize: '32px', padding: 10 }} />}
+                                avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title={<span>Class II <br />Promotion</span>}
                             />
                         </Card>
@@ -138,7 +138,7 @@ class Applications extends React.Component {
                     <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication('Confirmation')}>
                             <Meta
-                                avatar={<Icon type="snippets" style={{ fontSize: '32px', padding: 10 }} />}
+                                avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Confirmation"
                             />
                         </Card>
@@ -146,7 +146,7 @@ class Applications extends React.Component {
                     <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication('Re-employment')}>
                             <Meta
-                                avatar={<Icon type="snippets" style={{ fontSize: '32px', padding: 10 }} />}
+                                avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Re-employment"
                             />
                         </Card>
@@ -154,7 +154,7 @@ class Applications extends React.Component {
                     <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication('Releases')}>
                             <Meta
-                                avatar={<Icon type="snippets" style={{ fontSize: '32px', padding: 10 }} />}
+                                avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Releases"
                             />
                         </Card>
@@ -162,7 +162,7 @@ class Applications extends React.Component {
                     <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication('Retirement')}>
                             <Meta
-                                avatar={<Icon type="snippets" style={{ fontSize: '32px', padding: 10 }} />}
+                                avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Retirement"
                             />
                         </Card>
@@ -170,7 +170,7 @@ class Applications extends React.Component {
                     <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication('Transfer')}>
                             <Meta
-                                avatar={<Icon type="snippets" style={{ fontSize: '32px', padding: 10 }} />}
+                                avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Transfer"
                             />
                         </Card>
