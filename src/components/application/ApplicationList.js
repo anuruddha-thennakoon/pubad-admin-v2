@@ -15,7 +15,7 @@ class ApplicationList extends React.Component {
         this.state = { loading: true };
 
         this.props.appStore.getDesignations();
-        this.props.appStore.getActInApplications();
+        this.props.appStore.getApplications();
     }
 
     columns = [

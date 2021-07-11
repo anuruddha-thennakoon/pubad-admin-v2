@@ -15,15 +15,15 @@ class SiderCustom extends Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            theme: 'dark',
+            collapsed: false,
+            mode: 'inline',
+            selectedKey: '',
+            openKeys: ['sub1']
+        };
         this.props.appState.role = window.localStorage.getItem('role');
     }
-
-    state = {
-        collapsed: false,
-        mode: 'inline',
-        selectedKey: '',
-        openKeys: ['sub1']
-    };
 
     componentDidMount() {
         const _path = this.props.path;
@@ -62,12 +62,14 @@ class SiderCustom extends Component {
     };
 
     render() {
+        const { theme } = this.state;
         let { role } = this.props.appState;
 
         return (
             <Sider
                 trigger={null}
                 breakpoint="lg"
+                theme={theme}
                 collapsible
                 width={250}
                 collapsed={this.props.collapsed}
@@ -78,7 +80,7 @@ class SiderCustom extends Component {
 
                 <Menu
                     onClick={this.menuClick}
-                    theme="dark"
+                    theme={theme}
                     mode={this.state.mode}
                     openKeys={this.state.openKeys}
                     onOpenChange={this.onOpenChange}
@@ -130,11 +132,11 @@ class SiderCustom extends Component {
                         </SubMenu>
                     }
                     {/* {(role == '1' || role == '2' || role == '3') && */}
-                        {/* <SubMenu key="sub7" title={<span><Icon type="fund" /><span>Applications</span></span>}> */}
-                            {/*<Menu.Item key="21"><Link to={'/view-application?status=Pending'}>Pending</Link></Menu.Item>*/}
-                            {/*<Menu.Item key="22"><Link to={'/view-application?status=Approved'}>Approved</Link></Menu.Item>*/}
-                            {/*<Menu.Item key="23"><Link to={'/view-application?status=Rejected'}>Rejected</Link></Menu.Item>*/}
-                        {/* </SubMenu> */}
+                    {/* <SubMenu key="sub7" title={<span><Icon type="fund" /><span>Applications</span></span>}> */}
+                    {/*<Menu.Item key="21"><Link to={'/view-application?status=Pending'}>Pending</Link></Menu.Item>*/}
+                    {/*<Menu.Item key="22"><Link to={'/view-application?status=Approved'}>Approved</Link></Menu.Item>*/}
+                    {/*<Menu.Item key="23"><Link to={'/view-application?status=Rejected'}>Rejected</Link></Menu.Item>*/}
+                    {/* </SubMenu> */}
                     {/* } */}
                 </Menu>
                 <style>

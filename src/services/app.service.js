@@ -566,6 +566,23 @@ class AppService {
                 .catch(error => reject(error))
         });
     }
+
+    editCadre(data) {
+        return new Promise((resolve, reject) => {
+            axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
+            axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
+            axios
+                .post(api.EDIT_CADRE, data)
+                .then(result => {
+                    if (result.data.success) {
+                        resolve(result.data.data)
+                    } else {
+                        reject(result.data)
+                    }
+                })
+                .catch(error => reject(error));
+        });
+    }
 }
 
 export default new AppService();

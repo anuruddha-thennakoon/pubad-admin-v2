@@ -43,6 +43,7 @@ class Api {
     VIEW_OFFICER = this.URL + 'view-officer';
     UPDATE_OFFICER = this.URL + 'update-officer';
     REG_OFFICER = this.URL + 'register-officer';
+    EDIT_CADRE = this.URL + 'edit-cadre';
 
     SERVICE_HISTORY(data) {
         return this.URL + 'service-history/' + data.id;

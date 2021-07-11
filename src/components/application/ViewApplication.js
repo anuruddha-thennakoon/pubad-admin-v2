@@ -79,7 +79,7 @@ class ViewApplicationForm extends Component {
                             .then(sucess => {
                                 this.props.form.resetFields();
                                 this.setState({ confirmLoading: false, fileList1: [], fileList2: [] });
-                                this.props.appStore.getActInApplications();
+                                this.props.appStore.getApplications();
                                 openNotificationWithIcon('success', 'Success', 'Application status update successfull');
                                 this.handleCancel();
                             })

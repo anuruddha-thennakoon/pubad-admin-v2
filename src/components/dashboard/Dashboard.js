@@ -13,9 +13,11 @@ class Dashboard extends React.Component {
     }
 
     render() {
+        const role = this.props.appState.getUserRole();
 
         return (
             <div>
+                {/* role {role} */}
                 <Applications />
             </div>
         )

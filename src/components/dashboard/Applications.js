@@ -26,7 +26,7 @@ class Applications extends React.Component {
             applicationType: '',
             applicationStatus: ''
         };
-        this.props.appStore.getActInApplications();
+        this.props.appStore.getApplications();
     }
 
     selectApplication = (applicationType) => {

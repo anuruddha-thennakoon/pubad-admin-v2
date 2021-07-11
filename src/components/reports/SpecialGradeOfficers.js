@@ -23,6 +23,8 @@ class SpecialGradeOfficers extends React.Component {
             title: 'Serial No',
             dataIndex: '',
             key: '',
+            width: '5%',
+            align: 'right',
             render: (text, record, index) => (
                 <span>{index + 1}</span>
             ),

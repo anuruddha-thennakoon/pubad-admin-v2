@@ -264,11 +264,78 @@ class AppStore {
             }))
     }
 
-    @action getCadrePositions(data) {
+    @action getCadrePositions(grade, institute, type) {
+        // console.log('grade', grade);
+        // console.log('institute', institute);
 
-        return appService.getCadrePositions(data)
+        return appService.getCadrePositions()
             .then((data) => {
-                return this.cadrePositions = data;
+
+                if (grade == '' && institute == '' && type == '') {
+                    return this.cadrePositions = data;
+
+                } else if (grade != '' && institute == '' && type == '') {
+                    var temp = [];
+                    data.forEach(element => {
+                        if (element.grade_name == grade) {
+                            temp.push(element);
+                        }
+                    });
+
+                    return this.cadrePositions = temp;
+
+                } else if (grade == '' && institute != '' && type == '') {
+                    var temp = [];
+                    data.forEach(element => {
+                        if (element.name == institute) {
+                            temp.push(element);
+                        }
+                    });
+
+                    return this.cadrePositions = temp;
+
+                } else if (grade == '' && institute == '' && type != '') {
+                    var temp = [];
+                    data.forEach(element => {
+                        if (element.institute_types_id == type) {
+                            temp.push(element);
+                        }
+                    });
+
+                    return this.cadrePositions = temp;
+
+                } else if (grade != '' && institute != '' && type == '') {
+                    var temp = [];
+                    data.forEach(element => {
+                        if (element.grade_name == grade && element.name == institute) {
+                            temp.push(element);
+                        }
+                    });
+
+                    return this.cadrePositions = temp;
+
+                } else if (grade != '' && institute == '' && type != '') {
+                    var temp = [];
+                    data.forEach(element => {
+                        if (element.grade_name == grade && element.institute_types_id == type) {
+                            temp.push(element);
+                        }
+                    });
+
+                    return this.cadrePositions = temp;
+
+                } else if (grade == '' && institute != '' && type != '') {
+                    var temp = [];
+                    data.forEach(element => {
+                        if (element.name == institute && element.institute_types_id == type) {
+                            temp.push(element);
+                        }
+                    });
+
+                    return this.cadrePositions = temp;
+
+                }
+
             })
             .catch(action((err) => {
                 throw err;
@@ -329,7 +396,7 @@ class AppStore {
             }))
     }
 
-    @action getActInApplications(data) {
+    @action getApplications(data) {
         return appService.getActInDetails(data)
             .then(data => {
                 return this.actInApplications = data;
@@ -442,6 +509,16 @@ class AppStore {
     @action createUserAccount(data) {
 
         return appService.createUserAccount(data)
+            .then((data) => {
+                return data;
+            })
+            .catch(action((err) => {
+                throw err;
+            }))
+    }
+
+    @action editCadre(data) {
+        return appService.editCadre(data)
             .then((data) => {
                 return data;
             })
