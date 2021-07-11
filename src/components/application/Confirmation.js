@@ -4,7 +4,8 @@ import {
     Card, Breadcrumb, Icon, Typography, InputNumber, Divider
 } from 'antd';
 import { inject, observer } from 'mobx-react';
-import FileUploader from '../../special/fileuploader';
+
+import moment from 'moment';
 
 const { Title } = Typography;
 const FormItem = Form.Item;
@@ -27,17 +28,86 @@ class ConfirmationForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            officer: {},
+            c1: false, c2: false, c3: false, c4: false, c5: false,
             confirmLoading: false,
             fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
         };
-        this.props.appStore.getAllOfficers();
         this.props.appStore.getInstitutes();
     }
 
+    changeCondition = (c, value) => {
+        switch (c) {
+            case 'c1':
+                if (value == 'Yes') {
+                    this.setState({ c1: true });
+                } else {
+                    this.setState({ c1: false });
+                }
+                break;
+            case 'c2':
+                if (value == 'Yes') {
+                    this.setState({ c2: true });
+                } else {
+                    this.setState({ c2: false });
+                }
+                break;
+            case 'c3':
+                if (value == 'Yes') {
+                    this.setState({ c3: true });
+                } else {
+                    this.setState({ c3: false });
+                }
+                break;
+            case 'c4':
+                if (value == 'Yes') {
+                    this.setState({ c4: true });
+                } else {
+                    this.setState({ c4: false });
+                }
+                break;
+            case 'c5':
+                if (value == 'Yes') {
+                    this.setState({ c5: true });
+                } else {
+                    this.setState({ c5: false });
+                }
+                break;
+            default:
+                return '';
+        }
+    }
+
+    searchByNic = (value) => {
+        this.props.appStore.searchOfficer({ nic: value })
+            .then(response => {
+                if (response != null) {
+                    this.setState({ officer: response });
+                } else {
+                    this.setState({ officer: {} });
+                    openNotificationWithIcon('error', 'No details found', 'No details found for the relevant officer, please fill manually');
+                }
+            })
+            .catch(err => {
+                this.props.form.resetFields();
+                this.setState({ officer: {} });
+                openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+            });
+    }
+
+    getActive = (data) => {
+        var temp = {};
+        data.forEach(element => {
+            if (element.status == 1) {
+                temp = { place_of_work: element.name, designation: element.designation }
+            }
+        });
+        return temp;
+    }
 
     submitApplication = (e) => {
         this.props.form.validateFields((err, values) => {
-            const { fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
+            const { officer, fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
             let userData = this.props.appState.getUserData();
 
             this.setState({ confirmLoading: true });
@@ -60,14 +130,14 @@ class ConfirmationForm extends React.Component {
 
                     let applicationData = {
                         institutes_id: userData.institutes_id,
-                        officers_id: 0,
+                        officers_id: officer ? officer.id : null,
                         nic: values.nic,
                         officer_name: values.officer_name,
                         designation: values.designation,
                         place_of_work: values.place_of_work,
                         mobile_number: values.mobile_number,
                         application: JSON.stringify(values),
-                        application_type: 'Confirmation',
+                        application_type: 3,
                         reject_reason: null,
                         status: 100
                     }
@@ -96,8 +166,8 @@ class ConfirmationForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { institutes, officers } = this.props.appStore;
-        const { confirmLoading,
+        const { institutes } = this.props.appStore;
+        const { confirmLoading, officer,
             fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
 
         const props1 = {
@@ -274,18 +344,11 @@ class ConfirmationForm extends React.Component {
             },
         };
 
-        let officerValues = [];
         let instituteValues = [];
 
         if (institutes) {
             institutes.forEach((element, index) => {
                 instituteValues.push(<Option key={index} value={element.name}>{element.name}</Option>);
-            });
-        }
-
-        if (officers) {
-            officers.forEach((element, index) => {
-                officerValues.push(<Option key={index} value={element.id}>{element.name}</Option>);
             });
         }
 
@@ -305,10 +368,11 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Search
+                                    allowClear
                                     style={{ width: 350 }}
                                     placeholder="NIC"
                                     enterButton="Search"
-                                    onSearch={value => console.log(value)}
+                                    onSearch={value => this.searchByNic(value)}
                                 />
                             )}
                         </FormItem>
@@ -320,8 +384,9 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('officer_name', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: officer.profile ? officer.profile.name : null
                             })(
-                                <Input style={{ width: 450 }} />
+                                <Input allowClear style={{ width: 450 }} />
                             )}
                         </FormItem>
 
@@ -332,6 +397,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('designation', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: officer.service_history ? this.getActive(officer.service_history).designation : null
                             })(
                                 <Input style={{ width: 450 }} />
                             )}
@@ -344,6 +410,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('place_of_work', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: officer.service_history ? this.getActive(officer.service_history).place_of_work : []
                             })(
                                 <Select
                                     showSearch
@@ -363,9 +430,10 @@ class ConfirmationForm extends React.Component {
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('mobile_number', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: officer.profile ? officer.profile.mobile : null
                             })(
-                                <Input style={{ width: '250px' }} />
+                                <Input allowClear style={{ width: '250px' }} />
                             )}
                         </FormItem>
 
@@ -376,7 +444,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('date_of_appointment_to_SLAS', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                // initialValue: officerData.dob != null ? moment(officerData.dob) : null
+                                initialValue: officer.profile ? moment(officer.profile.special_grade_promoted) : null
                             })(
                                 <DatePicker style={{ width: 250 }} />
                             )}
@@ -423,8 +491,7 @@ class ConfirmationForm extends React.Component {
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('date_of_completing_probation_or_acting_time_period', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                // initialValue: officerData.dob != null ? moment(officerData.dob) : null
+                                rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <DatePicker style={{ width: 250 }} />
                             )}
@@ -464,6 +531,7 @@ class ConfirmationForm extends React.Component {
                                     placeholder="Select"
                                     optionFilterProp="children"
                                     labelAlign="left"
+                                    onChange={(e) => this.changeCondition('c1', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -473,18 +541,17 @@ class ConfirmationForm extends React.Component {
                             )}
                         </FormItem>
 
-                        <FormItem
+                        {this.state.c1 && <FormItem
                             label="Date of completing 1st Efficiency Bar (EB) : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('date_of_completing_1st_Efficiency_Bar_(EB)', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                // initialValue: officerData.dob != null ? moment(officerData.dob) : null
+                                rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <DatePicker style={{ width: 250 }} />
                             )}
-                        </FormItem>
+                        </FormItem>}
 
                         <FormItem
                             label="Has the officer failed in passing 1st EB on Date : "
@@ -499,6 +566,7 @@ class ConfirmationForm extends React.Component {
                                     placeholder="Select"
                                     optionFilterProp="children"
                                     labelAlign="left"
+                                    onChange={(e) => this.changeCondition('c2', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -507,7 +575,7 @@ class ConfirmationForm extends React.Component {
                             )}
                         </FormItem>
 
-                        <FormItem
+                        {this.state.c2 && <FormItem
                             label="Period to be extended on delay in passing 1st EB : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -518,7 +586,7 @@ class ConfirmationForm extends React.Component {
                             })(
                                 <Input style={{ width: '250px' }} />
                             )}
-                        </FormItem>
+                        </FormItem>}
 
                         <FormItem
                             label="Has the officer completed the second language proficiency requirement : "
@@ -533,6 +601,7 @@ class ConfirmationForm extends React.Component {
                                     placeholder="Select"
                                     optionFilterProp="children"
                                     labelAlign="left"
+                                    onChange={(e) => this.changeCondition('c3', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -541,21 +610,19 @@ class ConfirmationForm extends React.Component {
                             )}
                         </FormItem>
 
-                        {/* If Yes */}
-                        <FormItem
+                        {this.state.c3 && <FormItem
                             label="Date of completing the second language proficiency requirement : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('date_of_completing_the_second_language_proficiency_requirement', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                // initialValue: officerData.dob != null ? moment(officerData.dob) : null
+                                rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <DatePicker style={{ width: 250 }} />
                             )}
-                        </FormItem>
+                        </FormItem>}
 
-                        <FormItem
+                        {!this.state.c3 && <FormItem
                             label="Has concessionary been given for the second language proficiency requirement : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -568,15 +635,16 @@ class ConfirmationForm extends React.Component {
                                     placeholder="Select"
                                     optionFilterProp="children"
                                     labelAlign="left"
+                                    onChange={(e) => this.changeCondition('c4', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
                                     <Option value="No">No</Option>
                                 </Select>
                             )}
-                        </FormItem>
+                        </FormItem>}
 
-                        <FormItem
+                        {!this.state.c4 && <FormItem
                             label="Period to be extended by failing to complete the second language proficiency requirement : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -587,7 +655,7 @@ class ConfirmationForm extends React.Component {
                             })(
                                 <Input style={{ width: '250px' }} />
                             )}
-                        </FormItem>
+                        </FormItem>}
 
                         <FormItem
                             label="Has the officer obtained no pay or half pay leave : "
@@ -602,6 +670,7 @@ class ConfirmationForm extends React.Component {
                                     placeholder="Select"
                                     optionFilterProp="children"
                                     labelAlign="left"
+                                    onChange={(e) => this.changeCondition('c5', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -610,7 +679,7 @@ class ConfirmationForm extends React.Component {
                             )}
                         </FormItem>
 
-                        <FormItem
+                        {this.state.c5 && <FormItem
                             label="Time period of leaves : "
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -620,7 +689,7 @@ class ConfirmationForm extends React.Component {
                             })(
                                 <Input style={{ width: '250px' }} />
                             )}
-                        </FormItem>
+                        </FormItem>}
 
                         <FormItem
                             label="Is the officer physically and mentally fit to serve according to the medical examination report : "

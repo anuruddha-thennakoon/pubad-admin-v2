@@ -6,7 +6,7 @@ import {
 import { inject, observer } from 'mobx-react';
 import Confirmation from './Confirmation';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const Option = Select.Option;
 
 @inject('appStore')
@@ -17,16 +17,16 @@ class NewApplication extends React.Component {
         super(props);
         this.state = {
             confirmLoading: false,
-            applicationType: "Confirmation"
+            applicationType: 3
         };
     }
 
-    changeApplicationType = (e) => {
-        this.setState({ applicationType: e.target.value });
+    changeApplicationType = (value) => {
+        this.setState({ applicationType: value });
     }
 
     render() {
-        const { confirmLoading, applicationType } = this.state;
+        const { applicationType } = this.state;
 
         return (
             <div>
@@ -42,20 +42,28 @@ class NewApplication extends React.Component {
 
                     <Title level={4}>New Application</Title>
                 </Card>
-                
-                <Card style={{ margin: '25px 25px 0px 25px', textAlign: 'center' }}>
-                    <Radio.Group size={'large'} value={applicationType} onChange={this.changeApplicationType}>
-                        <Radio.Button value="Confirmation">Confirmation</Radio.Button>
-                        <Radio.Button value="Transfer">Transfer</Radio.Button>
-                        <Radio.Button value="Acting Appointment">Acting Appointment</Radio.Button>
-                        <Radio.Button value="Class II Promotion">Class II Promotion</Radio.Button>
-                        <Radio.Button value="Re-employment">Re-employment</Radio.Button>
-                        <Radio.Button value="Releases">Releases</Radio.Button>
-                        <Radio.Button value="Retirement">Retirement</Radio.Button>
-                    </Radio.Group>
+
+                <Card style={{ margin: '25px 25px 0px 25px', textAlign: 'left' }}>
+                    <Text style={{ margin: '0 25px 0 25px' }}>Select Relevant Application : </Text>
+                    <Select
+                        style={{ width: 450 }}
+                        defaultValue={applicationType}
+                        optionFilterProp="children"
+                        labelAlign="left"
+                        onChange={this.changeApplicationType}
+                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                    >
+                        <Option value={1}>Acting Appointment Application</Option>
+                        <Option value={2}>Class II Promotion Application</Option>
+                        <Option value={3}>Confirmation Application</Option>
+                        <Option value={4}>Re-employment Application</Option>
+                        <Option value={5}>Releases Application</Option>
+                        <Option value={6}>Retirement Application</Option>
+                        <Option value={7}>Transfer Application</Option>
+                    </Select>
                 </Card>
 
-                {applicationType == "Confirmation" &&
+                {applicationType == 3 &&
                     <Confirmation />
                 }
             </div>

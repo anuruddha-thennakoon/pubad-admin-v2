@@ -17,110 +17,113 @@ import ApplicationList from '../application/ApplicationList';
 
 @inject('appState', 'appStore')
 @observer
-class Applications extends React.Component {
+class ApplicationsDashboard extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
             dbstate: 'applications',//applications, application_status, application_list
-            applicationType: '',
-            applicationStatus: ''
+            applicationType: 0,
+            applicationStatus: '',
+            pendingCount: 0, approvedCount: 0, rejectedCount: 0,
+            pendingList: [], approvedList: [], rejectedList: []
         };
-        this.props.appStore.getApplications();
+    }
+
+    getApplicationName = (applicationType) => {
+        switch (applicationType) {
+            case 1:
+                return 'Acting Appointment';
+            case 2:
+                return 'Class II Promotion';
+            case 3:
+                return 'Confirmation';
+            case 4:
+                return 'Re-employment';
+            case 5:
+                return 'Releases';
+            case 6:
+                return 'Retirement';
+            case 7:
+                return 'Transfer';
+            default:
+                return '';
+        }
     }
 
     selectApplication = (applicationType) => {
-        this.setState({ dbstate: 'application_status', applicationType: applicationType })
+        const user = this.props.appState.getUserData();
+
+        this.props.appStore.getApplications({ institutes_id: user.institutes_id, application_type: applicationType })
+            .then(response => {
+                this.updateApplicationData(response);
+                this.setState({ dbstate: 'application_status', applicationType: applicationType });
+            })
+            .catch(err => {
+                this.setState({ applicationList: [] });
+                openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+            });
     }
 
-    selectStatus = (applicationStatus) => {
-        this.setState({ dbstate: 'application_list', applicationStatus: applicationStatus })
-    }
-
-    handleBack = (dbstate) => {
-        this.setState({ dbstate: dbstate })
-    }
-
-    render() {
-        const { actInApplications } = this.props.appStore;
-        const { dbstate, applicationType, applicationStatus } = this.state;
+    updateApplicationData = (applications) => {
+        const role = this.props.appState.getUserRole();
 
         let pendingCount = 0;
         let approvedCount = 0;
         let rejectedCount = 0;
+        let pendingList = [];
+        let approvedList = [];
+        let rejectedList = [];
 
-        let actInAppCount = 0;
-        let classIIAppCount = 0;
-        let confirmAppCount = 0;
-        let reInfoAppCount = 0;
-        let releasesAppCount = 0;
-        let retirementAppCount = 0;
-        let transferAppCount = 0;
+        applications.forEach(element => {
+            switch (role) {
+                case '1':
+                //admin
+                case '2':
+                //pubad_user
+                case '3':
+                //psc_user
+                case '4':
+                    //institute_user
+                    if (element.status == 100) {
+                        pendingList.push(element);
+                        pendingCount += 1;
+                    }
 
-        let role = localStorage.getItem('role');
+                    if (element.status == 101) {
+                        rejectedList.push(element);
+                        rejectedCount += 1;
+                    }
 
-        // if (actInApplications) {
-        //     actInApplications.forEach((element, i) => {
-        //         if (element.application_type == 'Acting Appointment') {
-        //             actInAppCount += 1
-        //         } else if (element.application_type == 'Class II Promotion') {
-        //             classIIAppCount += 1
-        //         } else if (element.application_type == 'Confirmation') {
-        //             confirmAppCount += 1
-        //         } else if (element.application_type == 'Re-employment') {
-        //             reInfoAppCount += 1
-        //         } else if (element.application_type == 'Releases') {
-        //             releasesAppCount += 1
-        //         } else if (element.application_type == 'Retirement') {
-        //             retirementAppCount += 1
-        //         } else if (element.application_type == 'Transfer') {
-        //             transferAppCount += 1
-        //         }
-        //     })
-        // }
+                    break;
+                case '5':
+                //slas_officer
+            }
+        });
 
-        // if (this.state.showSubTile) {
-        //     if (actInApplications) {
-        //         actInApplications.forEach((element, index) => {
+        this.setState({
+            pendingList: pendingList, approvedList: approvedList, rejectedList: rejectedList,
+            pendingCount: pendingCount, approvedCount: approvedCount, rejectedCount: rejectedCount
+        });
+    }
 
-        //             if (this.state.appType == element.application_type && (role == '1' || role == '2')) { //admin and sAdmin
-        //                 if (element.status == 100) {
-        //                     pendingCount += 1
-        //                 } else if (element.status == 300) {
-        //                     approvedCount += 1
-        //                 } else if (element.status == 201) {
-        //                     rejectedCount += 1
-        //                 }
+    selectStatus = (applicationStatus) => {
+        this.setState({ dbstate: 'application_list', applicationStatus: applicationStatus });
+    }
 
-        //             } else if (this.state.appType == element.application_type && role == '3') { //psc
-        //                 if (element.status == 200) {
-        //                     pendingCount += 1
-        //                 } else if (element.status == 300) {
-        //                     // approvedCount += 1
-        //                 } else if (element.status == 201) {
-        //                     // rejectedCount += 1
-        //                 }
+    handleBack = (dbstate) => {
+        this.setState({ dbstate: dbstate });
+    }
 
-        //             } else if (this.state.appType == element.application_type && role == '4') { //institute
-        //                 if (element.status == 100) {
-        //                     pendingCount += 1
-        //                 } else if (element.status == 300) {
-        //                     approvedCount += 1
-        //                 } else if (element.status == 101) {
-        //                     rejectedCount += 1
-        //                 }
-        //             }
-
-        //         })
-        //     }
-        // }
-
+    render() {
+        const { dbstate, applicationType, applicationStatus, pendingCount,
+            approvedCount, rejectedCount, pendingList, approvedList, rejectedList } = this.state;
 
         return (
             <div>
                 {dbstate === 'applications' && <Row>
                     <Col span={6}>
-                        <Card className='card-style' onClick={() => this.selectApplication('Acting Appointment')}>
+                        <Card className='card-style' onClick={() => this.selectApplication(1)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title={<span>Acting <br />Appointment</span>}
@@ -128,7 +131,7 @@ class Applications extends React.Component {
                         </Card>
                     </Col>
                     <Col span={6}>
-                        <Card className='card-style' onClick={() => this.selectApplication('Class II Promotion')}>
+                        <Card className='card-style' onClick={() => this.selectApplication(2)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title={<span>Class II <br />Promotion</span>}
@@ -136,7 +139,7 @@ class Applications extends React.Component {
                         </Card>
                     </Col>
                     <Col span={6}>
-                        <Card className='card-style' onClick={() => this.selectApplication('Confirmation')}>
+                        <Card className='card-style' onClick={() => this.selectApplication(3)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Confirmation"
@@ -144,7 +147,7 @@ class Applications extends React.Component {
                         </Card>
                     </Col>
                     <Col span={6}>
-                        <Card className='card-style' onClick={() => this.selectApplication('Re-employment')}>
+                        <Card className='card-style' onClick={() => this.selectApplication(4)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Re-employment"
@@ -152,7 +155,7 @@ class Applications extends React.Component {
                         </Card>
                     </Col>
                     <Col span={6}>
-                        <Card className='card-style' onClick={() => this.selectApplication('Releases')}>
+                        <Card className='card-style' onClick={() => this.selectApplication(5)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Releases"
@@ -160,7 +163,7 @@ class Applications extends React.Component {
                         </Card>
                     </Col>
                     <Col span={6}>
-                        <Card className='card-style' onClick={() => this.selectApplication('Retirement')}>
+                        <Card className='card-style' onClick={() => this.selectApplication(6)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Retirement"
@@ -168,7 +171,7 @@ class Applications extends React.Component {
                         </Card>
                     </Col>
                     <Col span={6}>
-                        <Card className='card-style' onClick={() => this.selectApplication('Transfer')}>
+                        <Card className='card-style' onClick={() => this.selectApplication(7)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Transfer"
@@ -181,7 +184,7 @@ class Applications extends React.Component {
                     <Row>
                         <PageHeader
                             onBack={() => this.handleBack('applications')}
-                            title={applicationType}
+                            title={this.getApplicationName(applicationType)}
                         />
                     </Row>
 
@@ -214,13 +217,15 @@ class Applications extends React.Component {
                     <Row>
                         <PageHeader
                             onBack={() => this.handleBack('application_status')}
-                            title={applicationType}
+                            title={this.getApplicationName(applicationType)}
                             subTitle={applicationStatus}
                         />
                     </Row>
 
                     <Row>
-                        <ApplicationList/>
+                        {applicationStatus == 'Pending' && <ApplicationList data={pendingList} />}
+                        {applicationStatus == 'Approved' && <ApplicationList data={approvedList} />}
+                        {applicationStatus == 'Rejected' && <ApplicationList data={rejectedList} />}
                     </Row>
                 </div>}
 
@@ -229,4 +234,4 @@ class Applications extends React.Component {
     }
 }
 
-export default Applications;
+export default ApplicationsDashboard;

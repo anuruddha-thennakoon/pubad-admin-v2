@@ -397,7 +397,7 @@ class AppStore {
     }
 
     @action getApplications(data) {
-        return appService.getActInDetails(data)
+        return appService.getApplications(data)
             .then(data => {
                 return this.actInApplications = data;
             })

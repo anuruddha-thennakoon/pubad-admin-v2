@@ -13,9 +13,6 @@ class ApplicationList extends React.Component {
     constructor(props) {
         super(props);
         this.state = { loading: true };
-
-        this.props.appStore.getDesignations();
-        this.props.appStore.getApplications();
     }
 
     columns = [
@@ -28,6 +25,7 @@ class ApplicationList extends React.Component {
             title: 'NIC',
             dataIndex: 'nic',
             key: 'nic',
+            width: '10%',
         },
         {
             title: 'Name',
@@ -49,6 +47,7 @@ class ApplicationList extends React.Component {
             title: 'Mobile',
             dataIndex: 'mobile_number',
             key: 'mobile_number',
+            width: '10%',
 
         },
         {
@@ -126,21 +125,19 @@ class ApplicationList extends React.Component {
         return (
             <Card className="card-magrin">
 
-                {actInApplications && <Table
+                {this.props.data && <Table
                     size={"small"}
                     loading={this.state.tableLoading}
                     rowKey={record => record.id}
                     columns={this.columns}
-                    dataSource={this.filterData(actInApplications)} />}
-                {/*dataSource={actInApplications}/>}*/}
+                    dataSource={this.props.data} />}
 
-                {!actInApplications && <Table
+                {!this.props.data && <Table
                     size={"small"}
                     loading={this.state.tableLoading}
                     rowKey={record => record.id}
                     columns={this.columns}
                     dataSource={null}
-                // loading={true}
                 />}
 
             </Card>

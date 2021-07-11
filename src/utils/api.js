@@ -37,7 +37,7 @@ class Api {
     RETIRE_OFFICER = this.URL + 'retire-officer';
     GRADE_VACANY_DETAILS = this.URL + 'grade-vacancies-details';
     ADD_APPLICATION = this.URL + 'add-application';
-    GET_ACTIN_APPLICATIONS = this.URL + 'get-actin-applications';
+    GET_APPLICATIONS = this.URL + 'get-applications';
     UPDATE_APPLICATIONS_STATUS = this.URL + 'update-application-status';
     FILE_UPLOAD = this.URL + 'upload';
     VIEW_OFFICER = this.URL + 'view-officer';

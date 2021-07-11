@@ -1,7 +1,7 @@
 import React from 'react';
 import { inject, observer } from 'mobx-react';
 
-import Applications from './Applications';
+import ApplicationsDashboard from './ApplicationsDashboard';
 
 @inject('appState', 'appStore')
 @observer
@@ -18,7 +18,7 @@ class Dashboard extends React.Component {
         return (
             <div>
                 {/* role {role} */}
-                <Applications />
+                <ApplicationsDashboard />
             </div>
         )
     }
