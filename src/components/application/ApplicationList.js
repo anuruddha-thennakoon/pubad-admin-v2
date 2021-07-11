@@ -25,36 +25,30 @@ class ApplicationList extends React.Component {
             key: 'id',
         },
         {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
             title: 'NIC',
             dataIndex: 'nic',
             key: 'nic',
         },
         {
-            title: 'Grade',
-            dataIndex: 'present_grade',
-            key: 'present_grade',
+            title: 'Name',
+            dataIndex: 'officer_name',
+            key: 'officer_name',
         },
         {
-            title: 'Present Post',
-            dataIndex: 'present_post',
-            key: 'present_post',
-
+            title: 'Designation',
+            dataIndex: 'designation',
+            key: 'designation',
         },
         {
-            title: 'Current Work Place',
-            dataIndex: 'current_work_place',
-            key: 'current_work_place',
+            title: 'Place of work',
+            dataIndex: 'place_of_work',
+            key: 'place_of_work',
 
         },
         {
             title: 'Mobile',
-            dataIndex: 'mobile',
-            key: 'mobile',
+            dataIndex: 'mobile_number',
+            key: 'mobile_number',
 
         },
         {
