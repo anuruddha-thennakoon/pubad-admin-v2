@@ -158,6 +158,7 @@ class ConfirmationForm extends React.Component {
                     //documents
                     values.documents = docs;
 
+                    //application
                     let applicationData = {
                         institutes_id: userData.institutes_id,
                         officers_id: officer ? officer.id : null,
@@ -423,7 +424,9 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('officer_name', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: officer.profile ? officer.profile.name : null
+                                initialValue: viewType == 'add' ?
+                                    (officer.profile ? officer.profile.name : null) :
+                                    null
                             })(
                                 <Input disabled={disabled} style={{ width: '100%' }} />
                             )}
@@ -436,7 +439,9 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('designation', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: officer.service_history ? this.getActive(officer.service_history).designation : null
+                                initialValue: viewType == 'add' ?
+                                    (officer.service_history ? this.getActive(officer.service_history).designation : null) :
+                                    null
                             })(
                                 <Input disabled={disabled} style={{ width: '100%' }} />
                             )}
@@ -449,7 +454,9 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('place_of_work', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: officer.service_history ? this.getActive(officer.service_history).place_of_work : []
+                                initialValue: viewType == 'add' ?
+                                    (officer.service_history ? this.getActive(officer.service_history).place_of_work : []) :
+                                    null
                             })(
                                 <Select
                                     disabled={disabled}
@@ -471,7 +478,9 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('mobile_number', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: officer.profile ? officer.profile.mobile : null
+                                initialValue: viewType == 'add' ?
+                                    (officer.profile ? officer.profile.mobile : null) :
+                                    null
                             })(
                                 <Input disabled={disabled} style={{ width: '250px' }} />
                             )}
@@ -484,7 +493,9 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('date_of_appointment_to_SLAS', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: officer.profile ? moment(officer.profile.special_grade_promoted) : null
+                                initialValue: viewType == 'add' ?
+                                    (officer.profile ? moment(officer.profile.special_grade_promoted) : null) :
+                                    null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}

@@ -56,72 +56,12 @@ class ApplicationList extends React.Component {
             dataIndex: '',
             width: '10%',
             render: (text, record) => (
-                <ViewApplication record={record} />
+                <ViewApplication applicationType={this.props.applicationType} record={record} />
             ),
         }
     ];
 
-    filterData = (data) => {
-        // const params = new URLSearchParams(this.props.location.search);
-        // const role = localStorage.getItem('role');
-
-        // let temp = [];
-        // data.forEach(element => {
-        //     if (params.get('app') == element.application_type && (role == '1' || role == '2')) {
-        //         if (params.get('status') == 'Pending') {
-        //             if (element.status == 100) {
-        //                 temp.push(element)
-        //             }
-        //         } else if (params.get('status') == 'Approved') {
-        //             if (element.status == 300) {
-        //                 temp.push(element)
-        //             }
-        //         } else if (params.get('status') == 'Rejected') {
-        //             if (element.status == 201) {
-        //                 temp.push(element)
-        //             }
-        //         }
-        //     }
-        //     else if (params.get('app') == element.application_type && role == '4') {
-        //         if (params.get('status') == 'Pending') {
-        //             if (element.status == 100) {
-        //                 temp.push(element)
-        //             }
-        //         } else if (params.get('status') == 'Approved') {
-        //             if (element.status == 300) {
-        //                 temp.push(element)
-        //             }
-        //         } else if (params.get('status') == 'Rejected') {
-        //             if (element.status == 101) {
-        //                 temp.push(element)
-        //             }
-        //         }
-        //     }
-        //     else if (params.get('app') == element.application_type && role == '3') {
-        //         if (params.get('status') == 'Pending') {
-        //             if (element.status == 200) {
-        //                 temp.push(element)
-        //             }
-        //         } else if (params.get('status') == 'Approved') {
-        //             if (element.status == 300) {
-        //                 temp.push(element)
-        //             }
-        //         } else if (params.get('status') == 'Rejected') {
-        //             if (element.status == 201) {
-        //                 temp.push(element)
-        //             }
-        //         }
-        //     }
-
-
-        // });
-        // return temp;
-        return [];
-    }
-
     render() {
-        let { actInApplications } = this.props.appStore;
-
         return (
             <Card className="card-magrin">
 

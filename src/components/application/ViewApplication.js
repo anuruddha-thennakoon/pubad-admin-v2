@@ -99,7 +99,6 @@ class ViewApplicationForm extends Component {
     };
 
     render() {
-        const { getFieldDecorator } = this.props.form;
         const { confirmLoading, visible } = this.state;
 
         let role = localStorage.getItem('role');
@@ -115,17 +114,8 @@ class ViewApplicationForm extends Component {
                     onOk={this.handleOk}
                     onCancel={this.closeModal}
                     width={900}
-                    footer={role == '4' ? null :
-                        [
-                            <Button key="back" onClick={this.handleCancel}>
-                                Cancel
-                            </Button>,
-                            <Button key="submit" type="primary" loading={confirmLoading} onClick={this.handleOk}>
-                                Submit
-                            </Button>,
-                        ]}
                 >
-                    <Confirmation viewType="edit" />
+                    {this.props.applicationType == 3 && <Confirmation viewType="view" />}
                     {/* <Confirmation viewType="view" /> */}
                 </Modal>
             </div>

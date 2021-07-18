@@ -71,48 +71,13 @@ class ApplicationsDashboard extends React.Component {
     }
 
     updateApplicationData = (applications) => {
-        // let pendingList = applications.pendingList;
-        // let approvedList = applications.approvedList;
-        // let rejectedList = applications.rejectedList;
+        let pendingList = applications.pendingList;
+        let approvedList = applications.approvedList;
+        let rejectedList = applications.rejectedList;
 
-        // let pendingCount = applications.pendingList.length;
-        // let approvedCount = applications.approvedList.length;
-        // let rejectedCount = applications.rejectedList.length;
-
-        const role = this.props.appState.getUserRole();
-
-        let pendingCount = 0;
-        let approvedCount = 0;
-        let rejectedCount = 0;
-        let pendingList = [];
-        let approvedList = [];
-        let rejectedList = [];
-
-        applications.forEach(element => {
-            switch (role) {
-                case '1':
-                //admin
-                case '2':
-                //pubad_user
-                case '3':
-                //psc_user
-                case '4':
-                    //institute_user
-                    if (element.status == 100) {
-                        pendingList.push(element);
-                        pendingCount += 1;
-                    }
-
-                    if (element.status == 101) {
-                        rejectedList.push(element);
-                        rejectedCount += 1;
-                    }
-
-                    break;
-                case '5':
-                //slas_officer
-            }
-        });
+        let pendingCount = applications.pendingList.length;
+        let approvedCount = applications.approvedList.length;
+        let rejectedCount = applications.rejectedList.length;
 
         this.setState({
             pendingList: pendingList, approvedList: approvedList, rejectedList: rejectedList,
@@ -236,9 +201,9 @@ class ApplicationsDashboard extends React.Component {
                     </Row>
 
                     <Row>
-                        {applicationStatus == 'Pending' && <ApplicationList data={pendingList} />}
-                        {applicationStatus == 'Approved' && <ApplicationList data={approvedList} />}
-                        {applicationStatus == 'Rejected' && <ApplicationList data={rejectedList} />}
+                        {applicationStatus == 'Pending' && <ApplicationList applicationType={applicationType} data={pendingList} />}
+                        {applicationStatus == 'Approved' && <ApplicationList applicationType={applicationType} data={approvedList} />}
+                        {applicationStatus == 'Rejected' && <ApplicationList applicationType={applicationType} data={rejectedList} />}
                     </Row>
                 </div>}
 
