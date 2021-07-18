@@ -393,7 +393,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('NIC', {
+                            {getFieldDecorator('nic', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Search
@@ -409,7 +409,7 @@ class ConfirmationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('NIC', {
+                            {getFieldDecorator('nic', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Input disabled={disabled} style={{ width: '80%' }} />
