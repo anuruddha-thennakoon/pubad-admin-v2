@@ -53,8 +53,13 @@ class ApplicationsDashboard extends React.Component {
 
     selectApplication = (applicationType) => {
         const user = this.props.appState.getUserData();
+        const role = this.props.appState.getUserRole();
 
-        this.props.appStore.getApplications({ institutes_id: user.institutes_id, application_type: applicationType })
+        this.props.appStore.getApplications({
+            user_role: role,
+            institutes_id: user.institutes_id,
+            application_type: applicationType
+        })
             .then(response => {
                 this.updateApplicationData(response);
                 this.setState({ dbstate: 'application_status', applicationType: applicationType });
@@ -66,6 +71,14 @@ class ApplicationsDashboard extends React.Component {
     }
 
     updateApplicationData = (applications) => {
+        // let pendingList = applications.pendingList;
+        // let approvedList = applications.approvedList;
+        // let rejectedList = applications.rejectedList;
+
+        // let pendingCount = applications.pendingList.length;
+        // let approvedCount = applications.approvedList.length;
+        // let rejectedCount = applications.rejectedList.length;
+
         const role = this.props.appState.getUserRole();
 
         let pendingCount = 0;
