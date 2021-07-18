@@ -4,6 +4,7 @@ import '../../styles/styles.scss';
 import {
     Modal, Alert, Button, notification, Input, Form, Link, Radio, Tag, Select, Divider, Card, Upload, Icon, Statistic
 } from 'antd';
+import Confirmation from './Confirmation';
 
 const FormItem = Form.Item;
 
@@ -113,7 +114,7 @@ class ViewApplicationForm extends Component {
                     visible={visible}
                     onOk={this.handleOk}
                     onCancel={this.closeModal}
-                    width={860}
+                    width={900}
                     footer={role == '4' ? null :
                         [
                             <Button key="back" onClick={this.handleCancel}>
@@ -124,7 +125,8 @@ class ViewApplicationForm extends Component {
                             </Button>,
                         ]}
                 >
-                    View Application
+                    <Confirmation viewType="edit" />
+                    {/* <Confirmation viewType="view" /> */}
                 </Modal>
             </div>
         );

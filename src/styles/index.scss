@@ -63,3 +63,16 @@
 .gutter-box {
   padding: 5px 0;
 }
+.ant-select-disabled .ant-select-selection {
+  background: #f5f5f5;
+  cursor: default;
+}
+.ant-select-disabled {
+  color:#000000;
+}
+.ant-input[disabled] {
+  color: #000000;
+  background-color: #f5f5f5;
+  cursor: default;
+  opacity: 1;
+}

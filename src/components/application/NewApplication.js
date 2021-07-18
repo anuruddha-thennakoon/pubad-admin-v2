@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-    Select, Radio, Button, Upload, Input, Result, Row, Col, Modal, notification,
-    Card, Breadcrumb, Icon, Typography, InputNumber, Divider
+    Select, Card, Breadcrumb, Typography
 } from 'antd';
 import { inject, observer } from 'mobx-react';
+
 import Confirmation from './Confirmation';
 
 const { Title, Text } = Typography;
@@ -64,11 +64,11 @@ class NewApplication extends React.Component {
                 </Card>
 
                 {applicationType == 3 &&
-                    <Confirmation />
+                    <Confirmation viewType="add"/>
                 }
             </div>
         );
     }
 }
 
-export default NewApplication
+export default NewApplication;

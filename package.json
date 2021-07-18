@@ -92,6 +92,7 @@
     "rfx-core": "^1.6.0",
     "screenfull": "^3.3.3",
     "showdown": "^1.9.1",
+    "styled-components": "^5.3.0",
     "whatwg-fetch": "^3.0.0"
   }
 }

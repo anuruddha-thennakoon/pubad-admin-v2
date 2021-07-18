@@ -4,14 +4,23 @@ import {
     Card, Breadcrumb, Icon, Typography, InputNumber, Divider
 } from 'antd';
 import { inject, observer } from 'mobx-react';
-
+import styled from 'styled-components'
 import moment from 'moment';
 
-const { Title } = Typography;
+const ApplicationContainer = styled.div`
+    .ant-form-item-label{
+        margin-right:16px !important;
+    }
+`
+const ButtonContainer = styled.div`
+    text-align:right
+`
+
+const { Title, Text } = Typography;
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
 const Option = Select.Option;
-const { Search } = Input;
+const { Search, TextArea } = Input;
 
 const openNotificationWithIcon = (type, title, msg) => {
     notification[type]({
@@ -28,12 +37,22 @@ class ConfirmationForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            disabled: true, rejected: false,
+            viewType: this.props.viewType,
             officer: {},
             c1: false, c2: false, c3: false, c4: false, c5: false,
             confirmLoading: false,
             fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
         };
         this.props.appStore.getInstitutes();
+    }
+
+    setReject = (value) => {
+        if (value == 'Reject') {
+            this.setState({ rejected: true });
+        } else {
+            this.setState({ rejected: false });
+        }
     }
 
     changeCondition = (c, value) => {
@@ -107,7 +126,10 @@ class ConfirmationForm extends React.Component {
 
     submitApplication = (e) => {
         this.props.form.validateFields((err, values) => {
-            const { officer, fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
+            const {
+                c1, c2, c3, c4, c5,
+                officer, fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8
+            } = this.state;
             let userData = this.props.appState.getUserData();
 
             this.setState({ confirmLoading: true });
@@ -126,6 +148,14 @@ class ConfirmationForm extends React.Component {
             this.props.appStore.uploadFiles(files)
                 .then(docs => {
 
+                    //consditions
+                    values.c1 = c1;
+                    values.c2 = c2;
+                    values.c3 = c3;
+                    values.c4 = c4;
+                    values.c5 = c5;
+
+                    //documents
                     values.documents = docs;
 
                     let applicationData = {
@@ -167,7 +197,7 @@ class ConfirmationForm extends React.Component {
     render() {
         const { getFieldDecorator } = this.props.form;
         const { institutes } = this.props.appStore;
-        const { confirmLoading, officer,
+        const { confirmLoading, officer, viewType, disabled, rejected,
             fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
 
         const props1 = {
@@ -330,7 +360,6 @@ class ConfirmationForm extends React.Component {
             fileList8,
         }
 
-
         const tailFormItemLayout = {
             wrapperCol: {
                 xs: {
@@ -353,14 +382,14 @@ class ConfirmationForm extends React.Component {
         }
 
         return (
-            <div>
+            <ApplicationContainer>
                 <Card style={{ margin: '0px 25px 25px 25px' }}>
                     <Form
                         style={{ margin: '0px 25px 25px 25px' }}
                         layout={"vertical"}
                     >
-                        <FormItem
-                            label="NIC : "
+                        {viewType == 'add' && <FormItem
+                            label="NIC"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -368,17 +397,27 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Search
-                                    allowClear
-                                    style={{ width: 350 }}
+                                    style={{ width: '80%' }}
                                     placeholder="NIC"
                                     enterButton="Search"
-                                    onSearch={value => this.searchByNic(value)}
-                                />
+                                    onSearch={value => this.searchByNic(value)} />
                             )}
-                        </FormItem>
+                        </FormItem>}
+
+                        {viewType != 'add' && <FormItem
+                            label="NIC"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('NIC', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                            })(
+                                <Input disabled={disabled} style={{ width: '80%' }} />
+                            )}
+                        </FormItem>}
 
                         <FormItem
-                            label="Officer Name : "
+                            label="Officer Name"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -386,12 +425,12 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: officer.profile ? officer.profile.name : null
                             })(
-                                <Input allowClear style={{ width: 450 }} />
+                                <Input disabled={disabled} style={{ width: '100%' }} />
                             )}
                         </FormItem>
 
                         <FormItem
-                            label="Designation : "
+                            label="Designation"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -399,12 +438,12 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: officer.service_history ? this.getActive(officer.service_history).designation : null
                             })(
-                                <Input style={{ width: 450 }} />
+                                <Input disabled={disabled} style={{ width: '100%' }} />
                             )}
                         </FormItem>
 
                         <FormItem
-                            label="Place of work : "
+                            label="Place of work"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -413,8 +452,9 @@ class ConfirmationForm extends React.Component {
                                 initialValue: officer.service_history ? this.getActive(officer.service_history).place_of_work : []
                             })(
                                 <Select
+                                    disabled={disabled}
                                     showSearch
-                                    style={{ width: 450 }}
+                                    style={{ width: '100%' }}
                                     placeholder="Select institute"
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
@@ -425,7 +465,7 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Mobile number : "
+                            label="Mobile number"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -433,12 +473,12 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: officer.profile ? officer.profile.mobile : null
                             })(
-                                <Input allowClear style={{ width: '250px' }} />
+                                <Input disabled={disabled} style={{ width: '250px' }} />
                             )}
                         </FormItem>
 
                         <FormItem
-                            label="Date of appointment to SLAS : "
+                            label="Date of appointment to SLAS"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -446,12 +486,12 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: officer.profile ? moment(officer.profile.special_grade_promoted) : null
                             })(
-                                <DatePicker style={{ width: 250 }} />
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
                         <FormItem
-                            label="Duty assumption date : "
+                            label="Duty assumption date"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -459,12 +499,12 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 // initialValue: officerData.dob != null ? moment(officerData.dob) : null
                             })(
-                                <DatePicker style={{ width: 250 }} />
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
                         <FormItem
-                            label="Recruitment stream : "
+                            label="Recruitment stream"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -472,10 +512,10 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
+                                    disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    labelAlign="left"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Open">Open</Option>
@@ -486,19 +526,19 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Date of completing probation or acting time period (Add three years to open stream and 1 year to limited merit officers) : "
+                            label="Date of completing probation or acting time period (Add three years to open stream and 1 year to limited merit officers)"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('date_of_completing_probation_or_acting_time_period', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
-                                <DatePicker style={{ width: 250 }} />
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
                         <FormItem
-                            label="Has the officer completed the induction training program in SLIDA : "
+                            label="Has the officer completed the induction training program in SLIDA"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -506,10 +546,10 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
+                                    disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    labelAlign="left"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -519,7 +559,7 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Has the officer completed the 1st Efficiency Bar (EB) : "
+                            label="Has the officer completed the 1st Efficiency Bar (EB)"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -527,10 +567,10 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
+                                    disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    labelAlign="left"
                                     onChange={(e) => this.changeCondition('c1', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -542,19 +582,19 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         {this.state.c1 && <FormItem
-                            label="Date of completing 1st Efficiency Bar (EB) : "
+                            label="Date of completing 1st Efficiency Bar (EB)"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('date_of_completing_1st_Efficiency_Bar_(EB)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
-                                <DatePicker style={{ width: 250 }} />
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>}
 
                         <FormItem
-                            label="Has the officer failed in passing 1st EB on Date : "
+                            label="Has the officer failed in passing 1st EB on Date"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -562,10 +602,10 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
+                                    disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    labelAlign="left"
                                     onChange={(e) => this.changeCondition('c2', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -576,7 +616,7 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         {this.state.c2 && <FormItem
-                            label="Period to be extended on delay in passing 1st EB : "
+                            label="Period to be extended on delay in passing 1st EB"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                             extra="Under the PSC Rules No.110/Under the PSC Rules No.111"
@@ -584,12 +624,12 @@ class ConfirmationForm extends React.Component {
                             {getFieldDecorator('period_to_be_extended_on_delay_in_passing_1st_EB', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
-                                <Input style={{ width: '250px' }} />
+                                <Input disabled={disabled} style={{ width: '250px' }} />
                             )}
                         </FormItem>}
 
                         <FormItem
-                            label="Has the officer completed the second language proficiency requirement : "
+                            label="Has the officer completed the second language proficiency requirement"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -597,10 +637,10 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
+                                    disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    labelAlign="left"
                                     onChange={(e) => this.changeCondition('c3', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -611,19 +651,19 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         {this.state.c3 && <FormItem
-                            label="Date of completing the second language proficiency requirement : "
+                            label="Date of completing the second language proficiency requirement"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('date_of_completing_the_second_language_proficiency_requirement', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
-                                <DatePicker style={{ width: 250 }} />
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>}
 
                         {!this.state.c3 && <FormItem
-                            label="Has concessionary been given for the second language proficiency requirement : "
+                            label="Has concessionary been given for the second language proficiency requirement"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -631,10 +671,10 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
+                                    disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    labelAlign="left"
                                     onChange={(e) => this.changeCondition('c4', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -645,7 +685,7 @@ class ConfirmationForm extends React.Component {
                         </FormItem>}
 
                         {!this.state.c4 && <FormItem
-                            label="Period to be extended by failing to complete the second language proficiency requirement : "
+                            label="Period to be extended by failing to complete the second language proficiency requirement"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                             extra="Under the PSC Rules No.110/Under the PSC Rules No.111"
@@ -653,12 +693,12 @@ class ConfirmationForm extends React.Component {
                             {getFieldDecorator('period_to_be_extended_by_failing_to_complete_the_second_language_proficiency_requirement', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
-                                <Input style={{ width: '250px' }} />
+                                <Input disabled={disabled} style={{ width: '250px' }} />
                             )}
                         </FormItem>}
 
                         <FormItem
-                            label="Has the officer obtained no pay or half pay leave : "
+                            label="Has the officer obtained no pay or half pay leave"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -666,10 +706,10 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
+                                    disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    labelAlign="left"
                                     onChange={(e) => this.changeCondition('c5', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -680,19 +720,19 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         {this.state.c5 && <FormItem
-                            label="Time period of leaves : "
+                            label="Time period of leaves"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('time_period_of_leaves', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
-                                <Input style={{ width: '250px' }} />
+                                <Input disabled={disabled} style={{ width: '250px' }} />
                             )}
                         </FormItem>}
 
                         <FormItem
-                            label="Is the officer physically and mentally fit to serve according to the medical examination report : "
+                            label="Is the officer physically and mentally fit to serve according to the medical examination report"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -700,10 +740,10 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
+                                    disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    labelAlign="left"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -714,7 +754,7 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Has the recommendation of Secretary received as to whether the work, attendance and conduct of the officer are satisfactory : "
+                            label="Has the recommendation of Secretary received as to whether the work, attendance and conduct of the officer are satisfactory"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -722,10 +762,10 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Select
+                                    disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    labelAlign="left"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -735,124 +775,158 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Recommendation letter issued by department of head : "
+                            label="Recommendation letter issued by department of head"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('recommendation_letter_issued_by_department_of_head', {
+                            {/* {getFieldDecorator('recommendation_letter_issued_by_department_of_head', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
-                            })(
-                                <Upload {...props1}>
-                                    {fileList1.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                                </Upload>
-                            )}
+                            })( */}
+                            <Upload {...props1} disabled={disabled} >
+                                {fileList1.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                            </Upload>
+                            {/*)} */}
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of duty assume letter : "
+                            label="Certified copy of duty assume letter"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('certified_copy_of_duty_assume_letter', {
+                            {/* {getFieldDecorator('certified_copy_of_duty_assume_letter', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
-                            })(
-                                <Upload {...props2}>
-                                    {fileList2.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                                </Upload>
-                            )}
+                            })( */}
+                            <Upload {...props2} disabled={disabled}>
+                                {fileList2.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                            </Upload>
+                            {/*)} */}
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of induction training completion letter : "
+                            label="Certified copy of induction training completion letter"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('certified_copy_of_induction_training_completion_letter', {
+                            {/* {getFieldDecorator('certified_copy_of_induction_training_completion_letter', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
-                            })(
-                                <Upload {...props3}>
-                                    {fileList3.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                                </Upload>
-                            )}
+                            })( */}
+                            <Upload {...props3} disabled={disabled}>
+                                {fileList3.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                            </Upload>
+                            {/*)} */}
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of annual review report for 1st Year (APPENDIX 05, PSC Rules) : "
+                            label="Certified copy of annual review report for 1st Year (APPENDIX 05, PSC Rules)"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)', {
+                            {/* {getFieldDecorator('certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
-                            })(
-                                <Upload {...props4}>
-                                    {fileList4.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                                </Upload>
-                            )}
+                            })( */}
+                            <Upload {...props4} disabled={disabled}>
+                                {fileList4.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                            </Upload>
+                            {/*)} */}
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of annual review report for 2nd Year (APPENDIX 05, PSC Rules) : "
+                            label="Certified copy of annual review report for 2nd Year (APPENDIX 05, PSC Rules)"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)', {
+                            {/* {getFieldDecorator('certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
-                            })(
-                                <Upload {...props5}>
-                                    {fileList5.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                                </Upload>
-                            )}
+                            })( */}
+                            <Upload {...props5} disabled={disabled}>
+                                {fileList5.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                            </Upload>
+                            {/*)} */}
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of annual review report for 3rd Year (APPENDIX 05, PSC Rules) : "
+                            label="Certified copy of annual review report for 3rd Year (APPENDIX 05, PSC Rules)"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)', {
+                            {/* {getFieldDecorator('certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
-                            })(
-                                <Upload {...props6}>
-                                    {fileList6.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                                </Upload>
-                            )}
+                            })( */}
+                            <Upload {...props6} disabled={disabled}>
+                                {fileList6.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                            </Upload>
+                            {/*)} */}
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of efficiency bar result sheet : "
+                            label="Certified copy of efficiency bar result sheet"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('certified_copy_of_efficiency_bar_result_sheet', {
+                            {/* {getFieldDecorator('certified_copy_of_efficiency_bar_result_sheet', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
-                            })(
-                                <Upload {...props7}>
-                                    {fileList7.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                                </Upload>
-                            )}
+                            })( */}
+                            <Upload {...props7} disabled={disabled}>
+                                {fileList7.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                            </Upload>
+                            {/*)} */}
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of medical certificate : "
+                            label="Certified copy of medical certificate"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('certified_copy_of_medical_certificate', {
+                            {/* {getFieldDecorator('certified_copy_of_medical_certificate', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
-                            })(
-                                <Upload {...props8}>
-                                    {fileList8.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                                </Upload>
-                            )}
+                            })( */}
+                            <Upload {...props8} disabled={disabled}>
+                                {fileList8.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                            </Upload>
+                            {/*)} */}
                         </FormItem>
 
-                        <FormItem {...tailFormItemLayout} style={{ marginTop: 15 }}>
+                        {viewType != 'add' && <FormItem
+                            label="Action"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('action', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                            })(
+                                <Select
+                                    style={{ width: 250 }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setReject(e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    <Option value="Approve">Approve</Option>
+                                    <Option value="Reject">Reject</Option>
+                                </Select>
+                            )}
+                        </FormItem>}
+
+                        {viewType != 'add' && rejected && <FormItem
+                            label="Reject reason"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('reject_reason', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                            })(
+                                <TextArea rows={4} style={{ width: '100%' }} />
+                            )}
+                        </FormItem>}
+
+                        <ButtonContainer>
                             <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>
-                        </FormItem>
+                            {/* <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button> */}
+                        </ButtonContainer>
                     </Form>
 
                 </Card>
-            </div>
+            </ApplicationContainer>
         );
     }
 }
