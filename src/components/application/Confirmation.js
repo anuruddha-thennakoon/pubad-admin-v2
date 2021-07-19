@@ -932,7 +932,7 @@ class ConfirmationForm extends React.Component {
 
                         <ButtonContainer>
                             <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>
-                            {/* <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button> */}
+                            {/* <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Approve</Button> */}
                         </ButtonContainer>
                     </Form>
 
