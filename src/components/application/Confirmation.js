@@ -253,17 +253,26 @@ class ConfirmationForm extends React.Component {
     approveApplication = () => {
         const { approved } = this.state;
         let application = JSON.parse(this.props.application.application);
-        let userData = this.props.appState.getUserData();
         let role = this.props.appState.getUserRole();
 
         this.props.form.validateFields((err, values) => {
+            this.setState({ confirmLoading: true });
+
             let approveData = {
                 application_id: application.id,
                 is_approved: approved,
-                institutes_id: userData.institutes_id,
                 role: role,
                 reject_reason: values.reject_reason ? values.reject_reason : null
             }
+
+            this.props.appStore.approveApplication(approveData)
+                .then(response => {
+                    this.setState({ confirmLoading: false });
+                })
+                .catch(err => {
+                    this.setState({ confirmLoading: false });
+                    openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+                });
         });
     }
 
@@ -992,7 +1001,7 @@ class ConfirmationForm extends React.Component {
                             {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_medical_certificate')}>Attachment</Button>}
                         </FormItem>
 
-                        {(viewType == 'view' || viewType == 'edit') && <FormItem
+                        {viewType == 'view' && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1014,7 +1023,7 @@ class ConfirmationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {(viewType == 'view' || viewType == 'edit') && !approved && <FormItem
+                        {viewType == 'view' && !approved && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1034,7 +1043,7 @@ class ConfirmationForm extends React.Component {
                             <RightButtons>
                                 {viewType == 'add' && <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>}
                                 {viewType == 'view' && <Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>}
-                                {viewType == 'edit' && <Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Submit</Button>}
+                                {viewType == 'edit' && <Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update</Button>}
                             </RightButtons>
                         </ButtonContainer>
                     </Form>

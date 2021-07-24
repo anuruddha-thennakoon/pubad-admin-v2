@@ -394,12 +394,46 @@ class AppService {
         });
     }
 
+    getApplicationsCount(data) {
+        return new Promise((resolve, reject) => {
+            axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
+            axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
+            axios
+                .post(api.GET_APPLICATIONS_COUNT, data)
+                .then(result => {
+                    if (result.data.success) {
+                        resolve(result.data.data)
+                    } else {
+                        reject(result.data)
+                    }
+                })
+                .catch(error => reject(error));
+        });
+    }
+
     getApplications(data) {
         return new Promise((resolve, reject) => {
             axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
             axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
             axios
                 .post(api.GET_APPLICATIONS, data)
+                .then(result => {
+                    if (result.data.success) {
+                        resolve(result.data.data)
+                    } else {
+                        reject(result.data)
+                    }
+                })
+                .catch(error => reject(error));
+        });
+    }
+
+    approveApplication(data) {
+        return new Promise((resolve, reject) => {
+            axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
+            axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
+            axios
+                .post(api.APPROVE_APPLICATION, data)
                 .then(result => {
                     if (result.data.success) {
                         resolve(result.data.data)

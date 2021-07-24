@@ -6,13 +6,17 @@ const { Title } = Typography;
 
 import ViewApplication from "./ViewApplication";
 
-@inject('appStore')
+@inject('appStore','appState')
 @observer
 class ApplicationList extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { loading: true };
+        this.state = { applications: [] };
+    }
+
+    componentDidMount() {
+        this.reloadApplications();
     }
 
     columns = [
@@ -56,29 +60,47 @@ class ApplicationList extends React.Component {
             dataIndex: '',
             width: '10%',
             render: (text, record) => (
-                <ViewApplication reloadData={() => this.reloadList()} applicationType={this.props.applicationType} application={record} />
+                <ViewApplication reloadData={() => this.reloadApplications()} applicationType={this.props.applicationType} application={record} />
             ),
         }
     ];
 
-    reloadList = () => {
-        console.log('reload list');
+    reloadApplications = () => {
+        this.setState({ applications: [] });
+        const user = this.props.appState.getUserData();
+        const role = this.props.appState.getUserRole();
+
+        this.props.appStore.getApplications({
+            user_role: role,
+            institutes_id: user.institutes_id,
+            application_type: this.props.applicationType,
+            applicationStatus: this.props.applicationStatus
+        })
+            .then(response => {
+                this.setState({ applications: response });
+            })
+            .catch(err => {
+                this.setState({ applications: [] });
+                openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+            });
     }
 
     render() {
+        const { applications } = this.state;
+
         return (
             <Card className="card-magrin">
 
-                {this.props.data && <Table
+                {applications.length != 0 && <Table
                     size={"small"}
                     loading={this.state.tableLoading}
                     rowKey={record => record.id}
                     columns={this.columns}
-                    dataSource={this.props.data} />}
+                    dataSource={applications} />}
 
-                {!this.props.data && <Table
+                {applications.length == 0 && <Table
                     size={"small"}
-                    loading={this.state.tableLoading}
+                    loading={true}
                     rowKey={record => record.id}
                     columns={this.columns}
                     dataSource={null}

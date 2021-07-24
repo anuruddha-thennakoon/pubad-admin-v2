@@ -59,17 +59,36 @@ class DataForm extends Component {
     createUserAccount = () => {
         this.props.form.validateFields((err, values) => {
             if (!err) {
+                if (values.confirm_mobile != values.mobile) {
+                    openNotificationWithIcon('error', 'Oops', 'Mobile number doesnot match!');
+                    return;
+                }
+
+                if (values.confirm_password != values.password) {
+                    openNotificationWithIcon('error', 'Oops', 'Password doesnot match!');
+                    return;
+                }
+
+                if (!values.remember) {
+                    openNotificationWithIcon('error', 'Oops', 'Please confirm the declaration!');
+                    return;
+                }
+
                 this.setState({ confirmLoading: true });
 
-                if (userCategory == 'slas_officer') {
+                if (values.user_category == 'slas_officer') {
                     values.user_roles_id = 5;
-                } else if (userCategory == 'institute_user') {
+                } else if (values.user_category == 'institute_user') {
                     values.user_roles_id = 4;
-                } else if (userCategory == 'psc_user') {
+                } else if (values.user_category == 'psc_user') {
                     values.user_roles_id = 3;
-                } else if (userCategory == 'pubad_user') {
+                } else if (values.user_category == 'pubad_user') {
                     values.user_roles_id = 2;
                 }
+
+                values.confirm_password = undefined;
+                values.confirm_mobile = undefined;
+                values.remember = undefined;
 
                 this.props.appStore.createUserAccount(values)
                     .then(sucess => {
@@ -242,7 +261,7 @@ class DataForm extends Component {
                             labelCol={{ span: 8 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('password ', {
+                            {getFieldDecorator('password', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Input.Password style={{ width: 450 }} type="password" placeholder="Password" />
@@ -254,7 +273,7 @@ class DataForm extends Component {
                             labelCol={{ span: 8 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('confirm_password ', {
+                            {getFieldDecorator('confirm_password', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                             })(
                                 <Input.Password style={{ width: 450 }} type="password" placeholder="Confirm Password" />

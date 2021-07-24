@@ -38,6 +38,7 @@ import GradeIOfficers from './reports/GradeIOfficers';
 import GradeIIOfficers from './reports/GradeIIOfficers';
 import GradeIIIOfficers from './reports/GradeIIIOfficers';
 import NewApplication from './application/NewApplication';
+import AllUsers from './profile/AllUsers';
 
 const { Content, Footer } = Layout;
 
@@ -116,6 +117,9 @@ class Page extends Component {
 
                             {/*Application*/}
                             {(role != '0') && <Route path="/new-application" component={NewApplication} />}
+
+                            {/*Application*/}
+                            {(role == '1') && <Route path="/all-users" component={AllUsers} />}
 
                             {!isLogged && <Redirect from="/" to="/login" />}
                             {isLogged && <Redirect from="/" to="/dashboard" />}

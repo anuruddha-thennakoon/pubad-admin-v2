@@ -25,8 +25,7 @@ class ApplicationsDashboard extends React.Component {
             dbstate: 'applications',//applications, application_status, application_list
             applicationType: 0,
             applicationStatus: '',
-            pendingCount: 0, approvedCount: 0, rejectedCount: 0,
-            pendingList: [], approvedList: [], rejectedList: []
+            pendingCount: 0, approvedCount: 0, rejectedCount: 0
         };
     }
 
@@ -52,11 +51,10 @@ class ApplicationsDashboard extends React.Component {
     }
 
     selectApplication = (applicationType) => {
-        console.log('select application triggered');
         const user = this.props.appState.getUserData();
         const role = this.props.appState.getUserRole();
 
-        this.props.appStore.getApplications({
+        this.props.appStore.getApplicationsCount({
             user_role: role,
             institutes_id: user.institutes_id,
             application_type: applicationType
@@ -72,16 +70,11 @@ class ApplicationsDashboard extends React.Component {
     }
 
     updateApplicationData = (applications) => {
-        let pendingList = applications.pendingList;
-        let approvedList = applications.approvedList;
-        let rejectedList = applications.rejectedList;
-
-        let pendingCount = applications.pendingList.length;
-        let approvedCount = applications.approvedList.length;
-        let rejectedCount = applications.rejectedList.length;
+        let pendingCount = applications.pendingCount;
+        let approvedCount = applications.approvedCount;
+        let rejectedCount = applications.rejectedCount;
 
         this.setState({
-            pendingList: pendingList, approvedList: approvedList, rejectedList: rejectedList,
             pendingCount: pendingCount, approvedCount: approvedCount, rejectedCount: rejectedCount
         });
     }
@@ -95,8 +88,7 @@ class ApplicationsDashboard extends React.Component {
     }
 
     render() {
-        const { dbstate, applicationType, applicationStatus, pendingCount,
-            approvedCount, rejectedCount, pendingList, approvedList, rejectedList } = this.state;
+        const { dbstate, applicationType, applicationStatus, pendingCount, approvedCount, rejectedCount } = this.state;
 
         return (
             <div>
@@ -202,9 +194,7 @@ class ApplicationsDashboard extends React.Component {
                     </Row>
 
                     <Row>
-                        {applicationStatus == 'Pending' && <ApplicationList applicationType={applicationType} data={pendingList} />}
-                        {applicationStatus == 'Approved' && <ApplicationList applicationType={applicationType} data={approvedList} />}
-                        {applicationStatus == 'Rejected' && <ApplicationList applicationType={applicationType} data={rejectedList} />}
+                        <ApplicationList applicationStatus={applicationStatus} applicationType={applicationType}/>
                     </Row>
                 </div>}
 

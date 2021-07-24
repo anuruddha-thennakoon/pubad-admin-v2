@@ -396,10 +396,30 @@ class AppStore {
             }))
     }
 
+    @action getApplicationsCount(data) {
+        return appService.getApplicationsCount(data)
+            .then(data => {
+                return this.actInApplications = data;
+            })
+            .catch(action(err => {
+                return err;
+            }))
+    }
+
     @action getApplications(data) {
         return appService.getApplications(data)
             .then(data => {
-                return this.actInApplications = data;
+                return data;
+            })
+            .catch(action(err => {
+                return err;
+            }))
+    }
+
+    @action approveApplication(data) {
+        return appService.approveApplication(data)
+            .then(data => {
+                return data;
             })
             .catch(action(err => {
                 return err;

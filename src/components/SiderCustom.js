@@ -126,9 +126,14 @@ class SiderCustom extends Component {
                             <Menu.Item key="19"><Link to={'/cadre-positions'}>Cadre Positions</Link></Menu.Item>
                         </SubMenu>
                     }
+                    {(role == '1') &&
+                        <SubMenu key="sub6" title={<span><Icon type="usergroup-add" /><span>Users</span></span>}>
+                            <Menu.Item key="20"><Link to={'/all-users'}>All Users</Link></Menu.Item>
+                        </SubMenu>
+                    }
                     {(role == '4') &&
-                        <SubMenu key="sub6" title={<span><Icon type="fund" /><span>Applications</span></span>}>
-                            <Menu.Item key="20"><Link to={'/new-application'}>New Application</Link></Menu.Item>
+                        <SubMenu key="sub7" title={<span><Icon type="fund" /><span>Applications</span></span>}>
+                            <Menu.Item key="21"><Link to={'/new-application'}>New Application</Link></Menu.Item>
                         </SubMenu>
                     }
                     {/* {(role == '1' || role == '2' || role == '3') && */}
