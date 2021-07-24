@@ -22,7 +22,7 @@ class ViewApplicationForm extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { visible: false, confirmLoading: false }
+        this.state = { visible: false }
     }
 
     showModal = () => {
@@ -30,76 +30,12 @@ class ViewApplicationForm extends Component {
     }
 
     closeModal = () => {
+        this.props.reloadData();
         this.setState({ visible: false });
     }
 
-    handleOk = () => {
-        this.props.form.validateFields((err, values) => {
-            const { fileList1, fileList2 } = this.state;
-
-            let files = [];
-            let body = {};
-            let role = localStorage.getItem('role');
-
-            if (!err) {
-                this.setState({ confirmLoading: true });
-
-                if (role == 1 || role == 2) {
-                    files = [
-                        { name: "pubad_covering_letter", file: fileList1[0] },
-                        { name: "pubad_format", file: fileList2[0] },
-                    ]
-                } else if (role == 3) {
-                    files = [
-                        { name: "psc_order", file: fileList1[0] }
-                    ]
-                }
-
-                this.props.appStore.uploadFiles(files)
-                    .then(docs => {
-
-                        if (role == 1 || role == 2) {
-                            body = {
-                                id: this.props.record.id,
-                                status: values.application_status,
-                                reject_reason: values.reject_reason,
-                                psc_documents: '',
-                                pbad_documents: docs
-                            };
-                        } else if (role == 3) {
-                            body = {
-                                id: this.props.record.id,
-                                status: values.application_status,
-                                reject_reason: values.reject_reason,
-                                pbad_documents: '',
-                                psc_documents: docs
-                            };
-                        }
-
-                        this.props.appStore.updateApplicationStatus(body)
-                            .then(sucess => {
-                                this.props.form.resetFields();
-                                this.setState({ confirmLoading: false, fileList1: [], fileList2: [] });
-                                this.props.appStore.getApplications();
-                                openNotificationWithIcon('success', 'Success', 'Application status update successfull');
-                                this.handleCancel();
-                            })
-                            .catch(err => {
-                                this.setState({ confirmLoading: false });
-                                openNotificationWithIcon('error', 'Oops', 'Something went wrong');
-                            });
-
-                    })
-                    .catch(err => {
-                        this.setState({ confirmLoading: false });
-                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
-                    });
-            }
-        });
-    };
-
     render() {
-        const { confirmLoading, visible } = this.state;
+        const { visible } = this.state;
 
         let role = localStorage.getItem('role');
 
@@ -109,13 +45,12 @@ class ViewApplicationForm extends Component {
                 <Modal
                     title="Application Details"
                     okText="Submit"
-                    confirmLoading={confirmLoading}
                     visible={visible}
-                    onOk={this.handleOk}
+                    footer={null}
                     onCancel={this.closeModal}
                     width={900}
                 >
-                    {this.props.applicationType == 3 && <Confirmation viewType="view" />}
+                    {this.props.applicationType == 3 && <Confirmation application={this.props.application} viewType="view" />}
                     {/* <Confirmation viewType="view" /> */}
                 </Modal>
             </div>

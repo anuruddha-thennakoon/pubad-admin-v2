@@ -52,6 +52,7 @@ class ApplicationsDashboard extends React.Component {
     }
 
     selectApplication = (applicationType) => {
+        console.log('select application triggered');
         const user = this.props.appState.getUserData();
         const role = this.props.appState.getUserRole();
 

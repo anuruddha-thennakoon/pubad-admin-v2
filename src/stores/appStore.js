@@ -437,20 +437,25 @@ class AppStore {
             let promises = [];
             let pindex = 0;
 
-            for (let index = 0; index < data.length; index++) {
-                if (data[index].file) {
-                    promises[pindex] = appService.uploadFiles(data[index]);
-                    pindex++;
-                }
-            }
+            // for (let index = 0; index < data.length; index++) {
+            //     if (data[index].file) {
+            //         promises[pindex] = appService.uploadFiles(data[index]);
+            //         pindex++;
+            //     }
+            // }
 
-            Promise.all(promises)
-                .then(res => {
-                    resolve(JSON.stringify(res));
-                })
-                .catch(err => {
-                    reject(err);
-                })
+            // Promise.all(promises)
+            //     .then(res => {
+            //         resolve(JSON.stringify(res));
+            //     })
+            //     .catch(err => {
+            //         reject(err);
+            //     })
+
+            data.forEach(element => {
+                promises.push({ "name": element.name, "url": 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' });
+            });
+            resolve(JSON.stringify(promises));
         });
     }
 

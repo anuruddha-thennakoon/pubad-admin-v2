@@ -6,6 +6,7 @@ import {
 import { inject, observer } from 'mobx-react';
 import styled from 'styled-components'
 import moment from 'moment';
+import _get from "lodash/get";
 
 const ApplicationContainer = styled.div`
     .ant-form-item-label{
@@ -13,7 +14,16 @@ const ApplicationContainer = styled.div`
     }
 `
 const ButtonContainer = styled.div`
-    text-align:right
+    margin-top:20px;
+`
+const LeftButtons = styled.div`
+    width: 50%; 
+    float: left;
+`
+const RightButtons = styled.div`
+    width: 50%; 
+    float: right;
+    text-align:right;
 `
 
 const { Title, Text } = Typography;
@@ -37,63 +47,31 @@ class ConfirmationForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            disabled: true, rejected: false,
+            disabled: false, approved: true,
             viewType: this.props.viewType,
             officer: {},
             c1: false, c2: false, c3: false, c4: false, c5: false,
             confirmLoading: false,
             fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
         };
+
         this.props.appStore.getInstitutes();
     }
 
+    componentDidMount() {
+        this.getApplicationConditions();
+        // this.loadFiles();
+    }
+
     setReject = (value) => {
-        if (value == 'Reject') {
-            this.setState({ rejected: true });
-        } else {
-            this.setState({ rejected: false });
-        }
+        this.setState({ approved: value });
     }
 
     changeCondition = (c, value) => {
-        switch (c) {
-            case 'c1':
-                if (value == 'Yes') {
-                    this.setState({ c1: true });
-                } else {
-                    this.setState({ c1: false });
-                }
-                break;
-            case 'c2':
-                if (value == 'Yes') {
-                    this.setState({ c2: true });
-                } else {
-                    this.setState({ c2: false });
-                }
-                break;
-            case 'c3':
-                if (value == 'Yes') {
-                    this.setState({ c3: true });
-                } else {
-                    this.setState({ c3: false });
-                }
-                break;
-            case 'c4':
-                if (value == 'Yes') {
-                    this.setState({ c4: true });
-                } else {
-                    this.setState({ c4: false });
-                }
-                break;
-            case 'c5':
-                if (value == 'Yes') {
-                    this.setState({ c5: true });
-                } else {
-                    this.setState({ c5: false });
-                }
-                break;
-            default:
-                return '';
+        if (value == 'Yes') {
+            this.setState({ [c]: true });
+        } else {
+            this.setState({ [c]: false });
         }
     }
 
@@ -124,6 +102,76 @@ class ConfirmationForm extends React.Component {
         return temp;
     }
 
+    getApplicationConditions = () => {
+        const { viewType } = this.state;
+        if (viewType != 'add') {
+            let application = JSON.parse(this.props.application.application);
+            this.setState({
+                disabled: true,
+                c1: application.c1,
+                c2: application.c2,
+                c3: application.c3,
+                c4: application.c4,
+                c5: application.c5
+            });
+        }
+    }
+
+    loadFiles = () => {
+        // let application = JSON.parse(this.props.application.application);
+        // let documents = JSON.parse(application.documents);
+
+        // documents.forEach(element => {
+        //     let img = {
+        //         uid: '-1',
+        //         name: 'image.png',
+        //         status: 'done',
+        //         url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+        //     }
+
+        //     this.setState({ fileList1: [img] });
+        // });
+    }
+
+    enableEdit = () => {
+        this.setState({
+            viewType: 'edit',
+            disabled: false
+        });
+    }
+
+    disableEdit = () => {
+        this.setState({
+            viewType: 'view',
+            disabled: true
+        });
+    }
+
+    getApplicationItem = (key) => {
+        const { viewType } = this.state;
+        if (viewType != 'add') {
+            let application = JSON.parse(this.props.application.application);
+            return _get(application, key, null);
+        }
+    }
+
+    openAttachment = (key) => {
+        const { viewType } = this.state;
+        if (viewType != 'add') {
+            let application = JSON.parse(this.props.application.application);
+            let documents = JSON.parse(application.documents);
+            let link = null;
+
+            documents.forEach(element => {
+                if (element.name === key) {
+                    link = element.url;
+                }
+            });
+
+            window.open(link, '_blank');
+        }
+    }
+
     submitApplication = (e) => {
         this.props.form.validateFields((err, values) => {
             const {
@@ -131,6 +179,11 @@ class ConfirmationForm extends React.Component {
                 officer, fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8
             } = this.state;
             let userData = this.props.appState.getUserData();
+
+            if (fileList1[0].length != 0 && fileList2[0].length && fileList3[0].length && fileList4[0].length &&
+                fileList5[0].length != 0 && fileList6[0].length && fileList7[0].length && fileList8[0].length) {
+                openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
+            }
 
             this.setState({ confirmLoading: true });
 
@@ -176,6 +229,8 @@ class ConfirmationForm extends React.Component {
                     this.props.appStore.addApplication(applicationData)
                         .then(sucess => {
                             this.setState({
+                                officer: {},
+                                c1: false, c2: false, c3: false, c4: false, c5: false,
                                 confirmLoading: false,
                                 fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
                             });
@@ -195,10 +250,31 @@ class ConfirmationForm extends React.Component {
         })
     };
 
+    approveApplication = () => {
+        const { approved } = this.state;
+        let application = JSON.parse(this.props.application.application);
+        let userData = this.props.appState.getUserData();
+        let role = this.props.appState.getUserRole();
+
+        this.props.form.validateFields((err, values) => {
+            let approveData = {
+                application_id: application.id,
+                is_approved: approved,
+                institutes_id: userData.institutes_id,
+                role: role,
+                reject_reason: values.reject_reason ? values.reject_reason : null
+            }
+        });
+    }
+
+    editApproveApplication = () => {
+        console.log('file --> ', this.state.fileList1);
+    }
+
     render() {
         const { getFieldDecorator } = this.props.form;
         const { institutes } = this.props.appStore;
-        const { confirmLoading, officer, viewType, disabled, rejected,
+        const { confirmLoading, officer, viewType, disabled, approved,
             fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
 
         const props1 = {
@@ -361,19 +437,6 @@ class ConfirmationForm extends React.Component {
             fileList8,
         }
 
-        const tailFormItemLayout = {
-            wrapperCol: {
-                xs: {
-                    span: 24,
-                    offset: 0,
-                },
-                sm: {
-                    span: 16,
-                    offset: 8,
-                },
-            },
-        };
-
         let instituteValues = [];
 
         if (institutes) {
@@ -405,15 +468,16 @@ class ConfirmationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {viewType != 'add' && <FormItem
+                        {viewType == 'view' || viewType == 'edit' && <FormItem
                             label="NIC"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('nic', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('nic')
                             })(
-                                <Input disabled={disabled} style={{ width: '80%' }} />
+                                <Input disabled={true} style={{ width: '80%' }} />
                             )}
                         </FormItem>}
 
@@ -426,7 +490,7 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: viewType == 'add' ?
                                     (officer.profile ? officer.profile.name : null) :
-                                    null
+                                    this.getApplicationItem('officer_name')
                             })(
                                 <Input disabled={disabled} style={{ width: '100%' }} />
                             )}
@@ -441,7 +505,7 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: viewType == 'add' ?
                                     (officer.service_history ? this.getActive(officer.service_history).designation : null) :
-                                    null
+                                    this.getApplicationItem('designation')
                             })(
                                 <Input disabled={disabled} style={{ width: '100%' }} />
                             )}
@@ -456,7 +520,7 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: viewType == 'add' ?
                                     (officer.service_history ? this.getActive(officer.service_history).place_of_work : []) :
-                                    null
+                                    this.getApplicationItem('place_of_work')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -480,7 +544,7 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: viewType == 'add' ?
                                     (officer.profile ? officer.profile.mobile : null) :
-                                    null
+                                    this.getApplicationItem('mobile_number')
                             })(
                                 <Input disabled={disabled} style={{ width: '250px' }} />
                             )}
@@ -495,7 +559,7 @@ class ConfirmationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: viewType == 'add' ?
                                     (officer.profile ? moment(officer.profile.special_grade_promoted) : null) :
-                                    null
+                                    moment(this.getApplicationItem('date_of_appointment_to_SLAS'))
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -508,7 +572,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('duty_assumption_date', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                // initialValue: officerData.dob != null ? moment(officerData.dob) : null
+                                initialValue: moment(this.getApplicationItem('duty_assumption_date'))
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -521,6 +585,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('recruitment_stream', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('recruitment_stream')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -537,12 +602,13 @@ class ConfirmationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Date of completing probation or acting time period (Add three years to open stream and 1 year to limited merit officers)"
+                            label="Date of completing probation or acting time period"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('date_of_completing_probation_or_acting_time_period', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: moment(this.getApplicationItem('date_of_completing_probation_or_acting_time_period'))
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -555,6 +621,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('has_the_officer_completed_the_induction_training_program_in_SLIDA', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('has_the_officer_completed_the_induction_training_program_in_SLIDA')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -576,6 +643,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('has_the_officer_completed_the_1st_Efficiency_Bar_(EB)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('has_the_officer_completed_the_1st_Efficiency_Bar_(EB)')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -598,7 +666,8 @@ class ConfirmationForm extends React.Component {
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('date_of_completing_1st_Efficiency_Bar_(EB)', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: moment(this.getApplicationItem('date_of_completing_1st_Efficiency_Bar_(EB)'))
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -611,6 +680,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('has_the_officer_failed_in_passing_1st_EB_on_date', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('has_the_officer_failed_in_passing_1st_EB_on_date')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -633,7 +703,8 @@ class ConfirmationForm extends React.Component {
                             extra="Under the PSC Rules No.110/Under the PSC Rules No.111"
                         >
                             {getFieldDecorator('period_to_be_extended_on_delay_in_passing_1st_EB', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('period_to_be_extended_on_delay_in_passing_1st_EB')
                             })(
                                 <Input disabled={disabled} style={{ width: '250px' }} />
                             )}
@@ -646,6 +717,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('has_the_officer_completed_the_second_language_proficiency_requirement', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('has_the_officer_completed_the_second_language_proficiency_requirement')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -667,7 +739,8 @@ class ConfirmationForm extends React.Component {
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('date_of_completing_the_second_language_proficiency_requirement', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: moment(this.getApplicationItem('date_of_completing_the_second_language_proficiency_requirement'))
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -680,6 +753,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('has_concessionary_been_given_for_the_second_language_proficiency_requirement', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('has_concessionary_been_given_for_the_second_language_proficiency_requirement')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -702,7 +776,8 @@ class ConfirmationForm extends React.Component {
                             extra="Under the PSC Rules No.110/Under the PSC Rules No.111"
                         >
                             {getFieldDecorator('period_to_be_extended_by_failing_to_complete_the_second_language_proficiency_requirement', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_second_language_proficiency_requirement')
                             })(
                                 <Input disabled={disabled} style={{ width: '250px' }} />
                             )}
@@ -715,6 +790,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('has_the_officer_obtained_no_pay_or_half_pay_leave', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('has_the_officer_obtained_no_pay_or_half_pay_leave')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -736,7 +812,8 @@ class ConfirmationForm extends React.Component {
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('time_period_of_leaves', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('time_period_of_leaves')
                             })(
                                 <Input disabled={disabled} style={{ width: '250px' }} />
                             )}
@@ -749,6 +826,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('is_the_officer_physically_and_mentally_fit_to_serve_according_to_the_medical_examination_report', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('is_the_officer_physically_and_mentally_fit_to_serve_according_to_the_medical_examination_report')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -771,6 +849,7 @@ class ConfirmationForm extends React.Component {
                         >
                             {getFieldDecorator('has_the_recommendation_of_Secretary_received_as_to_whether_the_work,_attendance,_and_conduct_of_the_officer_are_satisfactory', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('has_the_recommendation_of_Secretary_received_as_to_whether_the_work,_attendance,_and_conduct_of_the_officer_are_satisfactory')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -793,10 +872,12 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('recommendation_letter_issued_by_department_of_head', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            <Upload {...props1} disabled={disabled} >
+                            {viewType == 'add' || viewType == 'edit' && <Upload {...props1} disabled={disabled} >
                                 {fileList1.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                            </Upload>
+                            </Upload>}
                             {/*)} */}
+
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('recommendation_letter_issued_by_department_of_head')}>Attachment</Button>}
                         </FormItem>
 
                         <FormItem
@@ -807,10 +888,12 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_duty_assume_letter', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            <Upload {...props2} disabled={disabled}>
+                            {viewType == 'add' || viewType == 'edit' && <Upload {...props2} disabled={disabled}>
                                 {fileList2.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                            </Upload>
+                            </Upload>}
                             {/*)} */}
+
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_duty_assume_letter')}>Attachment</Button>}
                         </FormItem>
 
                         <FormItem
@@ -821,10 +904,12 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_induction_training_completion_letter', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            <Upload {...props3} disabled={disabled}>
+                            {viewType == 'add' || viewType == 'edit' && <Upload {...props3} disabled={disabled}>
                                 {fileList3.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                            </Upload>
+                            </Upload>}
                             {/*)} */}
+
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_induction_training_completion_letter')}>Attachment</Button>}
                         </FormItem>
 
                         <FormItem
@@ -835,10 +920,12 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            <Upload {...props4} disabled={disabled}>
+                            {viewType == 'add' || viewType == 'edit' && <Upload {...props4} disabled={disabled}>
                                 {fileList4.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                            </Upload>
+                            </Upload>}
                             {/*)} */}
+
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)')}>Attachment</Button>}
                         </FormItem>
 
                         <FormItem
@@ -849,10 +936,12 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            <Upload {...props5} disabled={disabled}>
+                            {viewType == 'add' || viewType == 'edit' && <Upload {...props5} disabled={disabled}>
                                 {fileList5.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                            </Upload>
+                            </Upload>}
                             {/*)} */}
+
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)')}>Attachment</Button>}
                         </FormItem>
 
                         <FormItem
@@ -863,10 +952,12 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            <Upload {...props6} disabled={disabled}>
+                            {viewType == 'add' || viewType == 'edit' && <Upload {...props6} disabled={disabled}>
                                 {fileList6.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                            </Upload>
+                            </Upload>}
                             {/*)} */}
+
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)')}>Attachment</Button>}
                         </FormItem>
 
                         <FormItem
@@ -877,10 +968,12 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_efficiency_bar_result_sheet', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            <Upload {...props7} disabled={disabled}>
+                            {viewType == 'add' || viewType == 'edit' && <Upload {...props7} disabled={disabled}>
                                 {fileList7.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                            </Upload>
+                            </Upload>}
                             {/*)} */}
+
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_efficiency_bar_result_sheet')}>Attachment</Button>}
                         </FormItem>
 
                         <FormItem
@@ -891,19 +984,22 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_medical_certificate', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            <Upload {...props8} disabled={disabled}>
+                            {viewType == 'add' || viewType == 'edit' && <Upload {...props8} disabled={disabled}>
                                 {fileList8.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                            </Upload>
+                            </Upload>}
                             {/*)} */}
+
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_medical_certificate')}>Attachment</Button>}
                         </FormItem>
 
-                        {viewType != 'add' && <FormItem
+                        {(viewType == 'view' || viewType == 'edit') && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('action', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: approved
                             })(
                                 <Select
                                     style={{ width: 250 }}
@@ -912,13 +1008,13 @@ class ConfirmationForm extends React.Component {
                                     onChange={(e) => this.setReject(e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
-                                    <Option value="Approve">Approve</Option>
-                                    <Option value="Reject">Reject</Option>
+                                    <Option value={true}>Approve</Option>
+                                    <Option value={false}>Reject</Option>
                                 </Select>
                             )}
                         </FormItem>}
 
-                        {viewType != 'add' && rejected && <FormItem
+                        {(viewType == 'view' || viewType == 'edit') && !approved && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -931,8 +1027,15 @@ class ConfirmationForm extends React.Component {
                         </FormItem>}
 
                         <ButtonContainer>
-                            <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>
-                            {/* <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Approve</Button> */}
+                            <LeftButtons>
+                                {viewType == 'view' && <Button type="default" loading={confirmLoading} onClick={this.enableEdit}>Enable Edit</Button>}
+                                {viewType == 'edit' && <Button type="default" loading={confirmLoading} onClick={this.disableEdit}>Disable Edit</Button>}
+                            </LeftButtons>
+                            <RightButtons>
+                                {viewType == 'add' && <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>}
+                                {viewType == 'view' && <Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>}
+                                {viewType == 'edit' && <Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Submit</Button>}
+                            </RightButtons>
                         </ButtonContainer>
                     </Form>
 

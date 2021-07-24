@@ -56,10 +56,14 @@ class ApplicationList extends React.Component {
             dataIndex: '',
             width: '10%',
             render: (text, record) => (
-                <ViewApplication applicationType={this.props.applicationType} record={record} />
+                <ViewApplication reloadData={() => this.reloadList()} applicationType={this.props.applicationType} application={record} />
             ),
         }
     ];
+
+    reloadList = () => {
+        console.log('reload list');
+    }
 
     render() {
         return (
