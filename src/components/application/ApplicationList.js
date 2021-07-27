@@ -6,13 +6,13 @@ const { Title } = Typography;
 
 import ViewApplication from "./ViewApplication";
 
-@inject('appStore','appState')
+@inject('appStore', 'appState')
 @observer
 class ApplicationList extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { applications: [] };
+        this.state = { applications: null };
     }
 
     componentDidMount() {
@@ -66,7 +66,7 @@ class ApplicationList extends React.Component {
     ];
 
     reloadApplications = () => {
-        this.setState({ applications: [] });
+        this.setState({ applications: null });
         const user = this.props.appState.getUserData();
         const role = this.props.appState.getUserRole();
 
@@ -91,14 +91,14 @@ class ApplicationList extends React.Component {
         return (
             <Card className="card-magrin">
 
-                {applications.length != 0 && <Table
+                {applications && <Table
                     size={"small"}
                     loading={this.state.tableLoading}
                     rowKey={record => record.id}
                     columns={this.columns}
                     dataSource={applications} />}
 
-                {applications.length == 0 && <Table
+                {!applications && <Table
                     size={"small"}
                     loading={true}
                     rowKey={record => record.id}

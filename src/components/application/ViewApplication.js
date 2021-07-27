@@ -50,7 +50,7 @@ class ViewApplicationForm extends Component {
                     onCancel={this.closeModal}
                     width={900}
                 >
-                    {this.props.applicationType == 3 && <Confirmation application={this.props.application} viewType="view" />}
+                    {this.props.applicationType == 3 && <Confirmation closeApplication={() => this.closeModal()} application={this.props.application} viewType="view" />}
                     {/* <Confirmation viewType="view" /> */}
                 </Modal>
             </div>

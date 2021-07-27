@@ -39,7 +39,7 @@ class Api {
     ADD_APPLICATION = this.URL + 'add-application';
     GET_APPLICATIONS_COUNT = this.URL + 'get-applications-count';
     GET_APPLICATIONS = this.URL + 'get-applications';
-    APPROVE_APPLICATION = this.URL + 'approve-applications';
+    APPROVE_APPLICATION = this.URL + 'approve-application';
     UPDATE_APPLICATIONS_STATUS = this.URL + 'update-application-status';
     FILE_UPLOAD = this.URL + 'upload';
     VIEW_OFFICER = this.URL + 'view-officer';

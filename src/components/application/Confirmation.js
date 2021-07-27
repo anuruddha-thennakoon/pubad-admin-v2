@@ -174,105 +174,110 @@ class ConfirmationForm extends React.Component {
 
     submitApplication = (e) => {
         this.props.form.validateFields((err, values) => {
-            const {
-                c1, c2, c3, c4, c5,
-                officer, fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8
-            } = this.state;
-            let userData = this.props.appState.getUserData();
+            if (!err) {
+                const {
+                    c1, c2, c3, c4, c5,
+                    officer, fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8
+                } = this.state;
+                let userData = this.props.appState.getUserData();
 
-            if (fileList1[0].length != 0 && fileList2[0].length && fileList3[0].length && fileList4[0].length &&
-                fileList5[0].length != 0 && fileList6[0].length && fileList7[0].length && fileList8[0].length) {
-                openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
-            }
+                if (fileList1[0].length != 0 && fileList2[0].length && fileList3[0].length && fileList4[0].length &&
+                    fileList5[0].length != 0 && fileList6[0].length && fileList7[0].length && fileList8[0].length) {
+                    openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
+                }
 
-            this.setState({ confirmLoading: true });
+                this.setState({ confirmLoading: true });
 
-            var files = [
-                { name: "recommendation_letter_issued_by_department_of_head", file: fileList1[0] },
-                { name: "certified_copy_of_duty_assume_letter", file: fileList2[0] },
-                { name: "certified_copy_of_induction_training_completion_letter", file: fileList3[0] },
-                { name: "certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)", file: fileList4[0] },
-                { name: "certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)", file: fileList5[0] },
-                { name: "certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)", file: fileList6[0] },
-                { name: "certified_copy_of_efficiency_bar_result_sheet", file: fileList7[0] },
-                { name: "certified_copy_of_medical_certificate", file: fileList8[0] }
-            ]
+                var files = [
+                    { name: "recommendation_letter_issued_by_department_of_head", file: fileList1[0] },
+                    { name: "certified_copy_of_duty_assume_letter", file: fileList2[0] },
+                    { name: "certified_copy_of_induction_training_completion_letter", file: fileList3[0] },
+                    { name: "certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)", file: fileList4[0] },
+                    { name: "certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)", file: fileList5[0] },
+                    { name: "certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)", file: fileList6[0] },
+                    { name: "certified_copy_of_efficiency_bar_result_sheet", file: fileList7[0] },
+                    { name: "certified_copy_of_medical_certificate", file: fileList8[0] }
+                ]
 
-            this.props.appStore.uploadFiles(files)
-                .then(docs => {
+                this.props.appStore.uploadFiles(files)
+                    .then(docs => {
 
-                    //consditions
-                    values.c1 = c1;
-                    values.c2 = c2;
-                    values.c3 = c3;
-                    values.c4 = c4;
-                    values.c5 = c5;
+                        //consditions
+                        values.c1 = c1;
+                        values.c2 = c2;
+                        values.c3 = c3;
+                        values.c4 = c4;
+                        values.c5 = c5;
 
-                    //documents
-                    values.documents = docs;
+                        //documents
+                        values.documents = docs;
 
-                    //application
-                    let applicationData = {
-                        institutes_id: userData.institutes_id,
-                        officers_id: officer ? officer.id : null,
-                        nic: values.nic,
-                        officer_name: values.officer_name,
-                        designation: values.designation,
-                        place_of_work: values.place_of_work,
-                        mobile_number: values.mobile_number,
-                        application: JSON.stringify(values),
-                        application_type: 3,
-                        reject_reason: null,
-                        status: 100
-                    }
+                        //application
+                        let applicationData = {
+                            institutes_id: userData.institutes_id,
+                            officers_id: officer ? officer.id : null,
+                            nic: values.nic,
+                            officer_name: values.officer_name,
+                            designation: values.designation,
+                            place_of_work: values.place_of_work,
+                            mobile_number: values.mobile_number,
+                            application: JSON.stringify(values),
+                            application_type: 3,
+                            reject_reason: null,
+                            status: 100
+                        }
 
-                    this.props.appStore.addApplication(applicationData)
-                        .then(sucess => {
-                            this.setState({
-                                officer: {},
-                                c1: false, c2: false, c3: false, c4: false, c5: false,
-                                confirmLoading: false,
-                                fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
+                        this.props.appStore.addApplication(applicationData)
+                            .then(sucess => {
+                                this.setState({
+                                    officer: {},
+                                    c1: false, c2: false, c3: false, c4: false, c5: false,
+                                    confirmLoading: false,
+                                    fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
+                                });
+                                this.props.form.resetFields();
+                                openNotificationWithIcon('success', 'Success', 'Application submit successfully!');
+                            })
+                            .catch(err => {
+                                this.setState({ confirmLoading: false });
+                                openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
                             });
-                            this.props.form.resetFields();
-                            openNotificationWithIcon('success', 'Success', 'Application submit successfully!');
-                        })
-                        .catch(err => {
-                            this.setState({ confirmLoading: false });
-                            openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
-                        });
 
-                })
-                .catch(err => {
-                    this.setState({ confirmLoading: false });
-                    openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
-                });
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                    });
+            }
         })
     };
 
     approveApplication = () => {
         const { approved } = this.state;
-        let application = JSON.parse(this.props.application.application);
         let role = this.props.appState.getUserRole();
 
         this.props.form.validateFields((err, values) => {
-            this.setState({ confirmLoading: true });
+            if (!err) {
+                this.setState({ confirmLoading: true });
 
-            let approveData = {
-                application_id: application.id,
-                is_approved: approved,
-                role: role,
-                reject_reason: values.reject_reason ? values.reject_reason : null
+                let approveData = {
+                    application_id: this.props.application.id,
+                    is_approved: approved,
+                    user_role: role,
+                    reject_reason: values.reject_reason ? values.reject_reason : null
+                }
+
+                this.props.appStore.approveApplication(approveData)
+                    .then(response => {
+                        openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                        this.setState({ confirmLoading: false });
+                        this.props.closeApplication();
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+                    });
             }
-
-            this.props.appStore.approveApplication(approveData)
-                .then(response => {
-                    this.setState({ confirmLoading: false });
-                })
-                .catch(err => {
-                    this.setState({ confirmLoading: false });
-                    openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
-                });
         });
     }
 
@@ -280,10 +285,51 @@ class ConfirmationForm extends React.Component {
         console.log('file --> ', this.state.fileList1);
     }
 
+    renderLeftButtons = () => {
+        const role = this.props.appState.getUserRole();
+        const { viewType, confirmLoading } = this.state;
+
+        if (viewType == 'add') {
+            return [];
+        } else if (viewType == 'view' && (role == '2' || role == '4')) {
+            return [
+                <Button type="default" loading={confirmLoading} onClick={this.enableEdit}>Enable Edit</Button>
+            ];
+        } else if (viewType == 'edit' && (role == '2' || role == '4')) {
+            return [
+                <Button type="default" loading={confirmLoading} onClick={this.disableEdit}>Disable Edit</Button>
+            ];
+        } else {
+            return [];
+        }
+    }
+
+    renderRightButtons = () => {
+        const role = this.props.appState.getUserRole();
+        const { viewType, confirmLoading } = this.state;
+
+        if (viewType == 'add') {
+            return [
+                <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>
+            ];
+        } else if (viewType == 'view' && (role == '2' || role == '3')) {
+            return [
+                <Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>
+            ];
+        } else if (viewType == 'edit' && (role == '2' || role == '4')) {
+            return [
+                <Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update</Button>
+            ];
+        } else {
+            return [];
+        }
+    }
+
     render() {
+        const role = this.props.appState.getUserRole();
         const { getFieldDecorator } = this.props.form;
         const { institutes } = this.props.appStore;
-        const { confirmLoading, officer, viewType, disabled, approved,
+        const { officer, viewType, disabled, approved,
             fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
 
         const props1 = {
@@ -881,7 +927,7 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('recommendation_letter_issued_by_department_of_head', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            {viewType == 'add' || viewType == 'edit' && <Upload {...props1} disabled={disabled} >
+                            {(viewType == 'add' || viewType == 'edit') && <Upload {...props1} disabled={disabled} >
                                 {fileList1.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
@@ -897,7 +943,7 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_duty_assume_letter', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            {viewType == 'add' || viewType == 'edit' && <Upload {...props2} disabled={disabled}>
+                            {(viewType == 'add' || viewType == 'edit') && <Upload {...props2} disabled={disabled}>
                                 {fileList2.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
@@ -913,7 +959,7 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_induction_training_completion_letter', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            {viewType == 'add' || viewType == 'edit' && <Upload {...props3} disabled={disabled}>
+                            {(viewType == 'add' || viewType == 'edit') && <Upload {...props3} disabled={disabled}>
                                 {fileList3.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
@@ -929,7 +975,7 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            {viewType == 'add' || viewType == 'edit' && <Upload {...props4} disabled={disabled}>
+                            {(viewType == 'add' || viewType == 'edit') && <Upload {...props4} disabled={disabled}>
                                 {fileList4.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
@@ -945,7 +991,7 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            {viewType == 'add' || viewType == 'edit' && <Upload {...props5} disabled={disabled}>
+                            {(viewType == 'add' || viewType == 'edit') && <Upload {...props5} disabled={disabled}>
                                 {fileList5.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
@@ -961,7 +1007,7 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            {viewType == 'add' || viewType == 'edit' && <Upload {...props6} disabled={disabled}>
+                            {(viewType == 'add' || viewType == 'edit') && <Upload {...props6} disabled={disabled}>
                                 {fileList6.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
@@ -977,7 +1023,7 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_efficiency_bar_result_sheet', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            {viewType == 'add' || viewType == 'edit' && <Upload {...props7} disabled={disabled}>
+                            {(viewType == 'add' || viewType == 'edit') && <Upload {...props7} disabled={disabled}>
                                 {fileList7.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
@@ -993,7 +1039,7 @@ class ConfirmationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_medical_certificate', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            {viewType == 'add' || viewType == 'edit' && <Upload {...props8} disabled={disabled}>
+                            {(viewType == 'add' || viewType == 'edit') && <Upload {...props8} disabled={disabled}>
                                 {fileList8.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
@@ -1001,7 +1047,7 @@ class ConfirmationForm extends React.Component {
                             {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_medical_certificate')}>Attachment</Button>}
                         </FormItem>
 
-                        {viewType == 'view' && <FormItem
+                        {viewType == 'view' && role != '4' && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1023,7 +1069,7 @@ class ConfirmationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {viewType == 'view' && !approved && <FormItem
+                        {viewType == 'view' && !approved && role != '4' && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1037,13 +1083,14 @@ class ConfirmationForm extends React.Component {
 
                         <ButtonContainer>
                             <LeftButtons>
-                                {viewType == 'view' && <Button type="default" loading={confirmLoading} onClick={this.enableEdit}>Enable Edit</Button>}
-                                {viewType == 'edit' && <Button type="default" loading={confirmLoading} onClick={this.disableEdit}>Disable Edit</Button>}
+                                {this.renderLeftButtons().map(element => {
+                                    return element;
+                                })}
                             </LeftButtons>
                             <RightButtons>
-                                {viewType == 'add' && <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>}
-                                {viewType == 'view' && <Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>}
-                                {viewType == 'edit' && <Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update</Button>}
+                                {this.renderRightButtons().map(element => {
+                                    return element;
+                                })}
                             </RightButtons>
                         </ButtonContainer>
                     </Form>
