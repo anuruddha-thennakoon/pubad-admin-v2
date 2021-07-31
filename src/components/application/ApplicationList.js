@@ -74,7 +74,7 @@ class ApplicationList extends React.Component {
             user_role: role,
             institutes_id: user.institutes_id,
             application_type: this.props.applicationType,
-            applicationStatus: this.props.applicationStatus
+            application_status: this.props.applicationStatus
         })
             .then(response => {
                 this.setState({ applications: response });

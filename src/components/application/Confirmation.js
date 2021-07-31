@@ -47,11 +47,12 @@ class ConfirmationForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            disabled: false, approved: true,
+            disabled: false, approved: 1,
             viewType: this.props.viewType,
             officer: {},
             c1: false, c2: false, c3: false, c4: false, c5: false,
             confirmLoading: false,
+            applicationStatus: 0,
             fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
         };
 
@@ -108,6 +109,7 @@ class ConfirmationForm extends React.Component {
             let application = JSON.parse(this.props.application.application);
             this.setState({
                 disabled: true,
+                applicationStatus: this.props.application.status,
                 c1: application.c1,
                 c2: application.c2,
                 c3: application.c3,
@@ -262,8 +264,9 @@ class ConfirmationForm extends React.Component {
 
                 let approveData = {
                     application_id: this.props.application.id,
-                    is_approved: approved,
+                    approved: approved,
                     user_role: role,
+                    status: this.props.application.status,
                     reject_reason: values.reject_reason ? values.reject_reason : null
                 }
 
@@ -285,17 +288,44 @@ class ConfirmationForm extends React.Component {
         console.log('file --> ', this.state.fileList1);
     }
 
-    renderLeftButtons = () => {
+    viewEnableEdit = () => {
+        const status = this.props.application.status;
         const role = this.props.appState.getUserRole();
+        let enable = false;
+
+        switch (role) {
+            case '2':
+                if (status == 100 || status == 101) {
+                    enable = true;
+                }
+                break;
+            case '3':
+                if (status == 200 || status == 201) {
+                    enable = true;
+                }
+                break;
+            case '4':
+                if (status == 100 || status == 101) {
+                    enable = true;
+                }
+                break;
+            default:
+                break;
+        }
+
+        return enable;
+    }
+
+    renderLeftButtons = () => {
         const { viewType, confirmLoading } = this.state;
 
         if (viewType == 'add') {
             return [];
-        } else if (viewType == 'view' && (role == '2' || role == '4')) {
+        } else if (viewType == 'view' && this.viewEnableEdit()) {
             return [
                 <Button type="default" loading={confirmLoading} onClick={this.enableEdit}>Enable Edit</Button>
             ];
-        } else if (viewType == 'edit' && (role == '2' || role == '4')) {
+        } else if (viewType == 'edit' && this.viewEnableEdit()) {
             return [
                 <Button type="default" loading={confirmLoading} onClick={this.disableEdit}>Disable Edit</Button>
             ];
@@ -305,6 +335,7 @@ class ConfirmationForm extends React.Component {
     }
 
     renderRightButtons = () => {
+        const status = this.props.application.status;
         const role = this.props.appState.getUserRole();
         const { viewType, confirmLoading } = this.state;
 
@@ -316,7 +347,7 @@ class ConfirmationForm extends React.Component {
             return [
                 <Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>
             ];
-        } else if (viewType == 'edit' && (role == '2' || role == '4')) {
+        } else if (viewType == 'edit' && this.viewEnableEdit()) {
             return [
                 <Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update</Button>
             ];
@@ -329,7 +360,7 @@ class ConfirmationForm extends React.Component {
         const role = this.props.appState.getUserRole();
         const { getFieldDecorator } = this.props.form;
         const { institutes } = this.props.appStore;
-        const { officer, viewType, disabled, approved,
+        const { officer, viewType, disabled, approved, applicationStatus,
             fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
 
         const props1 = {
@@ -1047,7 +1078,7 @@ class ConfirmationForm extends React.Component {
                             {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_medical_certificate')}>Attachment</Button>}
                         </FormItem>
 
-                        {viewType == 'view' && role != '4' && <FormItem
+                        {(viewType == 'view' && role != '4') && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1063,13 +1094,14 @@ class ConfirmationForm extends React.Component {
                                     onChange={(e) => this.setReject(e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
-                                    <Option value={true}>Approve</Option>
-                                    <Option value={false}>Reject</Option>
+                                    {applicationStatus == 200 && <Option value={1}>Submit to Commission</Option>}
+                                    {applicationStatus != 200 && <Option value={1}>Approve</Option>}
+                                    <Option value={0}>Reject</Option>
                                 </Select>
                             )}
                         </FormItem>}
 
-                        {viewType == 'view' && !approved && role != '4' && <FormItem
+                        {(viewType == 'view' && approved == 0 && role != '4') && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1083,13 +1115,13 @@ class ConfirmationForm extends React.Component {
 
                         <ButtonContainer>
                             <LeftButtons>
-                                {this.renderLeftButtons().map(element => {
-                                    return element;
+                                {this.renderLeftButtons().map((element, index) => {
+                                    return <span key={index}>{element}</span>;
                                 })}
                             </LeftButtons>
                             <RightButtons>
-                                {this.renderRightButtons().map(element => {
-                                    return element;
+                                {this.renderRightButtons().map((element, index) => {
+                                    return <span key={index}>{element}</span>;
                                 })}
                             </RightButtons>
                         </ButtonContainer>

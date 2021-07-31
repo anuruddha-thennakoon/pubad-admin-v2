@@ -24,8 +24,9 @@ class ApplicationsDashboard extends React.Component {
         this.state = {
             dbstate: 'applications',//applications, application_status, application_list
             applicationType: 0,
-            applicationStatus: '',
-            pendingCount: 0, approvedCount: 0, rejectedCount: 0
+            applicationStatus: 0,
+            applicationStatusName: '',
+            applicationsCount: []
         };
     }
 
@@ -60,35 +61,29 @@ class ApplicationsDashboard extends React.Component {
             application_type: applicationType
         })
             .then(response => {
-                this.updateApplicationData(response);
+                this.setState({ applicationsCount: response });
                 this.setState({ dbstate: 'application_status', applicationType: applicationType });
             })
             .catch(err => {
-                this.setState({ applicationList: [] });
+                this.setState({ applicationsCount: response });
                 openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
             });
     }
 
-    updateApplicationData = (applications) => {
-        let pendingCount = applications.pendingCount;
-        let approvedCount = applications.approvedCount;
-        let rejectedCount = applications.rejectedCount;
-
-        this.setState({
-            pendingCount: pendingCount, approvedCount: approvedCount, rejectedCount: rejectedCount
-        });
-    }
-
-    selectStatus = (applicationStatus) => {
-        this.setState({ dbstate: 'application_list', applicationStatus: applicationStatus });
+    selectStatus = (applicationStatus, applicationStatusName) => {
+        this.setState({ dbstate: 'application_list', applicationStatus: applicationStatus, applicationStatusName: applicationStatusName });
     }
 
     handleBack = (dbstate) => {
+        const { applicationType } = this.state;
         this.setState({ dbstate: dbstate });
+        if (dbstate == 'application_status') {
+            this.selectApplication(applicationType);
+        }
     }
 
     render() {
-        const { dbstate, applicationType, applicationStatus, pendingCount, approvedCount, rejectedCount } = this.state;
+        const { dbstate, applicationType, applicationsCount, applicationStatus, applicationStatusName } = this.state;
 
         return (
             <div>
@@ -160,27 +155,15 @@ class ApplicationsDashboard extends React.Component {
                     </Row>
 
                     <Row>
-                        <Col span={8}>
-                            <Card style={{ padding: 10, margin: 15, cursor: 'pointer' }} onClick={() => this.selectStatus('Pending')}>
-                                <Statistic valueStyle={{ color: '#000000' }}
-                                    prefix={<Icon type="file-text" />}
-                                    title="Pending" value={pendingCount} />
-                            </Card>
-                        </Col>
-                        <Col span={8}>
-                            <Card style={{ padding: 10, margin: 15, cursor: 'pointer' }} onClick={() => this.selectStatus('Approved')}>
-                                <Statistic valueStyle={{ color: '#0e8503' }}
-                                    prefix={<Icon type="file-text" />}
-                                    title="Approved" value={approvedCount} />
-                            </Card>
-                        </Col>
-                        <Col span={8}>
-                            <Card style={{ padding: 10, margin: 15, cursor: 'pointer' }} onClick={() => this.selectStatus('Rejected')}>
-                                <Statistic valueStyle={{ color: '#b40000' }}
-                                    prefix={<Icon type="file-text" />}
-                                    title="Rejected" value={rejectedCount} />
-                            </Card>
-                        </Col>
+                        {applicationsCount.map((data, index) => {
+                            return <Col span={6} key={index}>
+                                <Card style={{ padding: 10, margin: 15, cursor: 'pointer' }} onClick={() => this.selectStatus(data.status, data.status_name)}>
+                                    <Statistic valueStyle={{ color: '#000000' }}
+                                        prefix={<Icon type="file-text" />}
+                                        title={data.status_name} value={data.count} />
+                                </Card>
+                            </Col>
+                        })}
                     </Row>
                 </div>}
 
@@ -189,12 +172,12 @@ class ApplicationsDashboard extends React.Component {
                         <PageHeader
                             onBack={() => this.handleBack('application_status')}
                             title={this.getApplicationName(applicationType)}
-                            subTitle={applicationStatus}
+                            subTitle={applicationStatusName}
                         />
                     </Row>
 
                     <Row>
-                        <ApplicationList applicationStatus={applicationStatus} applicationType={applicationType}/>
+                        <ApplicationList applicationStatus={applicationStatus} applicationType={applicationType} />
                     </Row>
                 </div>}
 
