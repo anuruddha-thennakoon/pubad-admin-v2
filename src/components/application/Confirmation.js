@@ -286,6 +286,7 @@ class ConfirmationForm extends React.Component {
 
     editApproveApplication = () => {
         console.log('file --> ', this.state.fileList1);
+        
     }
 
     viewEnableEdit = () => {
