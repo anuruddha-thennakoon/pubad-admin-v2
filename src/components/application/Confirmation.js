@@ -286,7 +286,7 @@ class ConfirmationForm extends React.Component {
 
     editApproveApplication = () => {
         console.log('file --> ', this.state.fileList1);
-        
+
     }
 
     viewEnableEdit = () => {
@@ -336,7 +336,6 @@ class ConfirmationForm extends React.Component {
     }
 
     renderRightButtons = () => {
-        const status = this.props.application.status;
         const role = this.props.appState.getUserRole();
         const { viewType, confirmLoading } = this.state;
 
