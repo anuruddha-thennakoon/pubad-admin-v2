@@ -1,6 +1,6 @@
 import React from 'react';
 import { inject, observer } from 'mobx-react';
-import { Card, Breadcrumb, Table, Typography } from 'antd';
+import { Card, Breadcrumb, Table, Typography, Switch } from 'antd';
 
 const { Title } = Typography;
 
@@ -14,7 +14,7 @@ class AllUsers extends React.Component {
     }
 
     componentDidMount() {
-        // this.getAllUsers();
+        this.getAllUsers();
     }
 
     columns = [
@@ -63,19 +63,27 @@ class AllUsers extends React.Component {
             width: '10%',
 
         },
-        // {
-        //     title: '',
-        //     key: '',
-        //     dataIndex: '',
-        //     width: '10%',
-        //     render: (text, record) => (
-        //         <ViewApplication reloadData={() => this.reloadApplications()} applicationType={this.props.applicationType} application={record} />
-        //     ),
-        // }
+        {
+            title: '',
+            key: '',
+            dataIndex: '',
+            width: '10%',
+            render: (text, record) => (
+                <span>
+                    {record.status == 1 && <Switch defaultChecked onChange={() => this.setActive(record.status )} />}
+                    {record.status == 0 && <Switch onChange={() => this.setActive(record.status )} />}
+                </span>
+            ),
+        }
     ];
 
+    setActive = (status) => {
+        console.log(`switch to ${status}`);
+        this.getAllUsers();
+    }
+
     getAllUsers = () => {
-        this.props.appStore.getApplications()
+        this.props.appStore.getAllUsers()
             .then(response => {
                 this.setState({ users: response });
             })

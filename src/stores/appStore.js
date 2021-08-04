@@ -449,6 +449,17 @@ class AppStore {
             }))
     }
 
+    @action getAllUsers() {
+
+        return appService.getAllUsers()
+            .then((data) => {
+                return data;
+            })
+            .catch(action((err) => {
+                throw err;
+            }))
+    }
+
     @action uploadFiles(data) {
         this.inProgress = true;
         this.errors = undefined;
