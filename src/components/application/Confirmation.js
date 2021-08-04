@@ -49,6 +49,7 @@ class ConfirmationForm extends React.Component {
         this.state = {
             disabled: false, approved: 1,
             viewType: this.props.viewType,
+            rejectReason: null,
             officer: {},
             c1: false, c2: false, c3: false, c4: false, c5: false,
             confirmLoading: false,
@@ -114,7 +115,8 @@ class ConfirmationForm extends React.Component {
                 c2: application.c2,
                 c3: application.c3,
                 c4: application.c4,
-                c5: application.c5
+                c5: application.c5,
+                rejectReason: this.props.application.reject_reason
             });
         }
     }
@@ -296,12 +298,38 @@ class ConfirmationForm extends React.Component {
 
         switch (role) {
             case '2':
-                if (status == 100 || status == 101) {
+                if (status == 100) {
                     enable = true;
                 }
                 break;
             case '3':
-                if (status == 200 || status == 201) {
+                break;
+            case '4':
+                if (status == 100 || status == 101) {
+                    enable = true;
+                }
+                break;
+            default:
+                break;
+        }
+
+        return enable;
+    }
+
+
+    viewSubmit = () => {
+        const status = this.props.application.status;
+        const role = this.props.appState.getUserRole();
+        let enable = false;
+
+        switch (role) {
+            case '2':
+                if (status == 100 || status == 201) {
+                    enable = true;
+                }
+                break;
+            case '3':
+                if (status == 200 || status == 300) {
                     enable = true;
                 }
                 break;
@@ -309,6 +337,31 @@ class ConfirmationForm extends React.Component {
                 if (status == 100 || status == 101) {
                     enable = true;
                 }
+                break;
+            default:
+                break;
+        }
+
+        return enable;
+    }
+
+    showAction = () => {
+        const status = this.props.application.status;
+        const role = this.props.appState.getUserRole();
+        let enable = false;
+
+        switch (role) {
+            case '2':
+                if (status == 100 || status == 101 || status == 201) {
+                    enable = true;
+                }
+                break;
+            case '3':
+                if (status == 200 || status == 300) {
+                    enable = true;
+                }
+                break;
+            case '4':
                 break;
             default:
                 break;
@@ -336,14 +389,13 @@ class ConfirmationForm extends React.Component {
     }
 
     renderRightButtons = () => {
-        const role = this.props.appState.getUserRole();
         const { viewType, confirmLoading } = this.state;
 
         if (viewType == 'add') {
             return [
                 <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>
             ];
-        } else if (viewType == 'view' && (role == '2' || role == '3')) {
+        } else if (viewType == 'view' && this.viewSubmit()) {
             return [
                 <Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>
             ];
@@ -360,7 +412,7 @@ class ConfirmationForm extends React.Component {
         const role = this.props.appState.getUserRole();
         const { getFieldDecorator } = this.props.form;
         const { institutes } = this.props.appStore;
-        const { officer, viewType, disabled, approved, applicationStatus,
+        const { officer, viewType, disabled, approved, applicationStatus, rejectReason,
             fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
 
         const props1 = {
@@ -1078,7 +1130,7 @@ class ConfirmationForm extends React.Component {
                             {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_medical_certificate')}>Attachment</Button>}
                         </FormItem>
 
-                        {(viewType == 'view' && role != '4') && <FormItem
+                        {(viewType == 'view' && this.showAction()) && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1094,22 +1146,34 @@ class ConfirmationForm extends React.Component {
                                     onChange={(e) => this.setReject(e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
-                                    {applicationStatus == 200 && <Option value={1}>Submit to Commission</Option>}
-                                    {applicationStatus != 200 && <Option value={1}>Approve</Option>}
+                                    <Option value={1}>{applicationStatus == 200 ? 'Submit to Commission' : 'Approve'}</Option>
                                     <Option value={0}>Reject</Option>
                                 </Select>
                             )}
                         </FormItem>}
 
-                        {(viewType == 'view' && approved == 0 && role != '4') && <FormItem
+                        {(viewType == 'view' && approved == 0 && this.showAction()) && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('reject_reason', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                rules: [{ required: true, message: 'Please input relevant data' }]
                             })(
                                 <TextArea rows={4} style={{ width: '100%' }} />
+                            )}
+                        </FormItem>}
+
+                        {rejectReason && <FormItem
+                            label="Reject reason"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('reject_reason', {
+                                rules: [{ required: !true, message: 'Please input relevant data' }],
+                                initialValue: rejectReason
+                            })(
+                                <TextArea disabled={true} rows={4} style={{ width: '100%' }} />
                             )}
                         </FormItem>}
 

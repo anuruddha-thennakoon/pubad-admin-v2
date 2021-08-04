@@ -96,6 +96,7 @@ class DataForm extends Component {
 
                         this.setState({ confirmLoading: false, sucess: true });
                         openNotificationWithIcon('success', 'Success', 'Data added successfully!');
+                        this.props.history.push('/login')
                     })
                     .catch(err => {
                         this.setState({ confirmLoading: false });

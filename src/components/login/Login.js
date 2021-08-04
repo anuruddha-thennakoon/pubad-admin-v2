@@ -40,7 +40,7 @@ class NormalLoginForm extends Component {
                 }
                 this.props.authStore.login(data)
                     .then(sucess => {
-                        this.props.history.push('/dashboard')
+                        this.props.history.push('/dashboard');
                     })
                     .catch(err => {
                         this.setState({ loading: false });
