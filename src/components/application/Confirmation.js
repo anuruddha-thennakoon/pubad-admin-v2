@@ -305,7 +305,7 @@ class ConfirmationForm extends React.Component {
             case '3':
                 break;
             case '4':
-                if (status == 100 || status == 101) {
+                if (status == 101) {
                     enable = true;
                 }
                 break;
@@ -334,7 +334,7 @@ class ConfirmationForm extends React.Component {
                 }
                 break;
             case '4':
-                if (status == 100 || status == 101) {
+                if (status == 101) {
                     enable = true;
                 }
                 break;
