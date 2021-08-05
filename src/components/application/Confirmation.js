@@ -312,7 +312,6 @@ class ConfirmationForm extends React.Component {
             default:
                 break;
         }
-
         return enable;
     }
 
@@ -341,7 +340,6 @@ class ConfirmationForm extends React.Component {
             default:
                 break;
         }
-
         return enable;
     }
 
@@ -366,7 +364,6 @@ class ConfirmationForm extends React.Component {
             default:
                 break;
         }
-
         return enable;
     }
 
