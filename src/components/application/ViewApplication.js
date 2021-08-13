@@ -4,7 +4,11 @@ import '../../styles/styles.scss';
 import {
     Modal, Alert, Button, notification, Input, Form, Link, Radio, Tag, Select, Divider, Card, Upload, Icon, Statistic
 } from 'antd';
+
 import Confirmation from './Confirmation';
+import Transfer from './Transfer';
+import Appointment from './Appointment';
+import Promotion from './Promotion';
 
 const FormItem = Form.Item;
 
@@ -50,8 +54,10 @@ class ViewApplicationForm extends Component {
                     onCancel={this.closeModal}
                     width={900}
                 >
+                    {this.props.applicationType == 2 && <Promotion closeApplication={() => this.closeModal()} application={this.props.application} viewType="view" />}
                     {this.props.applicationType == 3 && <Confirmation closeApplication={() => this.closeModal()} application={this.props.application} viewType="view" />}
-                    {/* <Confirmation viewType="view" /> */}
+                    {this.props.applicationType == 7 && <Transfer closeApplication={() => this.closeModal()} application={this.props.application} viewType="view" />}
+                    {this.props.applicationType == 8 && <Appointment closeApplication={() => this.closeModal()} application={this.props.application} viewType="view" />}
                 </Modal>
             </div>
         );

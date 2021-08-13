@@ -97,6 +97,7 @@ class ViewOfficerForm extends Component {
 
                 var body = {
                     id: officerDetails.id,
+                    nic: values.nic ? values.nic : null,
                     seniority_no: values.seniority_no ? values.seniority_no : null,
                     gender: values.gender.length != 0 ? values.gender : null,
                     address: values.address ? values.address : null,
@@ -197,10 +198,10 @@ class ViewOfficerForm extends Component {
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('nic', {
-                                rules: [{ required: !true, message: 'Please input nic' }],
+                                rules: [{ required: true, message: 'Please input nic' }],
                                 initialValue: officerDetails.nic
                             })(
-                                <Input style={{ width: 250 }} readOnly />
+                                <Input style={{ width: 250 }} />
                             )}
                         </FormItem>
 

@@ -5,6 +5,10 @@ import {
 import { inject, observer } from 'mobx-react';
 
 import Confirmation from './Confirmation';
+import Acting from './Acting';
+import Transfer from './Transfer';
+import Appointment from './Appointment';
+import Promotion from './Promotion';
 
 const { Title, Text } = Typography;
 const Option = Select.Option;
@@ -53,18 +57,31 @@ class NewApplication extends React.Component {
                         onChange={this.changeApplicationType}
                         filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                     >
-                        <Option value={1}>Acting Appointment Application</Option>
+                        {/* <Option value={1}>Acting Appointment Application</Option> */}
                         <Option value={2}>Class II Promotion Application</Option>
                         <Option value={3}>Confirmation Application</Option>
-                        <Option value={4}>Re-employment Application</Option>
-                        <Option value={5}>Releases Application</Option>
-                        <Option value={6}>Retirement Application</Option>
+                        {/* <Option value={4}>Re-employment Application</Option> */}
+                        {/* <Option value={5}>Releases Application</Option> */}
+                        {/* <Option value={6}>Retirement Application</Option> */}
                         <Option value={7}>Transfer Application</Option>
+                        <Option value={8}>Appointment to the Post</Option>
                     </Select>
                 </Card>
 
+                {/* {applicationType == 1 &&
+                    <Acting viewType="add" />
+                } */}
+                {applicationType == 2 &&
+                    <Promotion viewType="add" />
+                }
                 {applicationType == 3 &&
-                    <Confirmation viewType="add"/>
+                    <Confirmation viewType="add" />
+                }
+                {applicationType == 7 &&
+                    <Transfer viewType="add" />
+                }
+                {applicationType == 8 &&
+                    <Appointment viewType="add" />
                 }
             </div>
         );

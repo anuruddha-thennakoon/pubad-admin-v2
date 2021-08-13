@@ -46,6 +46,8 @@ class ApplicationsDashboard extends React.Component {
                 return 'Retirement';
             case 7:
                 return 'Transfer';
+            case 8:
+                return 'Appointment';
             default:
                 return '';
         }
@@ -141,6 +143,14 @@ class ApplicationsDashboard extends React.Component {
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Transfer"
+                            />
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card className='card-style' onClick={() => this.selectApplication(8)}>
+                            <Meta
+                                avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
+                                title="Appointment"
                             />
                         </Card>
                     </Col>

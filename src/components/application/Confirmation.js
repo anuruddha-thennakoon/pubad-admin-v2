@@ -42,7 +42,7 @@ const openNotificationWithIcon = (type, title, msg) => {
 
 @inject('appStore', 'appState')
 @observer
-class ConfirmationForm extends React.Component {
+class ApplicationForm extends React.Component {
 
     constructor(props) {
         super(props);
@@ -58,6 +58,7 @@ class ConfirmationForm extends React.Component {
         };
 
         this.props.appStore.getInstitutes();
+        this.props.appStore.getDesignations();
     }
 
     componentDidMount() {
@@ -185,8 +186,8 @@ class ConfirmationForm extends React.Component {
                 } = this.state;
                 let userData = this.props.appState.getUserData();
 
-                if (fileList1[0].length != 0 && fileList2[0].length && fileList3[0].length && fileList4[0].length &&
-                    fileList5[0].length != 0 && fileList6[0].length && fileList7[0].length && fileList8[0].length) {
+                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0 || fileList4[0].length == 0 ||
+                    fileList5[0].length == 0 || fileList6[0].length == 0 || fileList7[0].length == 0 || fileList8[0].length == 0) {
                     openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
                 }
 
@@ -406,9 +407,8 @@ class ConfirmationForm extends React.Component {
     }
 
     render() {
-        const role = this.props.appState.getUserRole();
         const { getFieldDecorator } = this.props.form;
-        const { institutes } = this.props.appStore;
+        const { institutes, designations } = this.props.appStore;
         const { officer, viewType, disabled, approved, applicationStatus, rejectReason,
             fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8 } = this.state;
 
@@ -573,10 +573,17 @@ class ConfirmationForm extends React.Component {
         }
 
         let instituteValues = [];
+        let desigValues = [];
 
         if (institutes) {
             institutes.forEach((element, index) => {
                 instituteValues.push(<Option key={index} value={element.name}>{element.name}</Option>);
+            });
+        }
+
+        if (designations) {
+            designations.forEach((element, index) => {
+                desigValues.push(<Option key={index} value={element.designation}>{element.designation}</Option>);
             });
         }
 
@@ -642,7 +649,15 @@ class ConfirmationForm extends React.Component {
                                     (officer.service_history ? this.getActive(officer.service_history).designation : null) :
                                     this.getApplicationItem('designation')
                             })(
-                                <Input disabled={disabled} style={{ width: '100%' }} />
+                                <Select
+                                    showSearch
+                                    disabled={disabled}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {desigValues}
+                                </Select>
                             )}
                         </FormItem>
 
@@ -1194,6 +1209,6 @@ class ConfirmationForm extends React.Component {
     }
 }
 
-const Confirmation = Form.create()(ConfirmationForm);
+const Confirmation = Form.create()(ApplicationForm);
 
 export default Confirmation
