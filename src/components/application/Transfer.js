@@ -531,7 +531,7 @@ class ApplicationForm extends React.Component {
                             })(
                                 <Select
                                     showSearch
-                                    disabled={true}
+                                    disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
