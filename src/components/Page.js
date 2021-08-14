@@ -39,6 +39,7 @@ import GradeIIOfficers from './reports/GradeIIOfficers';
 import GradeIIIOfficers from './reports/GradeIIIOfficers';
 import NewApplication from './application/NewApplication';
 import AllUsers from './profile/AllUsers';
+import Cadre from './dashboard/Cadre';
 
 const { Content, Footer } = Layout;
 
@@ -75,6 +76,7 @@ class Page extends Component {
 
                             {/* Dashboard */}
                             {(role == '1' || role == '2' || role == '3' || role == '4') && <Route path="/dashboard" component={Dashboard} />}
+                            {(role == '4') && <Route path="/cadre" component={Cadre} />}
 
                             {/* Settings */}
                             {(role == '1') && <Route path="/create-user" component={CreateUser} />}

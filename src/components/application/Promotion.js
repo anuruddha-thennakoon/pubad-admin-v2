@@ -267,7 +267,6 @@ class ApplicationForm extends React.Component {
 
                 let approveData = {
                     application_id: this.props.application.id,
-                    application_type: this.props.application.application_type,
                     approved: approved,
                     user_role: role,
                     status: this.props.application.status,
@@ -1210,6 +1209,6 @@ class ApplicationForm extends React.Component {
     }
 }
 
-const Confirmation = Form.create()(ApplicationForm);
+const Promotion = Form.create()(ApplicationForm);
 
-export default Confirmation
+export default Promotion

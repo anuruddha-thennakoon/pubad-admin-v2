@@ -562,6 +562,26 @@ class AppStore {
                 throw err;
             }))
     }
+
+    @action approveUser(data) {
+        return appService.approveUser(data)
+            .then(data => {
+                return data;
+            })
+            .catch(action(err => {
+                return err;
+            }))
+    }
+
+    @action getCadres(data) {
+        return appService.getCadres(data)
+            .then(data => {
+                return data;
+            })
+            .catch(action(err => {
+                return err;
+            }))
+    }
 }
 
 export default new AppStore();

@@ -58,7 +58,7 @@ class NewApplication extends React.Component {
                         filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                     >
                         {/* <Option value={1}>Acting Appointment Application</Option> */}
-                        <Option value={2}>Class II Promotion Application</Option>
+                        {/* <Option value={2}>Class II Promotion Application</Option> */}
                         <Option value={3}>Confirmation Application</Option>
                         {/* <Option value={4}>Re-employment Application</Option> */}
                         {/* <Option value={5}>Releases Application</Option> */}

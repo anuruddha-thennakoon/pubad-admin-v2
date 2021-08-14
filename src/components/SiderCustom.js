@@ -90,6 +90,7 @@ class SiderCustom extends Component {
                     {(role == '1' || role == '2' || role == '3' || role == '4') &&
                         <SubMenu key="sub1" title={<span><Icon type="fund" /><span>Dashboard</span></span>}>
                             <Menu.Item key="1"><Link to={'/dashboard'}>Dashboard</Link></Menu.Item>
+                            {(role == '4') && <Menu.Item key="23"><Link to={'/cadre'}>Cadre</Link></Menu.Item>}
                         </SubMenu>
                     }
                     {(role == '1') &&

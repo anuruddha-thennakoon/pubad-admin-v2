@@ -46,6 +46,9 @@ class Api {
     UPDATE_OFFICER = this.URL + 'update-officer';
     REG_OFFICER = this.URL + 'register-officer';
     EDIT_CADRE = this.URL + 'edit-cadre';
+    ALL_USERS = this.URL + 'all-users';
+    APPROVE_USER = this.URL + 'approve-user';
+    GET_CADRES = this.URL + 'cadres';
 
     SERVICE_HISTORY(data) {
         return this.URL + 'service-history/' + data.id;

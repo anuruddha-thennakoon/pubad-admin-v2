@@ -85,75 +85,76 @@ class ApplicationsDashboard extends React.Component {
     }
 
     render() {
+        const role = this.props.appState.getUserRole();
         const { dbstate, applicationType, applicationsCount, applicationStatus, applicationStatusName } = this.state;
 
         return (
             <div>
                 {dbstate === 'applications' && <Row>
-                    <Col span={6}>
+                    {(role == '2' || role == '4') && <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication(1)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title={<span>Acting <br />Appointment</span>}
                             />
                         </Card>
-                    </Col>
-                    <Col span={6}>
+                    </Col>}
+                    {(role == '2' || role == '4') && <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication(2)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title={<span>Class II <br />Promotion</span>}
                             />
                         </Card>
-                    </Col>
-                    <Col span={6}>
+                    </Col>}
+                    {(role == '2' || role == '3' || role == '4') && <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication(3)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Confirmation"
                             />
                         </Card>
-                    </Col>
-                    <Col span={6}>
+                    </Col>}
+                    {(role == '2' || role == '4') && <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication(4)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Re-employment"
                             />
                         </Card>
-                    </Col>
-                    <Col span={6}>
+                    </Col>}
+                    {(role == '2' || role == '4') && <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication(5)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Releases"
                             />
                         </Card>
-                    </Col>
-                    <Col span={6}>
+                    </Col>}
+                    {(role == '2' || role == '4') && <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication(6)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Retirement"
                             />
                         </Card>
-                    </Col>
-                    <Col span={6}>
+                    </Col>}
+                    {(role == '2' || role == '4') && <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication(7)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Transfer"
                             />
                         </Card>
-                    </Col>
-                    <Col span={6}>
+                    </Col>}
+                    {(role == '2' || role == '4') && <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication(8)}>
                             <Meta
                                 avatar={<Icon type="file-text" style={{ fontSize: '32px', padding: 10 }} />}
                                 title="Appointment"
                             />
                         </Card>
-                    </Col>
+                    </Col>}
                 </Row>}
 
                 {dbstate == 'application_status' && <div>

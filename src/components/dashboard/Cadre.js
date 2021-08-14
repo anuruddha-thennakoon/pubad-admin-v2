@@ -4,68 +4,70 @@ import { Table, Button, Card, Breadcrumb, Typography, Statistic, Row, Col } from
 
 const { Title } = Typography;
 
-@inject('appStore')
+@inject('appStore','appState')
 @observer
-class GradeViseInfo extends React.Component {
+class Cadre extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { tableLoading: true };
-
-        if (!this.props.appStore.gradeVacanyDetails) {
-            this.props.history.push('/grades-vacancy')
-        }
+        this.state = { cadres: [] };
     }
 
     columns = [
         {
-            title: '#ID',
-            dataIndex: 'officers_id',
+            title: 'Grade',
+            dataIndex: 'grade_name',
         },
         {
             title: 'Designation',
             dataIndex: 'designation',
         },
         {
-            title: 'Officer Name',
-            dataIndex: 'name',
-        },
-        {
-            title: 'Grade Name',
-            dataIndex: 'grade_name',
-        },
-        {
-            title: 'Nature of Attachment',
-            dataIndex: 'nature_of_attachment',
-        },
+            title: 'No of cadre',
+            dataIndex: 'no_of_cadre',
+        }
     ];
 
+    componentDidMount() {
+        this.getCadres();
+    }
+
+    getCadres = () => {
+        let userData = this.props.appState.getUserData();
+
+        this.props.appStore.getCadres({institute_id: userData.institutes_id})
+            .then(response => {
+                this.setState({ cadres: response });
+            })
+            .catch(err => {
+                this.setState({ cadres: [] });
+                openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+            });
+    }
+
     render() {
-        let { gradeVacanyDetails } = this.props.appStore;
+        let { cadres } = this.state;
 
         return (
             <div>
                 <Card bordered={false}>
                     <Breadcrumb>
                         <Breadcrumb.Item>
-                            Reports
+                            Dashboard
                         </Breadcrumb.Item>
                         <Breadcrumb.Item>
-                            Grades
-                        </Breadcrumb.Item>
-                        <Breadcrumb.Item>
-                            Info
+                            Cadre
                         </Breadcrumb.Item>
                     </Breadcrumb>
 
-                    <Title level={4}>Info</Title>
+                    <Title level={4}>Cadre</Title>
                 </Card>
 
                 <Card className="card-magrin">
                     <Table
                         pagination={false}
                         columns={this.columns}
-                        dataSource={gradeVacanyDetails}
+                        dataSource={cadres}
                         size="small" />
                 </Card>
             </div>
@@ -73,4 +75,4 @@ class GradeViseInfo extends React.Component {
     }
 }
 
-export default GradeViseInfo;
+export default Cadre;

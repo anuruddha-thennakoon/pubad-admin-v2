@@ -1,8 +1,16 @@
 import React from 'react';
 import { inject, observer } from 'mobx-react';
-import { Card, Breadcrumb, Table, Typography, Switch } from 'antd';
+import { Card, Breadcrumb, Table, Typography, Switch, notification } from 'antd';
 
 const { Title } = Typography;
+
+const openNotificationWithIcon = (type, title, msg) => {
+    notification[type]({
+        placement: 'topRight',
+        message: title,
+        description: msg,
+    });
+};
 
 @inject('appStore', 'appState')
 @observer
@@ -27,7 +35,7 @@ class AllUsers extends React.Component {
             title: 'Full Name',
             dataIndex: 'full_name',
             key: 'full_name',
-            width: '30%',
+            width: '15%',
         },
         {
             title: 'NIC',
@@ -44,6 +52,7 @@ class AllUsers extends React.Component {
             title: 'Institute',
             dataIndex: 'institute',
             key: 'institute',
+            width: '30%',
         },
         {
             title: 'Designation',
@@ -54,7 +63,7 @@ class AllUsers extends React.Component {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
-
+            width: '5%',
         },
         {
             title: 'Mobile',
@@ -70,16 +79,22 @@ class AllUsers extends React.Component {
             width: '10%',
             render: (text, record) => (
                 <span>
-                    {record.status == 1 && <Switch defaultChecked onChange={() => this.setActive(record.status )} />}
-                    {record.status == 0 && <Switch onChange={() => this.setActive(record.status )} />}
+                    {record.status == 1 && <Switch defaultChecked onChange={() => this.setActive(record)} />}
+                    {record.status == 0 && <Switch onChange={() => this.setActive(record)} />}
                 </span>
             ),
         }
     ];
 
-    setActive = (status) => {
-        console.log(`switch to ${status}`);
-        this.getAllUsers();
+    setActive = (record) => {
+        this.props.appStore.approveUser({ id: record.id, status: !record.status })
+            .then(response => {
+                this.getAllUsers();
+            })
+            .catch(err => {
+                openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+                this.getAllUsers();
+            });
     }
 
     getAllUsers = () => {
