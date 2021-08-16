@@ -58,18 +58,18 @@ class NormalLoginForm extends Component {
                 <Form onSubmit={this.handleSubmit} className="login-form">
                     <FormItem>
                         <img className="image-class-login" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Emblem_of_Sri_Lanka.svg/2000px-Emblem_of_Sri_Lanka.svg.png" />
-                        <Title level={4}>Ministry of Public Administration</Title>
+                        <Title level={4}>Public Services HRMS</Title>
                     </FormItem>
                     <FormItem style={{ marginTop: 5 }}>
                         {getFieldDecorator('username', {
-                            rules: [{ required: true, message: 'Please input your username' }],
+                            rules: [{ required: true, message: 'Please enter your username' }],
                         })(
                             <Input size="large" prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Username" />
                         )}
                     </FormItem>
                     <FormItem style={{ marginTop: 5 }}>
                         {getFieldDecorator('password', {
-                            rules: [{ required: true, message: 'Please input your Password' }],
+                            rules: [{ required: true, message: 'Please enter your password' }],
                         })(
                             <Input.Password size="large" prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />} type="password" placeholder="Password" />
                         )}
