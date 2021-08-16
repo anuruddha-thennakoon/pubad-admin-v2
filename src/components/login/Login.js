@@ -84,6 +84,7 @@ class NormalLoginForm extends Component {
                         {/* <Link className="login-form-forgot" to={'/resetpassword'}>Forgot password</Link> */}
                         {/* <Button type="primary" htmlType="submit" className="login-form-button">Log in </Button> */}
                         <Button size="large" type="primary" htmlType="submit" className="login-form-button" loading={this.state.loading}>Log in </Button>
+                        <span>V2.0</span>
                     </FormItem>
                     <FormItem style={{ marginTop: 10, textAlign: 'center' }}>
                         <Link size="large" to={'/register-user'}>Register User</Link>

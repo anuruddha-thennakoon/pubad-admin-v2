@@ -15,12 +15,12 @@ class Cadre extends React.Component {
 
     columns = [
         {
-            title: 'Grade',
-            dataIndex: 'grade_name',
-        },
-        {
             title: 'Designation',
             dataIndex: 'designation',
+        },
+        {
+            title: 'Grade',
+            dataIndex: 'grade_name',
         },
         {
             title: 'No of cadre',

@@ -81,7 +81,7 @@ class Page extends Component {
                             {/* Settings */}
                             {(role == '1') && <Route path="/create-user" component={CreateUser} />}
                             {(role == '1') && <Route path="/users" component={Users} />}
-                            {(role == '1') && <Route path="/profile" component={Profile} />}
+                            {(role == '1' || role == '2' || role == '3' || role == '4') && <Route path="/profile" component={Profile} />}
 
                             {/* Institutes */}
                             {(role == '1') && <Route path="/all-institutes" component={AllInstitutes} />}
