@@ -544,7 +544,7 @@ class ApplicationForm extends React.Component {
                             {getFieldDecorator('grade', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: viewType == 'add' ?
-                                    (officer.profile ? this.getGradeName(officer.profile.grades_id) : null) :
+                                    (officer.profile ? this.getGradeName(officer.profile.grades_id) : []) :
                                     this.getApplicationItem('grade')
                             })(
                                 <Select
@@ -571,7 +571,7 @@ class ApplicationForm extends React.Component {
                             {getFieldDecorator('current_designation', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: viewType == 'add' ?
-                                    (officer.service_history ? this.getActive(officer.service_history).designation : null) :
+                                    (officer.service_history ? this.getActive(officer.service_history).designation : []) :
                                     this.getApplicationItem('current_designation')
                             })(
                                 <Select
@@ -627,7 +627,7 @@ class ApplicationForm extends React.Component {
                                     disabled={disabled}
                                     showSearch
                                     style={{ width: '100%' }}
-                                    placeholder="Select institute"
+                                    placeholder="Select"
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -675,7 +675,7 @@ class ApplicationForm extends React.Component {
                                     disabled={disabled}
                                     showSearch
                                     style={{ width: '100%' }}
-                                    placeholder="Select institute"
+                                    placeholder="Select"
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
