@@ -587,32 +587,6 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Current Institute Type"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('current_institute_type', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('current_institute_type')
-                            })(
-                                <Select
-                                    showSearch
-                                    disabled={disabled}
-                                    style={{ width: 250 }}
-                                    placeholder="Select"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                >
-                                    <Option value={1}>Cabinet Ministry</Option>
-                                    <Option value={2}>State Ministry Department</Option>
-                                    <Option value={3}>Special Spending Unit</Option>
-                                    <Option value={4}>Divisional Administartion</Option>
-                                    <Option value={5}>Provincial Council</Option>
-                                </Select>
-                            )}
-                        </FormItem>
-
-                        <FormItem
                             label="Current Place of work"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
