@@ -258,6 +258,7 @@ class ApplicationForm extends React.Component {
 
                 let approveData = {
                     application_id: this.props.application.id,
+                    application_type: this.props.application.application_type,
                     approved: approved,
                     user_role: role,
                     status: this.props.application.status,
@@ -723,7 +724,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('due_date,_officer_should_complete_the_1st_efficiency_bar_(EB)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('due_date,_officer_should_complete_the_1st_efficiency_bar_(EB)'))
+                                initialValue: (this.getApplicationItem('due_date,_officer_should_complete_the_1st_efficiency_bar_(EB)'))
+                                    ? moment(this.getApplicationItem('due_date,_officer_should_complete_the_1st_efficiency_bar_(EB)')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -736,7 +738,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('date_of_completing_1st_Efficiency_Bar_(EB)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('date_of_completing_1st_Efficiency_Bar_(EB)'))
+                                initialValue: (this.getApplicationItem('date_of_completing_1st_Efficiency_Bar_(EB)'))
+                                    ? moment(this.getApplicationItem('date_of_completing_1st_Efficiency_Bar_(EB)')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -749,7 +752,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('due_date,_officer_should_complete_the_2nd_efficiency_bar_(EB)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('due_date,_officer_should_complete_the_2nd_efficiency_bar_(EB)'))
+                                initialValue: (this.getApplicationItem('due_date,_officer_should_complete_the_2nd_efficiency_bar_(EB)'))
+                                    ? moment(this.getApplicationItem('due_date,_officer_should_complete_the_2nd_efficiency_bar_(EB)')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -762,7 +766,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('date_of_completing_releasing_2nd_efficiency_Bar_(EB)', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('date_of_completing_releasing_2nd_efficiency_Bar_(EB)'))
+                                initialValue: (this.getApplicationItem('date_of_completing_releasing_2nd_efficiency_Bar_(EB)'))
+                                    ? moment(this.getApplicationItem('date_of_completing_releasing_2nd_efficiency_Bar_(EB)')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -775,7 +780,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('due_date,_officer_should_complete_the_second_language_proficiency_requirement', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('due_date,_officer_should_complete_the_second_language_proficiency_requirement'))
+                                initialValue: (this.getApplicationItem('due_date,_officer_should_complete_the_second_language_proficiency_requirement'))
+                                    ? moment(this.getApplicationItem('due_date,_officer_should_complete_the_second_language_proficiency_requirement')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -788,7 +794,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('date_of_completing_releasing_second_language_proficiency_requirement', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('date_of_completing_releasing_second_language_proficiency_requirement'))
+                                initialValue: (this.getApplicationItem('date_of_completing_releasing_second_language_proficiency_requirement'))
+                                    ? moment(this.getApplicationItem('date_of_completing_releasing_second_language_proficiency_requirement')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -801,7 +808,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('second_language_proficiency_level_according_to_pa_circular', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('second_language_proficiency_level_according_to_pa_circular'))
+                                initialValue: (this.getApplicationItem('second_language_proficiency_level_according_to_pa_circular'))
+                                    ? moment(this.getApplicationItem('second_language_proficiency_level_according_to_pa_circular')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -814,7 +822,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('due_date,_officer_should_complete_the_second_language_proficiency_level_according_to_pa_circular', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('due_date,_officer_should_complete_the_second_language_proficiency_level_according_to_pa_circular'))
+                                initialValue: (this.getApplicationItem('due_date,_officer_should_complete_the_second_language_proficiency_level_according_to_pa_circular'))
+                                    ? moment(this.getApplicationItem('due_date,_officer_should_complete_the_second_language_proficiency_level_according_to_pa_circular')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -827,7 +836,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('date_of_completing_releasing_the_second_language_proficiency_level_according_to_pa_circular', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('date_of_completing_releasing_the_second_language_proficiency_level_according_to_pa_circular'))
+                                initialValue: (this.getApplicationItem('date_of_completing_releasing_the_second_language_proficiency_level_according_to_pa_circular'))
+                                    ? moment(this.getApplicationItem('date_of_completing_releasing_the_second_language_proficiency_level_according_to_pa_circular')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -864,7 +874,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('due_date_officer_should_complete_the_capacity_building_program_iii_in_slida', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('due_date_officer_should_complete_the_capacity_building_program_iii_in_slida'))
+                                initialValue: (this.getApplicationItem('due_date_officer_should_complete_the_capacity_building_program_iii_in_slida'))
+                                    ? moment(this.getApplicationItem('due_date_officer_should_complete_the_capacity_building_program_iii_in_slida')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -877,7 +888,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('date_of_completing_releasing_the_capacity_building_programme_iii_in_slida', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('date_of_completing_releasing_the_capacity_building_programme_iii_in_slida'))
+                                initialValue: (this.getApplicationItem('date_of_completing_releasing_the_capacity_building_programme_iii_in_slida'))
+                                    ? moment(this.getApplicationItem('date_of_completing_releasing_the_capacity_building_programme_iii_in_slida')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -890,7 +902,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('according_to_the_above_information,_the_date_officer,_completes_all_the_qualifications', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('according_to_the_above_information,_the_date_officer,_completes_all_the_qualifications'))
+                                initialValue: (this.getApplicationItem('according_to_the_above_information,_the_date_officer,_completes_all_the_qualifications'))
+                                    ? moment(this.getApplicationItem('according_to_the_above_information,_the_date_officer,_completes_all_the_qualifications')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}

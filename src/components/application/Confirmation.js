@@ -723,7 +723,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('duty_assumption_date', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('duty_assumption_date'))
+                                initialValue: (this.getApplicationItem('duty_assumption_date'))
+                                    ? moment(this.getApplicationItem('duty_assumption_date')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -759,7 +760,8 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('date_of_completing_probation_or_acting_time_period', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('date_of_completing_probation_or_acting_time_period'))
+                                initialValue: (this.getApplicationItem('date_of_completing_probation_or_acting_time_period'))
+                                ? moment(this.getApplicationItem('date_of_completing_probation_or_acting_time_period')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
