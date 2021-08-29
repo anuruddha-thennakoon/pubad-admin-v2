@@ -35,9 +35,10 @@ class AllOfficers extends React.Component {
             sorter: (a, b) => a.seniority_no - b.seniority_no,
         },
         {
-            title: 'File Number',
-            dataIndex: 'file_no',
-            key: 'file_no',
+            title: 'NIC',
+            dataIndex: 'nic',
+            key: 'nic',
+            align: 'center'
         },
         {
             title: 'Name',
@@ -121,10 +122,9 @@ class AllOfficers extends React.Component {
             width: '10%'
         },
         {
-            title: 'NIC',
-            dataIndex: 'nic',
-            key: 'nic',
-            align: 'center'
+            title: 'File Number',
+            dataIndex: 'file_no',
+            key: 'file_no',
         },
     ];
 

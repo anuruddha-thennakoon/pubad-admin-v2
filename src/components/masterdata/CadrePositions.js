@@ -101,7 +101,7 @@ class CadrePositions extends React.Component {
 
     search = () => {
         this.setState({ loading: true });
-        this.props.appStore.clearCadrePosition();
+        // this.props.appStore.clearCadrePosition();
 
         const { grade, institute, type } = this.state;
         this.props.appStore.getCadrePositions(grade, institute, type);

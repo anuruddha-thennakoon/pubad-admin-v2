@@ -4,9 +4,7 @@ class Api {
     APP_TOKEN = 'DX9343ZXS9JPK5c8ws5ct9G4u3720jTQ5lHwbGJH777GflSQX1';
 
     // BASE_URL = 'http://localhost:9494';
-    // BASE_URL = 'http://api.bismart.lk';
     BASE_URL = 'http://119.235.4.210:9494';
-    // BASE_URL = 'https://api.bismart.lk';
 
     URL = this.BASE_URL + '/api/' + this.VERSION + '/'
 

@@ -90,7 +90,7 @@ class SiderCustom extends Component {
                     {(role == '1' || role == '2' || role == '3' || role == '4') &&
                         <SubMenu key="sub1" title={<span><Icon type="fund" /><span>Dashboard</span></span>}>
                             <Menu.Item key="1"><Link to={'/dashboard'}>Dashboard</Link></Menu.Item>
-                            {(role == '4') && <Menu.Item key="23"><Link to={'/cadre'}>Cadre</Link></Menu.Item>}
+                            {(role == '4') && <Menu.Item key="23"><Link to={'/cadre'}>Cadre Information</Link></Menu.Item>}
                         </SubMenu>
                     }
                     {(role == '1') &&
@@ -109,6 +109,12 @@ class SiderCustom extends Component {
                         </SubMenu>
                     }
                     {(role == '1') &&
+                        <SubMenu key="sub5" title={<span><Icon type="pic-center" /><span>Cadre Management</span></span>}>
+                            <Menu.Item key="18"><Link to={'/designations'}>Designations</Link></Menu.Item>
+                            <Menu.Item key="19"><Link to={'/cadre-positions'}>Cadre Positions</Link></Menu.Item>
+                        </SubMenu>
+                    }
+                    {(role == '1') &&
                         <SubMenu key="sub4" title={<span><Icon type="snippets" /><span>Reports</span></span>}>
                             <Menu.Item key="9"><Link to={'/grades-vacancy'}>Vacancy-Grades</Link></Menu.Item>
                             <Menu.Item key="10"><Link to={'/designation-vacancy'}>Vacancy-Designations</Link></Menu.Item>
@@ -122,13 +128,7 @@ class SiderCustom extends Component {
                         </SubMenu>
                     }
                     {(role == '1') &&
-                        <SubMenu key="sub5" title={<span><Icon type="pic-center" /><span>Master Data</span></span>}>
-                            <Menu.Item key="18"><Link to={'/designations'}>Designations</Link></Menu.Item>
-                            <Menu.Item key="19"><Link to={'/cadre-positions'}>Cadre Positions</Link></Menu.Item>
-                        </SubMenu>
-                    }
-                    {(role == '1') &&
-                        <SubMenu key="sub6" title={<span><Icon type="usergroup-add" /><span>Users</span></span>}>
+                        <SubMenu key="sub6" title={<span><Icon type="usergroup-add" /><span>User Management</span></span>}>
                             <Menu.Item key="20"><Link to={'/all-users'}>All Users</Link></Menu.Item>
                         </SubMenu>
                     }

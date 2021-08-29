@@ -87,7 +87,7 @@ class NormalLoginForm extends Component {
                         <span>V2.0</span>
                     </FormItem>
                     <FormItem style={{ marginTop: 10, textAlign: 'center' }}>
-                        <Link size="large" to={'/register-user'}>Register User</Link>
+                        <Link size="large" to={'/register-user'}>Create Account</Link>
                     </FormItem>
                 </Form>
             </div>

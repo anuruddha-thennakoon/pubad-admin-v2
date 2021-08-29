@@ -329,7 +329,7 @@ class DataForm extends Component {
 
                         <FormItem {...tailFormItemLayout} style={{ marginTop: 12 }}>
                             <p>Note: The official request letter issued by the Secretary/Head of the <br></br>
-                                Department should be faxed to 01128651 for user activation. The letter <br></br>
+                                Department should be faxed to 011 2683651 for user activation. The letter <br></br>
                                 should clearly indicate the user’s Full Name and the NIC number.</p>
                         </FormItem>
 
