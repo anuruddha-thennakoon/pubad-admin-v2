@@ -44,7 +44,7 @@ class NormalLoginForm extends Component {
                     })
                     .catch(err => {
                         this.setState({ loading: false });
-                        openNotificationWithIcon('error', 'Account not activated', 'Your account not activated. Please contact Ministry of Public Administration');
+                        openNotificationWithIcon('error', 'Network Error', 'Please contact Ministry of Public Administration');
                     });
             }
         });
