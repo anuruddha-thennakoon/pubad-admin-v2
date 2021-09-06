@@ -3,6 +3,7 @@ import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { inject, observer } from 'mobx-react';
 import { Form, Icon, Input, Button, Alert, notification, Typography } from 'antd';
+import logo from './logo.png';
 
 const FormItem = Form.Item;
 const { Title } = Typography;
@@ -57,7 +58,8 @@ class NormalLoginForm extends Component {
             <div className="login-parent">
                 <Form onSubmit={this.handleSubmit} className="login-form">
                     <FormItem>
-                        <img className="image-class-login" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Emblem_of_Sri_Lanka.svg/2000px-Emblem_of_Sri_Lanka.svg.png" />
+                        {/* <img className="image-class-login" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Emblem_of_Sri_Lanka.svg/2000px-Emblem_of_Sri_Lanka.svg.png" /> */}
+                        <img className="image-class-login" src={logo} />
                         <Title level={4}>Public Services HRMS</Title>
                     </FormItem>
                     <FormItem style={{ marginTop: 5 }}>

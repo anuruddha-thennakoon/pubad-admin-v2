@@ -62,7 +62,8 @@ class ApplicationForm extends React.Component {
 
     componentDidMount() {
         this.getApplicationConditions();
-        // this.loadFiles();
+        this.loadFiles();
+        this.setEditable();
     }
 
     setReject = (value) => {
@@ -109,33 +110,21 @@ class ApplicationForm extends React.Component {
     }
 
     loadFiles = () => {
-        // let application = JSON.parse(this.props.application.application);
-        // let documents = JSON.parse(application.documents);
+        const { viewType } = this.state;
+        if (viewType != 'add') {
+            let application = JSON.parse(this.props.application.application);
+            let documents = JSON.parse(application.documents);
 
-        // documents.forEach(element => {
-        //     let img = {
-        //         uid: '-1',
-        //         name: 'image.png',
-        //         status: 'done',
-        //         url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        //     }
-
-        //     this.setState({ fileList1: [img] });
-        // });
-    }
-
-    enableEdit = () => {
-        this.setState({
-            viewType: 'edit',
-            disabled: false
-        });
-    }
-
-    disableEdit = () => {
-        this.setState({
-            viewType: 'view',
-            disabled: true
-        });
+            documents.forEach((element, index) => {
+                let img = {
+                    uid: index,
+                    uploaded: true,
+                    name: element.name,
+                    url: element.url
+                }
+                this.setState({ [`fileList${index + 1}`]: [img] });
+            });
+        }
     }
 
     getApplicationItem = (key) => {
@@ -263,73 +252,43 @@ class ApplicationForm extends React.Component {
 
     editApproveApplication = () => {
         console.log('file --> ', this.state.fileList1);
-
     }
 
-    viewEnableEdit = () => {
-        const status = this.props.application.status;
-        const role = this.props.appState.getUserRole();
-        let enable = false;
+    setEditable = () => {
+        const { viewType } = this.state;
+        if (viewType != 'add') {
+            const status = _get(this.props.application, "status", null);
+            const role = this.props.appState.getUserRole();
 
-        switch (role) {
-            case '2':
-                if (status == 100) {
-                    enable = true;
-                }
-                break;
-            case '3':
-                break;
-            case '4':
-                if (status == 101) {
-                    enable = true;
-                }
-                break;
-            default:
-                break;
+            switch (role) {
+                case '2'://pubad
+                    if (status == 100 || status == 201) {
+                        this.setState({ viewType: 'edit', disabled: false });
+                    }
+                    break;
+                case '3'://psc
+                    break;
+                case '4'://institute
+                    if (status == 101) {
+                        this.setState({ viewType: 'edit', disabled: false });
+                    }
+                    break;
+            }
         }
-        return enable;
     }
 
-
-    viewSubmit = () => {
-        const status = this.props.application.status;
+    showAction = () => {
+        const status = _get(this.props.application, "status", null);
         const role = this.props.appState.getUserRole();
         let enable = false;
 
         switch (role) {
-            case '2':
+            case '2'://pubad
                 if (status == 100 || status == 201) {
                     enable = true;
                 }
                 break;
-            case '3':
-                if (status == 200 || status == 300) {
-                    enable = true;
-                }
-                break;
-            case '4':
-                if (status == 101) {
-                    enable = true;
-                }
-                break;
-            default:
-                break;
-        }
-        return enable;
-    }
-
-    showAction = () => {
-        const status = this.props.application.status;
-        const role = this.props.appState.getUserRole();
-        let enable = false;
-
-        switch (role) {
-            case '2':
-                if (status == 100 || status == 101 || status == 201) {
-                    enable = true;
-                }
-                break;
-            case '3':
+            case '3'://psc
                 if (status == 200 || status == 300) {
                     enable = true;
                 }
@@ -340,43 +299,75 @@ class ApplicationForm extends React.Component {
                 break;
         }
         return enable;
-    }
-
-    renderLeftButtons = () => {
-        const { viewType, confirmLoading } = this.state;
-
-        if (viewType == 'add') {
-            return [];
-        } else if (viewType == 'view' && this.viewEnableEdit()) {
-            return [
-                <Button type="default" loading={confirmLoading} onClick={this.enableEdit}>Enable Edit</Button>
-            ];
-        } else if (viewType == 'edit' && this.viewEnableEdit()) {
-            return [
-                <Button type="default" loading={confirmLoading} onClick={this.disableEdit}>Disable Edit</Button>
-            ];
-        } else {
-            return [];
-        }
     }
 
     renderRightButtons = () => {
         const { viewType, confirmLoading } = this.state;
+        const status = _get(this.props.application, "status", null);
+        const role = this.props.appState.getUserRole();
+        let buttons = [];
 
         if (viewType == 'add') {
-            return [
-                <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>
-            ];
-        } else if (viewType == 'view' && this.viewSubmit()) {
-            return [
-                <Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>
-            ];
-        } else if (viewType == 'edit' && this.viewEnableEdit()) {
-            return [
-                <Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update</Button>
-            ];
-        } else {
-            return [];
+            buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>);
+        } else if (viewType == 'view') {
+            switch (role) {
+                case '2'://pubad
+                    if (status == 100) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
+                    } else if (status == 201) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                    }
+                    break;
+                case '3'://psc
+                    if (status == 200 || status == 300) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
+                    }
+                    break;
+                case '4'://institute
+                    break;
+                default:
+                    break;
+            }
+        } else if (viewType == 'edit') {
+            switch (role) {
+                case '2'://pubad
+                    if (status == 100) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Submit</Button>);
+                    } else if (status == 201) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                    }
+                    break;
+                case '3'://psc
+                    break;
+                case '4'://institute
+                    if (status == 101) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        return buttons;
+    }
+
+    removeFile = (fileList) => {
+        this.setState({ [fileList]: [] });
+    }
+
+    getGradeName = (id) => {
+        switch (id) {
+            case 1:
+                return 'Special Grade';
+            case 2:
+                return 'Grade I';
+            case 3:
+                return 'Grade II';
+            case 4:
+                return 'Grade III';
+            default:
+                return null;
         }
     }
 
@@ -387,6 +378,7 @@ class ApplicationForm extends React.Component {
             fileList1, fileList2, fileList3, fileList4, fileList5 } = this.state;
 
         const props1 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList1.indexOf(file);
@@ -404,9 +396,11 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList1,
+            defaultFileList: [...fileList1],
         }
 
         const props2 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList2.indexOf(file);
@@ -424,9 +418,11 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList2,
+            defaultFileList: [...fileList2],
         }
 
         const props3 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList3.indexOf(file);
@@ -444,9 +440,11 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList3,
+            defaultFileList: [...fileList3],
         }
 
         const props4 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList4.indexOf(file);
@@ -464,9 +462,11 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList4,
+            defaultFileList: [...fileList4],
         }
 
         const props5 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList5.indexOf(file);
@@ -484,6 +484,7 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList5,
+            defaultFileList: [...fileList5],
         }
 
         let instituteValues = [];
@@ -559,7 +560,9 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('grade', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('grade')
+                                initialValue: viewType == 'add' ?
+                                    (officer.profile ? this.getGradeName(officer.profile.grades_id) : []) :
+                                    this.getApplicationItem('grade')
                             })(
                                 <Select
                                     showSearch
@@ -646,7 +649,10 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props1} disabled={disabled} >
-                                {fileList1.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList1.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('covering_letter_of_the_institute')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList1')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
@@ -662,7 +668,10 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props2} disabled={disabled}>
-                                {fileList2.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList2.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('officer_duty_assume_letter')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList2')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
@@ -678,7 +687,10 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props3} disabled={disabled}>
-                                {fileList3.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList3.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('cadre_approval_letter')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList3')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
@@ -694,7 +706,10 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props4} disabled={disabled}>
-                                {fileList4.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList4.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('est_12')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList4')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
@@ -710,14 +725,17 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props5} disabled={disabled}>
-                                {fileList5.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList5.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('nic')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList5')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
                             {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('nic')}>Attachment</Button>}
                         </FormItem>
 
-                        {(viewType == 'view' && this.showAction()) && <FormItem
+                        {(this.showAction()) && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -739,7 +757,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {(viewType == 'view' && approved == 0 && this.showAction()) && <FormItem
+                        {(approved == 0 && this.showAction()) && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -765,11 +783,6 @@ class ApplicationForm extends React.Component {
                         </FormItem>}
 
                         <ButtonContainer>
-                            <LeftButtons>
-                                {this.renderLeftButtons().map((element, index) => {
-                                    return <span key={index}>{element}</span>;
-                                })}
-                            </LeftButtons>
                             <RightButtons>
                                 {this.renderRightButtons().map((element, index) => {
                                     return <span key={index}>{element}</span>;

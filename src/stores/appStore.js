@@ -466,10 +466,13 @@ class AppStore {
 
         return new Promise((resolve, reject) => {
             let promises = [];
+            let uploaded = [];
             let pindex = 0;
 
             for (let index = 0; index < data.length; index++) {
-                if (data[index].file) {
+                if (data[index].file.uploaded) {
+                    uploaded.push({ name: data[index].name, url: data[index].file.url });
+                } else if (data[index].file) {
                     promises[pindex] = appService.uploadFiles(data[index]);
                     pindex++;
                 }
@@ -477,7 +480,11 @@ class AppStore {
 
             Promise.all(promises)
                 .then(res => {
-                    resolve(JSON.stringify(res));
+                    if (uploaded.length !== 0) {
+                        resolve(JSON.stringify(uploaded.concat(res)));
+                    } else {
+                        resolve(JSON.stringify(res));
+                    }
                 })
                 .catch(err => {
                     reject(err);

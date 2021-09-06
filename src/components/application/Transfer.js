@@ -62,7 +62,8 @@ class ApplicationForm extends React.Component {
 
     componentDidMount() {
         this.getApplicationConditions();
-        // this.loadFiles();
+        this.loadFiles();
+        this.setEditable();
     }
 
     setReject = (value) => {
@@ -109,33 +110,21 @@ class ApplicationForm extends React.Component {
     }
 
     loadFiles = () => {
-        // let application = JSON.parse(this.props.application.application);
-        // let documents = JSON.parse(application.documents);
+        const { viewType } = this.state;
+        if (viewType != 'add') {
+            let application = JSON.parse(this.props.application.application);
+            let documents = JSON.parse(application.documents);
 
-        // documents.forEach(element => {
-        //     let img = {
-        //         uid: '-1',
-        //         name: 'image.png',
-        //         status: 'done',
-        //         url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        //     }
-
-        //     this.setState({ fileList1: [img] });
-        // });
-    }
-
-    enableEdit = () => {
-        this.setState({
-            viewType: 'edit',
-            disabled: false
-        });
-    }
-
-    disableEdit = () => {
-        this.setState({
-            viewType: 'view',
-            disabled: true
-        });
+            documents.forEach((element, index) => {
+                let img = {
+                    uid: index,
+                    uploaded: true,
+                    name: element.name,
+                    url: element.url
+                }
+                this.setState({ [`fileList${index + 1}`]: [img] });
+            });
+        }
     }
 
     getApplicationItem = (key) => {
@@ -164,6 +153,7 @@ class ApplicationForm extends React.Component {
     }
 
     submitApplication = (e) => {
+        e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const { officer, fileList1, fileList2, fileList3 } = this.state;
@@ -204,9 +194,9 @@ class ApplicationForm extends React.Component {
                         this.props.appStore.addApplication(applicationData)
                             .then(sucess => {
                                 this.setState({
+                                    fileList1: [], fileList2: [], fileList3: [],
                                     officer: {},
                                     confirmLoading: false,
-                                    fileList1: [], fileList2: [], fileList3: []
                                 });
                                 this.props.form.resetFields();
                                 openNotificationWithIcon('success', 'Success', 'Application submit successfully!');
@@ -257,8 +247,21 @@ class ApplicationForm extends React.Component {
     }
 
     editApproveApplication = () => {
-        console.log('file --> ', this.state.fileList1);
+        // const { officer, fileList1, fileList2, fileList3 } = this.state;
+        // var files = [
+        //     { name: "request_letter_of_officer", file: fileList1[0] },
+        //     { name: "consent_letter_of_workplace", file: fileList2[0] },
+        //     { name: "consent_letter_of_new_workplace", file: fileList3[0] }
+        // ]
 
+        // console.log('docs', files);
+
+        // this.props.appStore.uploadFiles(files)
+        //     .then(docs => {
+        //         console.log('docs', docs);
+        //     })
+        //     .catch(err => {
+        //     });
     }
 
     getGradeName = (id) => {
@@ -276,30 +279,28 @@ class ApplicationForm extends React.Component {
         }
     }
 
-    viewEnableEdit = () => {
-        const status = this.props.application.status;
-        const role = this.props.appState.getUserRole();
-        let enable = false;
+    setEditable = () => {
+        const { viewType } = this.state;
+        if (viewType != 'add') {
+            const status = _get(this.props.application, "status", null);
+            const role = this.props.appState.getUserRole();
 
-        switch (role) {
-            case '2':
-                if (status == 100) {
-                    enable = true;
-                }
-                break;
-            case '3':
-                break;
-            case '4':
-                if (status == 101) {
-                    enable = true;
-                }
-                break;
-            default:
-                break;
+            switch (role) {
+                case '2'://pubad
+                    if (status == 100 || status == 201) {
+                        this.setState({ viewType: 'edit', disabled: false });
+                    }
+                    break;
+                case '3'://psc
+                    break;
+                case '4'://institute
+                    if (status == 101) {
+                        this.setState({ viewType: 'edit', disabled: false });
+                    }
+                    break;
+            }
         }
-        return enable;
     }
-
 
     viewSubmit = () => {
         const status = this.props.application.status;
@@ -329,17 +330,17 @@ class ApplicationForm extends React.Component {
     }
 
     showAction = () => {
-        const status = this.props.application.status;
+        const status = _get(this.props.application, "status", null);
         const role = this.props.appState.getUserRole();
         let enable = false;
 
         switch (role) {
-            case '2':
-                if (status == 100 || status == 101 || status == 201) {
+            case '2'://pubad
+                if (status == 100 || status == 201) {
                     enable = true;
                 }
                 break;
-            case '3':
+            case '3'://psc
                 if (status == 200 || status == 300) {
                     enable = true;
                 }
@@ -352,42 +353,59 @@ class ApplicationForm extends React.Component {
         return enable;
     }
 
-    renderLeftButtons = () => {
-        const { viewType, confirmLoading } = this.state;
-
-        if (viewType == 'add') {
-            return [];
-        } else if (viewType == 'view' && this.viewEnableEdit()) {
-            return [
-                <Button type="default" loading={confirmLoading} onClick={this.enableEdit}>Enable Edit</Button>
-            ];
-        } else if (viewType == 'edit' && this.viewEnableEdit()) {
-            return [
-                <Button type="default" loading={confirmLoading} onClick={this.disableEdit}>Disable Edit</Button>
-            ];
-        } else {
-            return [];
-        }
-    }
-
     renderRightButtons = () => {
         const { viewType, confirmLoading } = this.state;
+        const status = _get(this.props.application, "status", null);
+        const role = this.props.appState.getUserRole();
+        let buttons = [];
 
         if (viewType == 'add') {
-            return [
-                <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>
-            ];
-        } else if (viewType == 'view' && this.viewSubmit()) {
-            return [
-                <Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>
-            ];
-        } else if (viewType == 'edit' && this.viewEnableEdit()) {
-            return [
-                <Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update</Button>
-            ];
-        } else {
-            return [];
+            buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>);
+        } else if (viewType == 'view') {
+            switch (role) {
+                case '2'://pubad
+                    if (status == 100) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
+                    } else if (status == 201) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                    }
+                    break;
+                case '3'://psc
+                    if (status == 200 || status == 300) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
+                    }
+                    break;
+                case '4'://institute
+                    break;
+                default:
+                    break;
+            }
+        } else if (viewType == 'edit') {
+            switch (role) {
+                case '2'://pubad
+                    if (status == 100) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Submit</Button>);
+                    } else if (status == 201) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                    }
+                    break;
+                case '3'://psc
+                    break;
+                case '4'://institute
+                    if (status == 101) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
+        return buttons;
+    }
+
+    removeFile = (fileList) => {
+        this.setState({ [fileList]: [] });
     }
 
     render() {
@@ -396,6 +414,7 @@ class ApplicationForm extends React.Component {
         const { officer, viewType, disabled, approved, applicationStatus, rejectReason, fileList1, fileList2, fileList3 } = this.state;
 
         const props1 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList1.indexOf(file);
@@ -413,9 +432,11 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList1,
+            defaultFileList: [...fileList1],
         }
 
         const props2 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList2.indexOf(file);
@@ -433,9 +454,11 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList2,
+            defaultFileList: [...fileList2],
         }
 
         const props3 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList3.indexOf(file);
@@ -453,6 +476,7 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList3,
+            defaultFileList: [...fileList3],
         }
 
         let instituteValues = [];
@@ -689,7 +713,10 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props1} disabled={disabled} >
-                                {fileList1.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList1.length >= 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('request_letter_of_officer')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList1')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
@@ -705,7 +732,10 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props2} disabled={disabled}>
-                                {fileList2.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList2.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('consent_letter_of_workplace')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList2')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
@@ -721,15 +751,24 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props3} disabled={disabled}>
-                                {fileList3.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList3.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('consent_letter_of_new_workplace')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList3')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
                             {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('consent_letter_of_new_workplace')}>Attachment</Button>}
                         </FormItem>
 
+                        <FormItem
+                            labelCol={{ span: 24 }}
+                        >
+                            <span>Consent letter should be provided by Head of Institute (Secretary of Ministry/ State Ministry/ Special Spending Unit, Chief Secretary of Privincila Council)</span>
+                        </FormItem>
 
-                        {(viewType == 'view' && this.showAction()) && <FormItem
+
+                        {this.showAction() && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -751,7 +790,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {(viewType == 'view' && approved == 0 && this.showAction()) && <FormItem
+                        {(approved == 0 && this.showAction()) && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -777,11 +816,6 @@ class ApplicationForm extends React.Component {
                         </FormItem>}
 
                         <ButtonContainer>
-                            <LeftButtons>
-                                {this.renderLeftButtons().map((element, index) => {
-                                    return <span key={index}>{element}</span>;
-                                })}
-                            </LeftButtons>
                             <RightButtons>
                                 {this.renderRightButtons().map((element, index) => {
                                     return <span key={index}>{element}</span>;
@@ -798,4 +832,4 @@ class ApplicationForm extends React.Component {
 
 const Transfer = Form.create()(ApplicationForm);
 
-export default Transfer
+export default Transfer;
