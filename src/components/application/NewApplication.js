@@ -21,7 +21,7 @@ class NewApplication extends React.Component {
         super(props);
         this.state = {
             confirmLoading: false,
-            applicationType: 3
+            applicationType: 2
         };
     }
 

@@ -51,10 +51,12 @@ class ApplicationForm extends React.Component {
             viewType: this.props.viewType,
             rejectReason: null,
             officer: {},
-            c1: false, c2: false, c3: false,
+            c1: false, c2: false, c3: false, c4: false,
             confirmLoading: false,
             applicationStatus: 0,
-            fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: []
+            fileList1: [], fileList2: [], fileList3: [],
+            table1: [{ year: null, answer: null }, { year: null, answer: null }, { year: null, answer: null }, { year: null, answer: null }, { year: null, answer: null }, { year: null, answer: null }],
+            table2: [{ year: null, answer: null }, { year: null, answer: null }, { year: null, answer: null }, { year: null, answer: null }, { year: null, answer: null }, { year: null, answer: null }]
         };
 
         this.props.appStore.getInstitutes();
@@ -63,7 +65,8 @@ class ApplicationForm extends React.Component {
 
     componentDidMount() {
         this.getApplicationConditions();
-        // this.loadFiles();
+        this.loadFiles();
+        this.setEditable();
     }
 
     setReject = (value) => {
@@ -115,39 +118,51 @@ class ApplicationForm extends React.Component {
                 c1: application.c1,
                 c2: application.c2,
                 c3: application.c3,
+                c4: application.c4,
                 rejectReason: this.props.application.reject_reason
             });
         }
     }
 
     loadFiles = () => {
-        // let application = JSON.parse(this.props.application.application);
-        // let documents = JSON.parse(application.documents);
+        const { viewType } = this.state;
+        if (viewType != 'add') {
+            let application = JSON.parse(this.props.application.application);
+            let documents = JSON.parse(application.documents);
 
-        // documents.forEach(element => {
-        //     let img = {
-        //         uid: '-1',
-        //         name: 'image.png',
-        //         status: 'done',
-        //         url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        //     }
-
-        //     this.setState({ fileList1: [img] });
-        // });
+            documents.forEach((element, index) => {
+                let img = {
+                    uid: index,
+                    uploaded: true,
+                    name: element.name,
+                    url: element.url
+                }
+                this.setState({ [`fileList${index + 1}`]: [img] });
+            });
+        }
     }
 
-    enableEdit = () => {
-        this.setState({
-            viewType: 'edit',
-            disabled: false
-        });
-    }
+    setEditable = () => {
+        const { viewType } = this.state;
+        if (viewType != 'add') {
+            const status = _get(this.props.application, "status", null);
+            const role = this.props.appState.getUserRole();
 
-    disableEdit = () => {
-        this.setState({
-            viewType: 'view',
-            disabled: true
-        });
+            switch (role) {
+                case '2'://pubad
+                    if (status == 100 || status == 201) {
+                        this.setState({ viewType: 'edit', disabled: false });
+                    }
+                    break;
+                case '3'://psc
+                    break;
+                case '4'://institute
+                    if (status == 101) {
+                        this.setState({ viewType: 'edit', disabled: false });
+                    }
+                    break;
+            }
+        }
     }
 
     getApplicationItem = (key) => {
@@ -179,23 +194,21 @@ class ApplicationForm extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const {
-                    c1, c2, c3,
-                    officer, fileList1, fileList2, fileList3, fileList4, fileList5
+                    c1, c2, c3, c4,
+                    officer, fileList1, fileList2, fileList3
                 } = this.state;
                 let userData = this.props.appState.getUserData();
 
-                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0 || fileList4[0].length == 0 || fileList5[0].length == 0) {
+                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0) {
                     openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
                 }
 
                 this.setState({ confirmLoading: true });
 
                 var files = [
-                    { name: "recommendation_letter_issued_by_the_secretary_of_the_ministry", file: fileList1[0] },
-                    { name: "certified_copy_of_duty_assume_letter", file: fileList2[0] },
-                    { name: "certified_copy_of_induction_training_completion_letter", file: fileList3[0] },
-                    { name: "certified_copy_of_efficiency_bar_result_sheet", file: fileList4[0] },
-                    { name: "certified_copy_of_medical_certificate", file: fileList5[0] }
+                    { name: "class_2_application", file: fileList1[0] },
+                    { name: "last_salary_increment", file: fileList2[0] },
+                    { name: "last_performance_report", file: fileList3[0] }
                 ]
 
                 this.props.appStore.uploadFiles(files)
@@ -204,6 +217,7 @@ class ApplicationForm extends React.Component {
                         values.c1 = c1;
                         values.c2 = c2;
                         values.c3 = c3;
+                        values.c4 = c4;
 
                         //documents
                         values.documents = docs;
@@ -227,9 +241,9 @@ class ApplicationForm extends React.Component {
                             .then(sucess => {
                                 this.setState({
                                     officer: {},
-                                    c1: false, c2: false, c3: false,
+                                    c1: false, c2: false, c3: false, c4: false,
                                     confirmLoading: false,
-                                    fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: []
+                                    fileList1: [], fileList2: [], fileList3: []
                                 });
                                 this.props.form.resetFields();
                                 openNotificationWithIcon('success', 'Success', 'Application submit successfully!');
@@ -281,73 +295,20 @@ class ApplicationForm extends React.Component {
 
     editApproveApplication = () => {
         console.log('file --> ', this.state.fileList1);
-
     }
 
-    viewEnableEdit = () => {
-        const status = this.props.application.status;
+    showAction = () => {
+        const status = _get(this.props.application, "status", null);
         const role = this.props.appState.getUserRole();
         let enable = false;
 
         switch (role) {
-            case '2':
-                if (status == 100) {
-                    enable = true;
-                }
-                break;
-            case '3':
-                break;
-            case '4':
-                if (status == 101) {
-                    enable = true;
-                }
-                break;
-            default:
-                break;
-        }
-        return enable;
-    }
-
-
-    viewSubmit = () => {
-        const status = this.props.application.status;
-        const role = this.props.appState.getUserRole();
-        let enable = false;
-
-        switch (role) {
-            case '2':
+            case '2'://pubad
                 if (status == 100 || status == 201) {
                     enable = true;
                 }
                 break;
-            case '3':
-                if (status == 200 || status == 300) {
-                    enable = true;
-                }
-                break;
-            case '4':
-                if (status == 101) {
-                    enable = true;
-                }
-                break;
-            default:
-                break;
-        }
-        return enable;
-    }
-
-    showAction = () => {
-        const status = this.props.application.status;
-        const role = this.props.appState.getUserRole();
-        let enable = false;
-
-        switch (role) {
-            case '2':
-                if (status == 100 || status == 101 || status == 201) {
-                    enable = true;
-                }
-                break;
-            case '3':
+            case '3'://psc
                 if (status == 200 || status == 300) {
                     enable = true;
                 }
@@ -358,53 +319,82 @@ class ApplicationForm extends React.Component {
                 break;
         }
         return enable;
-    }
-
-    renderLeftButtons = () => {
-        const { viewType, confirmLoading } = this.state;
-
-        if (viewType == 'add') {
-            return [];
-        } else if (viewType == 'view' && this.viewEnableEdit()) {
-            return [
-                <Button type="default" loading={confirmLoading} onClick={this.enableEdit}>Enable Edit</Button>
-            ];
-        } else if (viewType == 'edit' && this.viewEnableEdit()) {
-            return [
-                <Button type="default" loading={confirmLoading} onClick={this.disableEdit}>Disable Edit</Button>
-            ];
-        } else {
-            return [];
-        }
     }
 
     renderRightButtons = () => {
         const { viewType, confirmLoading } = this.state;
+        const status = _get(this.props.application, "status", null);
+        const role = this.props.appState.getUserRole();
+        let buttons = [];
 
         if (viewType == 'add') {
-            return [
-                <Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>
-            ];
-        } else if (viewType == 'view' && this.viewSubmit()) {
-            return [
-                <Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>
-            ];
-        } else if (viewType == 'edit' && this.viewEnableEdit()) {
-            return [
-                <Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update</Button>
-            ];
-        } else {
-            return [];
+            buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>);
+        } else if (viewType == 'view') {
+            switch (role) {
+                case '2'://pubad
+                    if (status == 100) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
+                    } else if (status == 201) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                    }
+                    break;
+                case '3'://psc
+                    if (status == 200 || status == 300) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
+                    }
+                    break;
+                case '4'://institute
+                    break;
+                default:
+                    break;
+            }
+        } else if (viewType == 'edit') {
+            switch (role) {
+                case '2'://pubad
+                    if (status == 100) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Submit</Button>);
+                    } else if (status == 201) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                    }
+                    break;
+                case '3'://psc
+                    break;
+                case '4'://institute
+                    if (status == 101) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
+        return buttons;
+    }
+
+    removeFile = (fileList) => {
+        this.setState({ [fileList]: [] });
+    }
+
+    setTableValue = (table1, index, key, e) => {
+
     }
 
     render() {
         const { getFieldDecorator } = this.props.form;
         const { institutes, designations } = this.props.appStore;
         const { officer, viewType, disabled, approved, applicationStatus, rejectReason,
-            fileList1, fileList2, fileList3, fileList4, fileList5 } = this.state;
+            fileList1, fileList2, fileList3, table1, table2 } = this.state;
+
+        let years = [];
+        if (years.length == 0) {
+            for (let i = 1900; i <= new Date().getFullYear(); i++) {
+                years.push(<Option key={i} value={i}>{i}</Option>);
+            }
+        }
 
         const props1 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList1.indexOf(file);
@@ -422,9 +412,11 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList1,
+            defaultFileList: [...fileList1]
         }
 
         const props2 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList2.indexOf(file);
@@ -442,9 +434,11 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList2,
+            defaultFileList: [...fileList2],
         }
 
         const props3 = {
+            showUploadList: false,
             onRemove: file => {
                 this.setState(state => {
                     const index = state.fileList3.indexOf(file);
@@ -462,46 +456,7 @@ class ApplicationForm extends React.Component {
                 return false;
             },
             fileList3,
-        }
-
-        const props4 = {
-            onRemove: file => {
-                this.setState(state => {
-                    const index = state.fileList4.indexOf(file);
-                    const newFileList = state.fileList4.slice();
-                    newFileList.splice(index, 1);
-                    return {
-                        fileList4: newFileList,
-                    };
-                });
-            },
-            beforeUpload: file => {
-                this.setState(state => ({
-                    fileList4: [...state.fileList4, file],
-                }));
-                return false;
-            },
-            fileList4,
-        }
-
-        const props5 = {
-            onRemove: file => {
-                this.setState(state => {
-                    const index = state.fileList5.indexOf(file);
-                    const newFileList = state.fileList5.slice();
-                    newFileList.splice(index, 1);
-                    return {
-                        fileList5: newFileList,
-                    };
-                });
-            },
-            beforeUpload: file => {
-                this.setState(state => ({
-                    fileList5: [...state.fileList5, file],
-                }));
-                return false;
-            },
-            fileList5,
+            defaultFileList: [...fileList3],
         }
 
         let instituteValues = [];
@@ -556,7 +511,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>}
 
                         <FormItem
-                            label="Officer Name"
+                            label="Name of the officer"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -586,7 +541,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Date of appointment to SLAS"
+                            label="Date of appointment to Grade III"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -601,65 +556,48 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Recruitment stream"
+                            label="Date of assuming duties"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('recruitment_stream', {
+                            {getFieldDecorator('date_of_assuming_duties', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('recruitment_stream')
+                                initialValue: (this.getApplicationItem('date_of_assuming_duties'))
+                                    ? moment(this.getApplicationItem('date_of_assuming_duties')) : null
+                            })(
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
+                            )}
+                        </FormItem>
+
+                        <FormItem
+                            label="Date of confirmed in the service"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('date_of_confirmed_in_the_service', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: (this.getApplicationItem('date_of_confirmed_in_the_service'))
+                                    ? moment(this.getApplicationItem('date_of_confirmed_in_the_service')) : null
+                            })(
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
+                            )}
+                        </FormItem>
+
+                        <FormItem
+                            label="Has the probation / acting time period been extended"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('has_the_probation_acting_time_period_been_extended', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('has_the_probation_acting_time_period_been_extended')
                             })(
                                 <Select
                                     disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                >
-                                    <Option value="Open">Open</Option>
-                                    <Option value="Limited">Limited</Option>
-                                    <Option value="Merit">Merit</Option>
-                                </Select>
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            label="Has officer been confirmed in the service"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('has_officer_been_confirmed_in_the_service', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('has_officer_been_confirmed_in_the_service')
-                            })(
-                                <Select
-                                    disabled={disabled}
-                                    style={{ width: 250 }}
-                                    placeholder="Select"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                >
-                                    <Option value="Yes">Yes</Option>
-                                    <Option value="No">No</Option>
-                                </Select>
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            label="Has the probation / acting time period been extended under the Encode chapter II provision 11:10"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('has_the_probation_acting_time_period_been_extended_under_the_encode_chapter_ii_provision', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('has_the_probation_acting_time_period_been_extended_under_the_encode_chapter_ii_provision')
-                            })(
-                                <Select
-                                    disabled={disabled}
-                                    style={{ width: 250 }}
                                     onChange={(e) => this.changeCondition('c1', e)}
-                                    placeholder="Select"
-                                    optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -669,26 +607,41 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         {this.state.c1 && <FormItem
-                            label="Duration"
+                            label="Extended period with PSC Rules 110"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('duration', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('duration')
+                            {getFieldDecorator('extended_period_with_psc_rules_110', {
+                                rules: [{ required: !true, message: 'Please input relevant data' }],
+                                initialValue: (this.getApplicationItem('extended_period_with_psc_rules_110'))
+                                    ? moment(this.getApplicationItem('extended_period_with_psc_rules_110')) : null
                             })(
-                                <Input disabled={disabled} style={{ width: '250px' }} />
+                                <RangePicker disabled={disabled} style={{ width: 250 }} />
+                            )}
+                        </FormItem>}
+
+                        {this.state.c1 && <FormItem
+                            label="Extended period with PSC Rules 111"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('extended_period_with_psc_rules_111', {
+                                rules: [{ required: !true, message: 'Please input relevant data' }],
+                                initialValue: (this.getApplicationItem('extended_period_with_psc_rules_111'))
+                                    ? moment(this.getApplicationItem('extended_period_with_psc_rules_111')) : null
+                            })(
+                                <RangePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>}
 
                         <FormItem
-                            label="Has the officer obtained no pay or half pay leave"
+                            label="Has the officer obtained no pay"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('has_the_officer_obtained_no_pay_or_half_pay_leave', {
+                            {getFieldDecorator('has_the_officer_obtained_no_pay', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('has_the_officer_obtained_no_pay_or_half_pay_leave')
+                                initialValue: this.getApplicationItem('has_the_officer_obtained_no_pay')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -705,152 +658,83 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         {this.state.c2 && <FormItem
-                            label="Time period of leaves"
+                            label="Period of leave"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('time_period_of_leaves', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('time_period_of_leaves')
+                            {getFieldDecorator('period_of_leave', {
+                                rules: [{ required: !true, message: 'Please input relevant data' }],
+                                initialValue: (this.getApplicationItem('period_of_leave'))
+                                    ? moment(this.getApplicationItem('period_of_leave')) : null
                             })(
-                                <Input disabled={disabled} style={{ width: '250px' }} />
+                                <RangePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>}
 
                         <FormItem
-                            label="Due date, officer should complete the 1st efficiency Bar (EB)"
+                            label="The due date of passing 1st efficiency bar(EB)"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('due_date,_officer_should_complete_the_1st_efficiency_bar_(EB)', {
+                            {getFieldDecorator('the_due_date_of_passing_1st_efficiency_bar', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('due_date,_officer_should_complete_the_1st_efficiency_bar_(EB)'))
-                                    ? moment(this.getApplicationItem('due_date,_officer_should_complete_the_1st_efficiency_bar_(EB)')) : null
+                                initialValue: (this.getApplicationItem('the_due_date_of_passing_1st_efficiency_bar'))
+                                    ? moment(this.getApplicationItem('the_due_date_of_passing_1st_efficiency_bar')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
                         <FormItem
-                            label="Date of completing 1st Efficiency Bar (EB)"
+                            label="Date of passing 1st efficiency bar (EB)"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('date_of_completing_1st_Efficiency_Bar_(EB)', {
+                            {getFieldDecorator('date_of_passing_1st_efficiency_bar', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('date_of_completing_1st_Efficiency_Bar_(EB)'))
-                                    ? moment(this.getApplicationItem('date_of_completing_1st_Efficiency_Bar_(EB)')) : null
+                                initialValue: (this.getApplicationItem('date_of_passing_1st_efficiency_bar'))
+                                    ? moment(this.getApplicationItem('date_of_passing_1st_efficiency_bar')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
                         <FormItem
-                            label="Due date, officer should complete the 2nd efficiency Bar (EB)"
+                            label="Due date of passing other official language"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('due_date,_officer_should_complete_the_2nd_efficiency_bar_(EB)', {
+                            {getFieldDecorator('due_date_of_passing_other_official_language', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('due_date,_officer_should_complete_the_2nd_efficiency_bar_(EB)'))
-                                    ? moment(this.getApplicationItem('due_date,_officer_should_complete_the_2nd_efficiency_bar_(EB)')) : null
+                                initialValue: (this.getApplicationItem('due_date_of_passing_other_official_language'))
+                                    ? moment(this.getApplicationItem('due_date_of_passing_other_official_language')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
                         <FormItem
-                            label="Date of completing/ releasing 2nd efficiency Bar (EB)"
+                            label="Date of passing other official language"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('date_of_completing_releasing_2nd_efficiency_Bar_(EB)', {
+                            {getFieldDecorator('date_of_passing_other_official_language', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('date_of_completing_releasing_2nd_efficiency_Bar_(EB)'))
-                                    ? moment(this.getApplicationItem('date_of_completing_releasing_2nd_efficiency_Bar_(EB)')) : null
+                                initialValue: (this.getApplicationItem('date_of_passing_other_official_language'))
+                                    ? moment(this.getApplicationItem('date_of_passing_other_official_language')) : null
                             })(
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
                         <FormItem
-                            label="Due date, officer should complete the second language proficiency requirement"
+                            label="Whether the officer has 06 years active & satisfactory service period in grade III & earned 06 salary increments"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('due_date,_officer_should_complete_the_second_language_proficiency_requirement', {
+                            {getFieldDecorator('whether_the_officer_has_06_years_active_satisfactory_service_period_in_grade_iii_&_earned_06_salary_increments', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('due_date,_officer_should_complete_the_second_language_proficiency_requirement'))
-                                    ? moment(this.getApplicationItem('due_date,_officer_should_complete_the_second_language_proficiency_requirement')) : null
-                            })(
-                                <DatePicker disabled={disabled} style={{ width: 250 }} />
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            label="Date of completing/ releasing second language proficiency requirement"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('date_of_completing_releasing_second_language_proficiency_requirement', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('date_of_completing_releasing_second_language_proficiency_requirement'))
-                                    ? moment(this.getApplicationItem('date_of_completing_releasing_second_language_proficiency_requirement')) : null
-                            })(
-                                <DatePicker disabled={disabled} style={{ width: 250 }} />
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            label="Second language proficiency level according to PA circular 01/2014"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('second_language_proficiency_level_according_to_pa_circular', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('second_language_proficiency_level_according_to_pa_circular'))
-                                    ? moment(this.getApplicationItem('second_language_proficiency_level_according_to_pa_circular')) : null
-                            })(
-                                <DatePicker disabled={disabled} style={{ width: 250 }} />
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            label="Due date, officer should complete the second language proficiency level according to PA circular 01/2014"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('due_date,_officer_should_complete_the_second_language_proficiency_level_according_to_pa_circular', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('due_date,_officer_should_complete_the_second_language_proficiency_level_according_to_pa_circular'))
-                                    ? moment(this.getApplicationItem('due_date,_officer_should_complete_the_second_language_proficiency_level_according_to_pa_circular')) : null
-                            })(
-                                <DatePicker disabled={disabled} style={{ width: 250 }} />
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            label="Date of completing/ releasing the second language proficiency level according to PA circular 01/2014"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('date_of_completing_releasing_the_second_language_proficiency_level_according_to_pa_circular', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('date_of_completing_releasing_the_second_language_proficiency_level_according_to_pa_circular'))
-                                    ? moment(this.getApplicationItem('date_of_completing_releasing_the_second_language_proficiency_level_according_to_pa_circular')) : null
-                            })(
-                                <DatePicker disabled={disabled} style={{ width: 250 }} />
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            label="Has the officer completed the induction training program in SLIDA"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('has_the_officer_completed_the_induction_training_program_in_SLIDA', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('has_the_officer_completed_the_induction_training_program_in_SLIDA')
+                                initialValue: this.getApplicationItem('whether_the_officer_has_06_years_active_satisfactory_service_period_in_grade_iii_&_earned_06_salary_increments')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -862,61 +746,128 @@ class ApplicationForm extends React.Component {
                                 >
                                     <Option value="Yes">Yes</Option>
                                     <Option value="No">No</Option>
-                                    <Option value="Not Relevant">Not Relevant</Option>
                                 </Select>
                             )}
                         </FormItem>
 
-                        {this.state.c3 && <FormItem
-                            label="Due date, officer should complete the capacity building programme III in SLIDA"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('due_date_officer_should_complete_the_capacity_building_program_iii_in_slida', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('due_date_officer_should_complete_the_capacity_building_program_iii_in_slida'))
-                                    ? moment(this.getApplicationItem('due_date_officer_should_complete_the_capacity_building_program_iii_in_slida')) : null
-                            })(
-                                <DatePicker disabled={disabled} style={{ width: 250 }} />
-                            )}
-                        </FormItem>}
-
-                        {!this.state.c3 && <FormItem
-                            label="Date of completing/ releasing the capacity building programme III in SLIDA"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('date_of_completing_releasing_the_capacity_building_programme_iii_in_slida', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('date_of_completing_releasing_the_capacity_building_programme_iii_in_slida'))
-                                    ? moment(this.getApplicationItem('date_of_completing_releasing_the_capacity_building_programme_iii_in_slida')) : null
-                            })(
-                                <DatePicker disabled={disabled} style={{ width: 250 }} />
-                            )}
-                        </FormItem>}
+                        {this.state.c3 &&
+                            <FormItem
+                                label=" "
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                <table>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th style={{ width: 350 }}>Whether the officer has earned all salary increments for 6 years immediately preceding</th>
+                                    </tr>
+                                    {table1.map((element, key) => {
+                                        return (<tr key={key}>
+                                            <td>
+                                                <Select
+                                                    disabled={disabled}
+                                                    style={{ width: 120 }}
+                                                    placeholder="Select"
+                                                    optionFilterProp="children"
+                                                    onChange={(e) => this.setTableValue(table1, index, 'year', e)}
+                                                    defaultValue={element.year ? element.year : []}
+                                                >
+                                                    {years}
+                                                </Select>
+                                            </td>
+                                            <td>
+                                                <Select
+                                                    disabled={disabled}
+                                                    style={{ width: 250 }}
+                                                    placeholder="Select"
+                                                    optionFilterProp="children"
+                                                    onChange={(e) => this.setTableValue(table1, index, 'answer', e)}
+                                                    defaultValue={element.answer ? element.answer : []}
+                                                >
+                                                    <Option value="Yes">Yes</Option>
+                                                    <Option value="No">No</Option>
+                                                </Select>
+                                            </td>
+                                        </tr>)
+                                    })}
+                                </table>
+                            </FormItem>}
 
                         <FormItem
-                            label="According to the above information, the date officer, completes all the qualifications"
+                            label="Have the salary increments and performance appraisal reports been presented for 06 years immediately preceding the date of promoting to Grade II"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('according_to_the_above_information,_the_date_officer,_completes_all_the_qualifications', {
+                            {getFieldDecorator('have_the_salary_increments_and_performance_appraisal_reports_been_presented_for_06_years_immediately_preceding_the_date_of_promoting_to_grade_ii', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('according_to_the_above_information,_the_date_officer,_completes_all_the_qualifications'))
-                                    ? moment(this.getApplicationItem('according_to_the_above_information,_the_date_officer,_completes_all_the_qualifications')) : null
+                                initialValue: this.getApplicationItem('have_the_salary_increments_and_performance_appraisal_reports_been_presented_for_06_years_immediately_preceding_the_date_of_promoting_to_grade_ii')
                             })(
-                                <DatePicker disabled={disabled} style={{ width: 250 }} />
+                                <Select
+                                    disabled={disabled}
+                                    style={{ width: 250 }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.changeCondition('c4', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    <Option value="Yes">Yes</Option>
+                                    <Option value="No">No</Option>
+                                </Select>
                             )}
                         </FormItem>
 
+                        {this.state.c4 &&
+                            <FormItem
+                                label=" "
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                <table>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th style={{ width: 350 }}>Whether the officer has satisfactory service for 6 years immediately preceding</th>
+                                    </tr>
+                                    {table2.map((element, key) => {
+                                        return (<tr key={key}>
+                                            <td>
+                                                <Select
+                                                    disabled={disabled}
+                                                    style={{ width: 120 }}
+                                                    placeholder="Select"
+                                                    optionFilterProp="children"
+                                                    onChange={(e) => this.setTableValue(table2, index, 'year', e)}
+                                                    defaultValue={element.year ? element.year : []}
+                                                >
+                                                    {years}
+                                                </Select>
+                                            </td>
+                                            <td>
+                                                <Select
+                                                    disabled={disabled}
+                                                    style={{ width: 250 }}
+                                                    placeholder="Select"
+                                                    optionFilterProp="children"
+                                                    onChange={(e) => this.setTableValue(table2, index, 'answer', e)}
+                                                    defaultValue={element.answer ? element.answer : []}
+                                                >
+                                                    <Option value="Satisfactory">Satisfactory</Option>
+                                                    <Option value="Above Average">Above Average</Option>
+                                                    <Option value="Excellent">Excellent</Option>
+                                                </Select>
+                                            </td>
+                                        </tr>)
+                                    })}
+                                </table>
+                            </FormItem>}
+
                         <FormItem
-                            label="Has the secretary of the ministry where the officer is working recommended the promotion"
+                            label="Whether the officer has pending disciplinary actions"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('has_the_secretary_of_the_ministry_where_the_officer_is_working_recommended_the_promotion', {
+                            {getFieldDecorator('whether_the_officer_has_pending_disciplinary_actions', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('has_the_secretary_of_the_ministry_where_the_officer_is_working_recommended_the_promotion')
+                                initialValue: this.getApplicationItem('whether_the_officer_has_pending_disciplinary_actions')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -932,11 +883,33 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Recommendation letter issued by the secretary of the ministry"
+                            label="Date which the officer qualified for the promotion"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {/* {getFieldDecorator('recommendation_letter_issued_by_department_of_head', {
+                            {getFieldDecorator('date_which_the_officer_qualified_for_the_promotion', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('date_which_the_officer_qualified_for_the_promotion')
+                            })(
+                                <Select
+                                    disabled={disabled}
+                                    style={{ width: 250 }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    <Option value="Yes">Yes</Option>
+                                    <Option value="No">No</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+
+                        <FormItem
+                            label="Class 2 application"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {/* {getFieldDecorator('class_2_application', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props1} disabled={disabled} >
@@ -944,15 +917,15 @@ class ApplicationForm extends React.Component {
                             </Upload>}
                             {/*)} */}
 
-                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('recommendation_letter_issued_by_the_secretary_of_the_ministry')}>Attachment</Button>}
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('class_2_application')}>Attachment</Button>}
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of duty assume letter"
+                            label="Last salary increment"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {/* {getFieldDecorator('certified_copy_of_duty_assume_letter', {
+                            {/* {getFieldDecorator('last_salary_increment', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props2} disabled={disabled}>
@@ -960,15 +933,15 @@ class ApplicationForm extends React.Component {
                             </Upload>}
                             {/*)} */}
 
-                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_duty_assume_letter')}>Attachment</Button>}
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('last_salary_increment')}>Attachment</Button>}
                         </FormItem>
 
                         <FormItem
-                            label="Certified copy of induction training completion letter"
+                            label="Last performance report"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {/* {getFieldDecorator('certified_copy_of_induction_training_completion_letter', {
+                            {/* {getFieldDecorator('last_performance_report', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props3} disabled={disabled}>
@@ -976,42 +949,11 @@ class ApplicationForm extends React.Component {
                             </Upload>}
                             {/*)} */}
 
-                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_induction_training_completion_letter')}>Attachment</Button>}
+                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('last_performance_report')}>Attachment</Button>}
                         </FormItem>
 
-                        <FormItem
-                            label="Certified copy of efficiency bar result sheet"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {/* {getFieldDecorator('certified_copy_of_efficiency_bar_result_sheet', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
-                            })( */}
-                            {(viewType == 'add' || viewType == 'edit') && <Upload {...props4} disabled={disabled}>
-                                {fileList4.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                            </Upload>}
-                            {/*)} */}
 
-                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_efficiency_bar_result_sheet')}>Attachment</Button>}
-                        </FormItem>
-
-                        <FormItem
-                            label="Certified copy of medical certificate"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {/* {getFieldDecorator('certified_copy_of_medical_certificate', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
-                            })( */}
-                            {(viewType == 'add' || viewType == 'edit') && <Upload {...props5} disabled={disabled}>
-                                {fileList5.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
-                            </Upload>}
-                            {/*)} */}
-
-                            {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_medical_certificate')}>Attachment</Button>}
-                        </FormItem>
-
-                        {(viewType == 'view' && this.showAction()) && <FormItem
+                        {(this.showAction()) && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1033,7 +975,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {(viewType == 'view' && approved == 0 && this.showAction()) && <FormItem
+                        {(approved == 0 && this.showAction()) && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1059,14 +1001,9 @@ class ApplicationForm extends React.Component {
                         </FormItem>}
 
                         <ButtonContainer>
-                            <LeftButtons>
-                                {this.renderLeftButtons().map((element, index) => {
-                                    return <span key={index}>{element}</span>;
-                                })}
-                            </LeftButtons>
                             <RightButtons>
                                 {this.renderRightButtons().map((element, index) => {
-                                    return <span key={index}>{element}</span>;
+                                    return <span key={index} style={{ marginLeft: '12px' }}>{element}</span>;
                                 })}
                             </RightButtons>
                         </ButtonContainer>
