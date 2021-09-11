@@ -112,7 +112,6 @@ class ApplicationForm extends React.Component {
         const { viewType } = this.state;
         if (viewType != 'add') {
             let application = JSON.parse(this.props.application.application);
-            console.log('application', application);
             this.setState({
                 disabled: true,
                 applicationStatus: this.props.application.status,
@@ -235,8 +234,8 @@ class ApplicationForm extends React.Component {
                             officers_id: officer ? officer.id : null,
                             nic: values.nic,
                             officer_name: values.officer_name,
-                            designation: values.designation,
-                            place_of_work: values.place_of_work,
+                            designation: this.getActive(officer.service_history).designation,
+                            place_of_work: this.getActive(officer.service_history).place_of_work,
                             mobile_number: values.mobile_number,
                             application: JSON.stringify(values),
                             application_type: 2,
