@@ -112,6 +112,7 @@ class ApplicationForm extends React.Component {
         const { viewType } = this.state;
         if (viewType != 'add') {
             let application = JSON.parse(this.props.application.application);
+            console.log('application', application);
             this.setState({
                 disabled: true,
                 applicationStatus: this.props.application.status,
@@ -119,6 +120,8 @@ class ApplicationForm extends React.Component {
                 c2: application.c2,
                 c3: application.c3,
                 c4: application.c4,
+                table1: application.table1,
+                table2: application.table2,
                 rejectReason: this.props.application.reject_reason
             });
         }
@@ -194,7 +197,7 @@ class ApplicationForm extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const {
-                    c1, c2, c3, c4,
+                    c1, c2, c3, c4, table1, table2,
                     officer, fileList1, fileList2, fileList3
                 } = this.state;
                 let userData = this.props.appState.getUserData();
@@ -222,6 +225,10 @@ class ApplicationForm extends React.Component {
                         //documents
                         values.documents = docs;
 
+                        //tables
+                        values.table1 = table1;
+                        values.table2 = table2;
+
                         //application
                         let applicationData = {
                             institutes_id: userData.institutes_id,
@@ -232,7 +239,7 @@ class ApplicationForm extends React.Component {
                             place_of_work: values.place_of_work,
                             mobile_number: values.mobile_number,
                             application: JSON.stringify(values),
-                            application_type: 3,
+                            application_type: 2,
                             reject_reason: null,
                             status: 100
                         }
@@ -376,8 +383,10 @@ class ApplicationForm extends React.Component {
         this.setState({ [fileList]: [] });
     }
 
-    setTableValue = (table1, index, key, e) => {
-
+    setTableValue = (table, index, key, e) => {
+        let data = table;
+        data[index][key] = e;
+        this.setState({ [table]: data });
     }
 
     render() {
@@ -388,7 +397,7 @@ class ApplicationForm extends React.Component {
 
         let years = [];
         if (years.length == 0) {
-            for (let i = 1900; i <= new Date().getFullYear(); i++) {
+            for (let i = new Date().getFullYear(); i >= 1900; i--) {
                 years.push(<Option key={i} value={i}>{i}</Option>);
             }
         }
@@ -614,7 +623,7 @@ class ApplicationForm extends React.Component {
                             {getFieldDecorator('extended_period_with_psc_rules_110', {
                                 rules: [{ required: !true, message: 'Please input relevant data' }],
                                 initialValue: (this.getApplicationItem('extended_period_with_psc_rules_110'))
-                                    ? moment(this.getApplicationItem('extended_period_with_psc_rules_110')) : null
+                                    ? [moment(this.getApplicationItem('extended_period_with_psc_rules_110')[0]), moment(this.getApplicationItem('extended_period_with_psc_rules_110')[1])] : null
                             })(
                                 <RangePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -628,7 +637,7 @@ class ApplicationForm extends React.Component {
                             {getFieldDecorator('extended_period_with_psc_rules_111', {
                                 rules: [{ required: !true, message: 'Please input relevant data' }],
                                 initialValue: (this.getApplicationItem('extended_period_with_psc_rules_111'))
-                                    ? moment(this.getApplicationItem('extended_period_with_psc_rules_111')) : null
+                                    ? [moment(this.getApplicationItem('extended_period_with_psc_rules_111')[0]), moment(this.getApplicationItem('extended_period_with_psc_rules_111')[1])] : null
                             })(
                                 <RangePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -665,7 +674,7 @@ class ApplicationForm extends React.Component {
                             {getFieldDecorator('period_of_leave', {
                                 rules: [{ required: !true, message: 'Please input relevant data' }],
                                 initialValue: (this.getApplicationItem('period_of_leave'))
-                                    ? moment(this.getApplicationItem('period_of_leave')) : null
+                                    ? [moment(this.getApplicationItem('period_of_leave')[0]), moment(this.getApplicationItem('period_of_leave')[1])] : null
                             })(
                                 <RangePicker disabled={disabled} style={{ width: 250 }} />
                             )}
@@ -759,7 +768,7 @@ class ApplicationForm extends React.Component {
                                 <table>
                                     <tr>
                                         <th>Year</th>
-                                        <th style={{ width: 350 }}>Whether the officer has earned all salary increments for 6 years immediately preceding</th>
+                                        <th style={{ width: 400, textAlign: 'right' }}>Whether the officer has earned all salary increments for 6 years immediately preceding</th>
                                     </tr>
                                     {table1.map((element, key) => {
                                         return (<tr key={key}>
@@ -769,19 +778,19 @@ class ApplicationForm extends React.Component {
                                                     style={{ width: 120 }}
                                                     placeholder="Select"
                                                     optionFilterProp="children"
-                                                    onChange={(e) => this.setTableValue(table1, index, 'year', e)}
+                                                    onChange={(e) => this.setTableValue(table1, key, 'year', e)}
                                                     defaultValue={element.year ? element.year : []}
                                                 >
                                                     {years}
                                                 </Select>
                                             </td>
-                                            <td>
+                                            <td style={{ textAlign: 'right' }}>
                                                 <Select
                                                     disabled={disabled}
                                                     style={{ width: 250 }}
                                                     placeholder="Select"
                                                     optionFilterProp="children"
-                                                    onChange={(e) => this.setTableValue(table1, index, 'answer', e)}
+                                                    onChange={(e) => this.setTableValue(table1, key, 'answer', e)}
                                                     defaultValue={element.answer ? element.answer : []}
                                                 >
                                                     <Option value="Yes">Yes</Option>
@@ -825,7 +834,7 @@ class ApplicationForm extends React.Component {
                                 <table>
                                     <tr>
                                         <th>Year</th>
-                                        <th style={{ width: 350 }}>Whether the officer has satisfactory service for 6 years immediately preceding</th>
+                                        <th style={{ width: 400, textAlign: 'right' }}>Whether the officer has satisfactory service for 6 years immediately preceding</th>
                                     </tr>
                                     {table2.map((element, key) => {
                                         return (<tr key={key}>
@@ -835,19 +844,19 @@ class ApplicationForm extends React.Component {
                                                     style={{ width: 120 }}
                                                     placeholder="Select"
                                                     optionFilterProp="children"
-                                                    onChange={(e) => this.setTableValue(table2, index, 'year', e)}
+                                                    onChange={(e) => this.setTableValue(table2, key, 'year', e)}
                                                     defaultValue={element.year ? element.year : []}
                                                 >
                                                     {years}
                                                 </Select>
                                             </td>
-                                            <td>
+                                            <td style={{ textAlign: 'right' }}>
                                                 <Select
                                                     disabled={disabled}
                                                     style={{ width: 250 }}
                                                     placeholder="Select"
                                                     optionFilterProp="children"
-                                                    onChange={(e) => this.setTableValue(table2, index, 'answer', e)}
+                                                    onChange={(e) => this.setTableValue(table2, key, 'answer', e)}
                                                     defaultValue={element.answer ? element.answer : []}
                                                 >
                                                     <Option value="Satisfactory">Satisfactory</Option>
@@ -889,18 +898,10 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('date_which_the_officer_qualified_for_the_promotion', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('date_which_the_officer_qualified_for_the_promotion')
+                                initialValue: (this.getApplicationItem('date_which_the_officer_qualified_for_the_promotion'))
+                                    ? moment(this.getApplicationItem('date_which_the_officer_qualified_for_the_promotion')) : null
                             })(
-                                <Select
-                                    disabled={disabled}
-                                    style={{ width: 250 }}
-                                    placeholder="Select"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                >
-                                    <Option value="Yes">Yes</Option>
-                                    <Option value="No">No</Option>
-                                </Select>
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
@@ -913,7 +914,10 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props1} disabled={disabled} >
-                                {fileList1.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList1.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('class_2_application')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList1')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
@@ -929,7 +933,10 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props2} disabled={disabled}>
-                                {fileList2.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList2.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('last_salary_increment')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList2')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
@@ -945,7 +952,10 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
                             {(viewType == 'add' || viewType == 'edit') && <Upload {...props3} disabled={disabled}>
-                                {fileList3.length == 1 ? null : <Button><Icon type={'upload'} />Upload</Button>}
+                                {fileList3.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('last_performance_report')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList3')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
                             </Upload>}
                             {/*)} */}
 
