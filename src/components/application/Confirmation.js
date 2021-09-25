@@ -4,7 +4,7 @@ import {
     Card, Breadcrumb, Icon, Typography, InputNumber, Divider
 } from 'antd';
 import { inject, observer } from 'mobx-react';
-import styled from 'styled-components'
+import styled from 'styled-components';
 import moment from 'moment';
 import _get from "lodash/get";
 

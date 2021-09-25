@@ -198,7 +198,7 @@ class DataForm extends Component {
                                     onChange={this.changeUserCategory}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
-                                    <Option value="slas_officer">SLAS Officer</Option>
+                                    {/* <Option value="slas_officer">SLAS Officer</Option> */}
                                     <Option value="institute_user">Institute User</Option>
                                     <Option value="psc_user">PSC User</Option>
                                     <Option value="pubad_user">PubAd User</Option>
@@ -240,7 +240,9 @@ class DataForm extends Component {
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
-                                    {desigValues}
+                                    {/* {desigValues} */}
+                                    <Option value={171}>Management Service Officer</Option>
+                                    <Option value={172}>Developemnt Officer</Option>
                                 </Select>
                             )}
                         </FormItem>

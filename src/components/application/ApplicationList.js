@@ -1,10 +1,12 @@
 import React from 'react';
 import { inject, observer } from 'mobx-react';
-import { Card, Breadcrumb, Table, Typography } from 'antd';
+import { Card, Breadcrumb, Table, Typography, Button } from 'antd';
 
 const { Title } = Typography;
 
 import ViewApplication from "./ViewApplication";
+import TableData from './TableData';
+
 
 @inject('appStore', 'appState')
 @observer
@@ -12,7 +14,11 @@ class ApplicationList extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { applications: null };
+        this.state = {
+            applications: null,
+            selectedRowKeys: [],
+            loading: false,
+        };
     }
 
     componentDidMount() {
@@ -85,18 +91,61 @@ class ApplicationList extends React.Component {
             });
     }
 
+    onSelectChange = selectedRowKeys => {
+        this.setState({ selectedRowKeys });
+    }
+
+    showBulkAction = () => {
+        const role = this.props.appState.getUserRole();
+        const applicationType = this.props.applicationType;
+        const applicationStatus = this.props.applicationStatus;
+
+        if (role === '2' && applicationType === 2 && applicationStatus === 400) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    generateReport = (keys, applications) => {
+        let csv = [];
+        if (applications) {
+            keys.forEach(element => {
+                let appObj = applications.filter(value => value.id == element);
+                let application = JSON.parse(appObj[0].application);
+                csv.push(application);
+            });
+        }
+        return csv;
+    }
+
     render() {
-        const { applications } = this.state;
+        const { applications, selectedRowKeys } = this.state;
+        const rowSelection = {
+            selectedRowKeys,
+            onChange: this.onSelectChange,
+        };
+        const hasSelected = selectedRowKeys.length > 0;
 
         return (
             <Card className="card-magrin">
+                {this.showBulkAction() && <div style={{ marginBottom: 16 }}>
+                    <TableData tableData={this.generateReport(selectedRowKeys, applications)} />
+
+                    <span style={{ marginLeft: 8 }}>
+                        {hasSelected ? `Selected ${selectedRowKeys.length} applications` : ''}
+                    </span>
+                </div>}
 
                 {applications && <Table
                     size={"small"}
                     loading={this.state.tableLoading}
                     rowKey={record => record.id}
                     columns={this.columns}
-                    dataSource={applications} />}
+                    dataSource={applications}
+                    pagination={false}
+                    rowSelection={this.showBulkAction() && rowSelection}
+                />}
 
                 {!applications && <Table
                     size={"small"}
@@ -104,6 +153,7 @@ class ApplicationList extends React.Component {
                     rowKey={record => record.id}
                     columns={this.columns}
                     dataSource={null}
+                    pagination={false}
                 />}
 
             </Card>

@@ -388,11 +388,26 @@ class ApplicationForm extends React.Component {
         this.setState({ [table]: data });
     }
 
+    shideActionButtons = () => {
+        const role = this.props.appState.getUserRole();
+        const applicationType = this.props.applicationType;
+        const applicationStatus = this.props.applicationStatus;
+
+        if (role === '2' && applicationType === 2 && applicationStatus === 400) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     render() {
         const { getFieldDecorator } = this.props.form;
         const { institutes, designations } = this.props.appStore;
         const { officer, viewType, disabled, approved, applicationStatus, rejectReason,
             fileList1, fileList2, fileList3, table1, table2 } = this.state;
+
+        const role = this.props.appState.getUserRole();
+        const status = _get(this.props.application, "status", null);
 
         let years = [];
         if (years.length == 0) {
@@ -1009,13 +1024,13 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        <ButtonContainer>
+                        {!this.shideActionButtons() && <ButtonContainer>
                             <RightButtons>
                                 {this.renderRightButtons().map((element, index) => {
                                     return <span key={index} style={{ marginLeft: '12px' }}>{element}</span>;
                                 })}
                             </RightButtons>
-                        </ButtonContainer>
+                        </ButtonContainer>}
                     </Form>
 
                 </Card>
