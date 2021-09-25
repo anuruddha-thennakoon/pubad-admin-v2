@@ -100,7 +100,7 @@ class ApplicationList extends React.Component {
         const applicationType = this.props.applicationType;
         const applicationStatus = this.props.applicationStatus;
 
-        if (role === '2' && applicationType === 2 && applicationStatus === 400) {
+        if (role === '2' && (applicationType === 2 || applicationType === 8) && applicationStatus === 400) {
             return true;
         } else {
             return false;
@@ -126,11 +126,12 @@ class ApplicationList extends React.Component {
             onChange: this.onSelectChange,
         };
         const hasSelected = selectedRowKeys.length > 0;
+        const applicationType = this.props.applicationType;
 
         return (
             <Card className="card-magrin">
                 {this.showBulkAction() && <div style={{ marginBottom: 16 }}>
-                    <TableData tableData={this.generateReport(selectedRowKeys, applications)} />
+                    <TableData applicationType={applicationType} tableData={this.generateReport(selectedRowKeys, applications)} />
 
                     <span style={{ marginLeft: 8 }}>
                         {hasSelected ? `Selected ${selectedRowKeys.length} applications` : ''}

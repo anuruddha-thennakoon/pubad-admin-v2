@@ -51,7 +51,7 @@ class ApplicationForm extends React.Component {
             viewType: this.props.viewType,
             rejectReason: null,
             officer: {},
-            c1: false, c2: false, c3: false, c4: false, c5: false,
+            c1: false, c2: false, c3: false,
             confirmLoading: false,
             applicationStatus: 0,
             fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
@@ -169,7 +169,7 @@ class ApplicationForm extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const {
-                    c1, c2, c3, c4, c5,
+                    c1, c2, c3,
                     officer, fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8
                 } = this.state;
                 let userData = this.props.appState.getUserData();
@@ -199,8 +199,6 @@ class ApplicationForm extends React.Component {
                         values.c1 = c1;
                         values.c2 = c2;
                         values.c3 = c3;
-                        values.c4 = c4;
-                        values.c5 = c5;
 
                         //documents
                         values.documents = docs;
@@ -781,6 +779,33 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
+                            label="Period to be extended by failing to complete the Induction training on time"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: (this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time'))
+                                    ? [moment(this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time')[0]), moment(this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time')[1])] : null
+                            })(
+                                <RangePicker disabled={disabled} style={{ width: 250 }} />
+                            )}
+                        </FormItem>
+
+                        <FormItem
+                            label="Induction training completed date"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('induction_training_completed_date', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: moment(this.getApplicationItem('induction_training_completed_date'))
+                            })(
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
+                            )}
+                        </FormItem>
+
+                        <FormItem
                             label="Has the officer completed the 1st Efficiency Bar (EB)"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -848,82 +873,10 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('period_to_be_extended_on_delay_in_passing_1st_EB', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('period_to_be_extended_on_delay_in_passing_1st_EB')
+                                initialValue: (this.getApplicationItem('period_to_be_extended_on_delay_in_passing_1st_EB'))
+                                    ? [moment(this.getApplicationItem('period_to_be_extended_on_delay_in_passing_1st_EB')[0]), moment(this.getApplicationItem('period_to_be_extended_on_delay_in_passing_1st_EB')[1])] : null
                             })(
-                                <Input disabled={disabled} style={{ width: '250px' }} />
-                            )}
-                        </FormItem>}
-
-                        <FormItem
-                            label="Has the officer completed the second language proficiency requirement"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('has_the_officer_completed_the_second_language_proficiency_requirement', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('has_the_officer_completed_the_second_language_proficiency_requirement')
-                            })(
-                                <Select
-                                    disabled={disabled}
-                                    style={{ width: 250 }}
-                                    placeholder="Select"
-                                    optionFilterProp="children"
-                                    onChange={(e) => this.changeCondition('c3', e)}
-                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                >
-                                    <Option value="Yes">Yes</Option>
-                                    <Option value="No">No</Option>
-                                </Select>
-                            )}
-                        </FormItem>
-
-                        {this.state.c3 && <FormItem
-                            label="Date of completing the second language proficiency requirement"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('date_of_completing_the_second_language_proficiency_requirement', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('date_of_completing_the_second_language_proficiency_requirement'))
-                            })(
-                                <DatePicker disabled={disabled} style={{ width: 250 }} />
-                            )}
-                        </FormItem>}
-
-                        {!this.state.c3 && <FormItem
-                            label="Has concessionary been given for the second language proficiency requirement"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('has_concessionary_been_given_for_the_second_language_proficiency_requirement', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('has_concessionary_been_given_for_the_second_language_proficiency_requirement')
-                            })(
-                                <Select
-                                    disabled={disabled}
-                                    style={{ width: 250 }}
-                                    placeholder="Select"
-                                    optionFilterProp="children"
-                                    onChange={(e) => this.changeCondition('c4', e)}
-                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                >
-                                    <Option value="Yes">Yes</Option>
-                                    <Option value="No">No</Option>
-                                </Select>
-                            )}
-                        </FormItem>}
-
-                        {!this.state.c4 && <FormItem
-                            label="Period to be extended by failing to complete the second language proficiency requirement"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                            extra="Under the PSC Rules No.110/Under the PSC Rules No.111"
-                        >
-                            {getFieldDecorator('period_to_be_extended_by_failing_to_complete_the_second_language_proficiency_requirement', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_second_language_proficiency_requirement')
-                            })(
-                                <Input disabled={disabled} style={{ width: '250px' }} />
+                                <RangePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>}
 
@@ -941,7 +894,7 @@ class ApplicationForm extends React.Component {
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    onChange={(e) => this.changeCondition('c5', e)}
+                                    onChange={(e) => this.changeCondition('c3', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -950,16 +903,17 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>
 
-                        {this.state.c5 && <FormItem
+                        {this.state.c3 && <FormItem
                             label="Time period of leaves"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('time_period_of_leaves', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('time_period_of_leaves')
+                                initialValue: (this.getApplicationItem('time_period_of_leaves'))
+                                    ? [moment(this.getApplicationItem('time_period_of_leaves')[0]), moment(this.getApplicationItem('time_period_of_leaves')[1])] : null
                             })(
-                                <Input disabled={disabled} style={{ width: '250px' }} />
+                                <RangePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>}
 

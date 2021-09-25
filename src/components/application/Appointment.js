@@ -53,7 +53,8 @@ class ApplicationForm extends React.Component {
             officer: {},
             confirmLoading: false,
             applicationStatus: 0,
-            fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: []
+            fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [],
+            workType:''
         };
 
         this.props.appStore.getInstitutes();
@@ -594,6 +595,72 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
+                            label="Appointment to post due to"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('appointment_to_post_due_to', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('appointment_to_post_due_to')
+                            })(
+                                <Select
+                                    showSearch
+                                    disabled={disabled}
+                                    style={{ width: 250 }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    <Option value="Promotion">Promotion</Option>
+                                    <Option value="Transfer">Transfer</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+
+                        <FormItem
+                            label="Previous place of work"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('place_of_work', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('previous_place_of_work')
+                            })(
+                                <Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>
+                            )}
+                        </FormItem>
+
+                        <FormItem
+                            label="Previous designation"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('current_designation', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('previous_designation')
+                            })(
+                                <Select
+                                    showSearch
+                                    disabled={disabled}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {desigValues}
+                                </Select>
+                            )}
+                        </FormItem>
+
+                        <FormItem
                             label="Current designation"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -617,15 +684,37 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
+                            label="Current place of work type"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('current_place_of_work_type', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('current_place_of_work_type')
+                            })(
+                                <Select
+                                    showSearch
+                                    disabled={disabled}
+                                    style={{ width: 250 }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    <Option value="Cabinet Ministry">Cabinet Ministry</Option>
+                                    <Option value="State Ministry">State Ministry</Option>
+                                    <Option value="Department or Other Institute">Department or Other Institute</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+
+                        {this.state.workType == 'Cabinet Ministry' &&<FormItem
                             label="Place of work"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
                             {getFieldDecorator('place_of_work', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: viewType == 'add' ?
-                                    (officer.service_history ? this.getActive(officer.service_history).place_of_work : []) :
-                                    this.getApplicationItem('place_of_work')
+                                initialValue: this.getApplicationItem('place_of_work')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -637,6 +726,86 @@ class ApplicationForm extends React.Component {
                                 >
                                     {instituteValues}
                                 </Select>
+                            )}
+                        </FormItem>}
+
+                        {this.state.workType == 'State Ministry' &&<FormItem
+                            label="Place of work"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('place_of_work', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('place_of_work')
+                            })(
+                                <Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>
+                            )}
+                        </FormItem>}
+
+                        {this.state.workType == 'Department or Other Institute' &&<FormItem
+                            label="Place of work"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('place_of_work', {
+                                rules: [{ required: !true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('place_of_work')
+                            })(
+                                <Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>
+                            )}
+                        </FormItem>}
+
+                        {this.state.workType == 'Department or Other Institute' &&<FormItem
+                            label="Name of the cabinet ministry/state ministry"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('name_of_the_cabinet_ministry_state_ministry', {
+                                rules: [{ required: !true, message: 'Please input relevant data' }],
+                                initialValue: this.getApplicationItem('name_of_the_cabinet_ministry_state_ministry')
+                            })(
+                                <Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>
+                            )}
+                        </FormItem>}
+
+                        <FormItem
+                            label="Date of appointment to post/promotion"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('date_of_appointment_to_post_promotion', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: (this.getApplicationItem('date_of_appointment_to_post_promotion'))
+                                    ? moment(this.getApplicationItem('date_of_appointment_to_post_promotion')) : null
+                            })(
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
