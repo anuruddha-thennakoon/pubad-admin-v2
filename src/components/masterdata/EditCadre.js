@@ -45,7 +45,8 @@ class EditCadreForm extends Component {
                         openNotificationWithIcon('success', 'Success', 'No of Cadre updated successfully');
                         this.props.form.resetFields();
                         this.setState({ confirmLoading: false });
-                        this.props.appStore.getCadrePositions();
+                        // this.props.appStore.getCadrePositions();
+                        this.props.search();
                         this.handleCancel();
                     })
                     .catch(err => {

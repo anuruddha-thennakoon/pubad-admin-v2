@@ -265,8 +265,7 @@ class AppStore {
     }
 
     @action getCadrePositions(grade, institute, type) {
-        // console.log('grade', grade);
-        // console.log('institute', institute);
+        this.cadrePositions = null;
 
         return appService.getCadrePositions()
             .then((data) => {

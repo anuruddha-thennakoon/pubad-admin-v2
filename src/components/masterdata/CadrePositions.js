@@ -70,7 +70,7 @@ class CadrePositions extends React.Component {
             dataIndex: '',
             width: '10%',
             render: (text, record) => (
-                <EditCadre record={record} />
+                <EditCadre record={record} search={this.search}/>
             ),
         }
     ];
