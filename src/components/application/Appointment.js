@@ -54,7 +54,7 @@ class ApplicationForm extends React.Component {
             confirmLoading: false,
             applicationStatus: 0,
             fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [],
-            workType:''
+            workType: ''
         };
 
         this.props.appStore.getInstitutes();
@@ -370,6 +370,10 @@ class ApplicationForm extends React.Component {
             default:
                 return null;
         }
+    }
+
+    changeWorkType = (c) => {
+        this.setState({ workType: c });
     }
 
     render() {
@@ -697,6 +701,7 @@ class ApplicationForm extends React.Component {
                                     disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
+                                    onChange={(e) => this.changeWorkType(e)}
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -707,7 +712,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>
 
-                        {this.state.workType == 'Cabinet Ministry' &&<FormItem
+                        {this.state.workType == 'Cabinet Ministry' && <FormItem
                             label="Place of work"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -729,7 +734,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {this.state.workType == 'State Ministry' &&<FormItem
+                        {this.state.workType == 'State Ministry' && <FormItem
                             label="Place of work"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -751,7 +756,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {this.state.workType == 'Department or Other Institute' &&<FormItem
+                        {this.state.workType == 'Department or Other Institute' && <FormItem
                             label="Place of work"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -773,7 +778,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {this.state.workType == 'Department or Other Institute' &&<FormItem
+                        {this.state.workType == 'Department or Other Institute' && <FormItem
                             label="Name of the cabinet ministry/state ministry"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}

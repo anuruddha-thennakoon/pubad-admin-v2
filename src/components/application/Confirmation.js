@@ -779,6 +779,19 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
+                            label="Induction training completed date"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('induction_training_completed_date', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: moment(this.getApplicationItem('induction_training_completed_date'))
+                            })(
+                                <DatePicker disabled={disabled} style={{ width: 250 }} />
+                            )}
+                        </FormItem>
+
+                        <FormItem
                             label="Period to be extended by failing to complete the Induction training on time"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -789,19 +802,6 @@ class ApplicationForm extends React.Component {
                                     ? [moment(this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time')[0]), moment(this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time')[1])] : null
                             })(
                                 <RangePicker disabled={disabled} style={{ width: 250 }} />
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            label="Induction training completed date"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('induction_training_completed_date', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: moment(this.getApplicationItem('induction_training_completed_date'))
-                            })(
-                                <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
