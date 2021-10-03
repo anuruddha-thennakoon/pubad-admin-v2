@@ -21,7 +21,7 @@ class NewApplication extends React.Component {
         super(props);
         this.state = {
             confirmLoading: false,
-            applicationType: 2
+            applicationType: 1
         };
     }
 
@@ -57,7 +57,7 @@ class NewApplication extends React.Component {
                         onChange={this.changeApplicationType}
                         filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                     >
-                        {/* <Option value={1}>Acting Appointment Application</Option> */}
+                        <Option value={1}>Acting Appointment Application</Option>
                         <Option value={2}>Class II Promotion Application</Option>
                         <Option value={3}>Confirmation Application</Option>
                         {/* <Option value={4}>Re-employment Application</Option> */}
@@ -68,9 +68,9 @@ class NewApplication extends React.Component {
                     </Select>
                 </Card>
 
-                {/* {applicationType == 1 &&
+                {applicationType == 1 &&
                     <Acting viewType="add" />
-                } */}
+                }
                 {applicationType == 2 &&
                     <Promotion viewType="add" />
                 }
