@@ -313,14 +313,19 @@ class AttachOfficerForm extends Component {
                                         onChange={this.paymentChange}
                                         filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                     >
-                                        <Option value="Contract Basis">Contract Basis</Option>
-                                        <Option value="Permanent">Permanent</Option>
-                                        <Option value="Secondment">Secondment</Option>
-                                        <Option value="Class I Stayed">Class I Stayed</Option>
-                                        <Option value="Other Officer Cabinet Acting">Other officer Cabinet Acting</Option>
-                                        <Option value="SLAS - Cabinet Acting">SLAS - Cabinet Acting</Option>
-                                        <Option value="SLAS - PSC Acting">SLAS - PSC Acting</Option>
-                                        <Option value="SLAS - PSC Contract Basis">SLAS - PSC Contract Basis</Option>
+                                        <Option value="General Officer Attachment">General Officer Attachment</Option>
+                                        <Option value="Cabinet - Acting in Post">Cabinet - Acting in Post</Option>
+                                        <Option value="Cabinet - Attending to Duties in Post">Cabinet - Attending to Duties in Post</Option>
+                                        <Option value="PSC - Acting in Post – Full Time">PSC - Acting in Post – Full Time</Option>
+                                        <Option value="PSC - Acting in Post – Part Time">PSC - Acting in Post – Part Time</Option>
+                                        <Option value="Below Post Staying">Below Post Staying</Option>
+                                        <Option value="PubAd Pool Attachment">PubAd Pool Attachment</Option>
+                                        <Option value="No Pay Leave">No Pay Leave</Option>
+                                        <Option value="Study Leave">Study Leave</Option>
+                                        <Option value="Secondment/Other Posts Attachment">Secondment/Other Posts Attachment</Option>
+                                        <Option value="Contract Basis Appointment">Contract Basis Appointment</Option>
+                                        <Option value="Other Officer Appointment">Other Officer Appointment</Option>
+                                        <Option value="Secretary Appointment">Secretary Appointment</Option>
                                     </Select>
                                 )}
                             </FormItem>

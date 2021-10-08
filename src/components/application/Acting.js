@@ -210,7 +210,7 @@ class ActingForm extends React.Component {
                             place_of_work: this.getActive(officer.service_history).place_of_work,
                             mobile_number: values.mobile_number,
                             application: JSON.stringify(values),
-                            application_type: 2,
+                            application_type: 1,
                             reject_reason: null,
                             status: 100
                         }
@@ -268,6 +268,21 @@ class ActingForm extends React.Component {
                     });
             }
         });
+    }
+
+    getGradeName = (id) => {
+        switch (id) {
+            case 1:
+                return 'Special Grade';
+            case 2:
+                return 'Grade I';
+            case 3:
+                return 'Grade II';
+            case 4:
+                return 'Grade III';
+            default:
+                return null;
+        }
     }
 
     editApproveApplication = () => {
@@ -597,7 +612,6 @@ class ActingForm extends React.Component {
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
-                                    onChange={(e) => this.changeCondition('c1', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -643,7 +657,6 @@ class ActingForm extends React.Component {
                                     disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
-                                    onChange={(e) => this.changeWorkType(e)}
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -711,7 +724,6 @@ class ActingForm extends React.Component {
                                     disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
-                                    onChange={(e) => this.changeWorkType(e)}
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -735,7 +747,6 @@ class ActingForm extends React.Component {
                                     disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
-                                    onChange={(e) => this.changeWorkType(e)}
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
