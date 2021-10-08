@@ -9,6 +9,7 @@ import Confirmation from './Confirmation';
 import Transfer from './Transfer';
 import Appointment from './Appointment';
 import Promotion from './Promotion';
+import Acting from './Acting';
 
 const FormItem = Form.Item;
 
@@ -54,6 +55,7 @@ class ViewApplicationForm extends Component {
                     onCancel={this.closeModal}
                     width={900}
                 >
+                    {this.props.applicationType == 1 && <Acting closeApplication={() => this.closeModal()} application={this.props.application} viewType="view" />}
                     {this.props.applicationType == 2 && <Promotion closeApplication={() => this.closeModal()} application={this.props.application} viewType="view" />}
                     {this.props.applicationType == 3 && <Confirmation closeApplication={() => this.closeModal()} application={this.props.application} viewType="view" />}
                     {this.props.applicationType == 7 && <Transfer closeApplication={() => this.closeModal()} application={this.props.application} viewType="view" />}

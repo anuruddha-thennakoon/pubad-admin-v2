@@ -206,8 +206,8 @@ class ActingForm extends React.Component {
                             officers_id: officer ? officer.id : null,
                             nic: values.nic,
                             officer_name: values.officer_name,
-                            designation: this.getActive(officer.service_history).designation,
-                            place_of_work: this.getActive(officer.service_history).place_of_work,
+                            designation: values.current_designation,
+                            place_of_work: values.current_place_of_work_type,
                             mobile_number: values.mobile_number,
                             application: JSON.stringify(values),
                             application_type: 1,
@@ -580,7 +580,7 @@ class ActingForm extends React.Component {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: viewType == 'add' ?
                                     (officer.profile ? this.getGradeName(officer.profile.grades_id) : []) :
-                                    this.getApplicationItem('grade')
+                                    this.getApplicationItem('current_grade')
                             })(
                                 <Select
                                     showSearch
