@@ -104,6 +104,7 @@ class ApplicationForm extends React.Component {
             let application = JSON.parse(this.props.application.application);
             this.setState({
                 disabled: true,
+                workType: application.workType,
                 applicationStatus: this.props.application.status,
                 rejectReason: this.props.application.reject_reason
             });
@@ -157,7 +158,7 @@ class ApplicationForm extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const {
-                    officer, fileList1, fileList2, fileList3, fileList4, fileList5
+                    officer, fileList1, fileList2, fileList3, fileList4, fileList5, workType
                 } = this.state;
                 let userData = this.props.appState.getUserData();
 
@@ -180,6 +181,9 @@ class ApplicationForm extends React.Component {
                     .then(docs => {
                         //documents
                         values.documents = docs;
+
+                        //conditions
+                        values.workType = workType;
 
                         //application
                         let applicationData = {
@@ -626,7 +630,7 @@ class ApplicationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('place_of_work', {
+                            {getFieldDecorator('previous_place_of_work', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: this.getApplicationItem('previous_place_of_work')
                             })(
@@ -648,7 +652,7 @@ class ApplicationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('current_designation', {
+                            {getFieldDecorator('previous_designation', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
                                 initialValue: this.getApplicationItem('previous_designation')
                             })(

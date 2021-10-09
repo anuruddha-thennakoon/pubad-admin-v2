@@ -132,7 +132,9 @@ class AllUsers extends React.Component {
                         loading={this.state.tableLoading}
                         rowKey={record => record.id}
                         columns={this.columns}
-                        dataSource={users} />}
+                        dataSource={users}
+                        pagination={false}
+                    />}
 
                     {users.length == 0 && <Table
                         size={"small"}
@@ -140,6 +142,7 @@ class AllUsers extends React.Component {
                         rowKey={record => record.id}
                         columns={this.columns}
                         dataSource={null}
+                        pagination={false}
                     />}
 
                 </Card>

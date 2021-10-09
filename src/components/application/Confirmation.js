@@ -51,7 +51,7 @@ class ApplicationForm extends React.Component {
             viewType: this.props.viewType,
             rejectReason: null,
             officer: {},
-            c1: false, c2: false, c3: false,
+            c1: false, c2: false, c3: false, c4: false,
             confirmLoading: false,
             applicationStatus: 0,
             fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
@@ -117,7 +117,6 @@ class ApplicationForm extends React.Component {
                 c2: application.c2,
                 c3: application.c3,
                 c4: application.c4,
-                c5: application.c5,
                 rejectReason: this.props.application.reject_reason
             });
         }
@@ -169,7 +168,7 @@ class ApplicationForm extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const {
-                    c1, c2, c3,
+                    c1, c2, c3, c4,
                     officer, fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8
                 } = this.state;
                 let userData = this.props.appState.getUserData();
@@ -199,6 +198,7 @@ class ApplicationForm extends React.Component {
                         values.c1 = c1;
                         values.c2 = c2;
                         values.c3 = c3;
+                        values.c4 = c4;
 
                         //documents
                         values.documents = docs;
@@ -222,7 +222,7 @@ class ApplicationForm extends React.Component {
                             .then(sucess => {
                                 this.setState({
                                     officer: {},
-                                    c1: false, c2: false, c3: false, c4: false, c5: false,
+                                    c1: false, c2: false, c3: false, c4: false,
                                     confirmLoading: false,
                                     fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
                                 });
@@ -757,7 +757,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Has the officer completed the induction training program in SLIDA"
+                            label="Has the officer completed the induction training program on time in SLIDA"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -770,6 +770,7 @@ class ApplicationForm extends React.Component {
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
+                                    onChange={(e) => this.changeCondition('c4', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
@@ -791,8 +792,8 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>
 
-                        <FormItem
-                            label="Period to be extended by failing to complete the Induction training on time"
+                        {!this.state.c4 && <FormItem
+                            label="Period to be extended by failing to complete the induction training on time"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -803,7 +804,7 @@ class ApplicationForm extends React.Component {
                             })(
                                 <RangePicker disabled={disabled} style={{ width: 250 }} />
                             )}
-                        </FormItem>
+                        </FormItem>}
 
                         <FormItem
                             label="Has the officer completed the 1st Efficiency Bar (EB)"
