@@ -191,8 +191,8 @@ class ApplicationForm extends React.Component {
                             officers_id: officer ? officer.id : null,
                             nic: values.nic,
                             officer_name: values.officer_name,
-                            designation: values.designation,
-                            place_of_work: values.place_of_work,
+                            designation: values.previous_designation,
+                            place_of_work: values.previous_place_of_work,
                             mobile_number: values.mobile_number,
                             application: JSON.stringify(values),
                             application_type: 8,
@@ -337,8 +337,8 @@ class ApplicationForm extends React.Component {
             switch (role) {
                 case '2'://pubad
                     if (status == 100) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Approve</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Approve</Button>);
                     } else if (status == 201) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
                     }
@@ -632,7 +632,9 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('previous_place_of_work', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('previous_place_of_work')
+                                initialValue: viewType == 'add' ?
+                                    (officer.service_history ? this.getActive(officer.service_history).place_of_work : []) :
+                                    this.getApplicationItem('previous_place_of_work')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -654,7 +656,9 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('previous_designation', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('previous_designation')
+                                initialValue: viewType == 'add' ?
+                                    (officer.service_history ? this.getActive(officer.service_history).designation : []) :
+                                    this.getApplicationItem('previous_designation')
                             })(
                                 <Select
                                     showSearch
@@ -675,9 +679,7 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('current_designation', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: viewType == 'add' ?
-                                    (officer.service_history ? this.getActive(officer.service_history).designation : []) :
-                                    this.getApplicationItem('current_designation')
+                                initialValue: this.getApplicationItem('current_designation')
                             })(
                                 <Select
                                     showSearch
