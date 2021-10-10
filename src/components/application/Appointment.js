@@ -8,6 +8,8 @@ import styled from 'styled-components'
 import moment from 'moment';
 import _get from "lodash/get";
 
+import { ADD, EDIT, INSTITUTE, PSC, PUBAD, VIEW } from '../../utils/constants';
+
 const ApplicationContainer = styled.div`
     .ant-form-item-label{
         margin-right:16px !important;
@@ -261,19 +263,19 @@ class ApplicationForm extends React.Component {
 
     setEditable = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             const status = _get(this.props.application, "status", null);
             const role = this.props.appState.getUserRole();
 
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100 || status == 201) {
                         this.setState({ viewType: 'edit', disabled: false });
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     if (status == 101) {
                         this.setState({ viewType: 'edit', disabled: false });
                     }
@@ -288,17 +290,17 @@ class ApplicationForm extends React.Component {
         let enable = false;
 
         switch (role) {
-            case '2'://pubad
+            case PUBAD:
                 if (status == 100 || status == 201) {
                     enable = true;
                 }
                 break;
-            case '3'://psc
+            case PSC:
                 if (status == 200 || status == 300) {
                     enable = true;
                 }
                 break;
-            case '4':
+            case INSTITUTE:
                 break;
             default:
                 break;
@@ -312,11 +314,11 @@ class ApplicationForm extends React.Component {
         const role = this.props.appState.getUserRole();
         let buttons = [];
 
-        if (viewType == 'add') {
+        if (viewType == ADD) {
             buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>);
-        } else if (viewType == 'view') {
+        } else if (viewType == VIEW) {
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     } else if (status == 201) {
@@ -333,7 +335,7 @@ class ApplicationForm extends React.Component {
                 default:
                     break;
             }
-        } else if (viewType == 'edit') {
+        } else if (viewType === EDIT) {
             switch (role) {
                 case '2'://pubad
                     if (status == 100) {

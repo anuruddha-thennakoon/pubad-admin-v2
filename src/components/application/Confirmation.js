@@ -7,6 +7,7 @@ import { inject, observer } from 'mobx-react';
 import styled from 'styled-components';
 import moment from 'moment';
 import _get from "lodash/get";
+import { ADD } from '../../utils/constants';
 
 const ApplicationContainer = styled.div`
     .ant-form-item-label{
@@ -108,7 +109,7 @@ class ApplicationForm extends React.Component {
 
     getApplicationConditions = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             this.setState({
                 disabled: true,
@@ -124,7 +125,7 @@ class ApplicationForm extends React.Component {
 
     loadFiles = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             let documents = JSON.parse(application.documents);
 

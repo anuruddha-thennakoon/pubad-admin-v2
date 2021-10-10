@@ -4,6 +4,8 @@ import {
 } from 'antd';
 import { inject, observer } from 'mobx-react';
 
+import { ACTING, APPOINTMENT, CONFIRMATION, PROMOTION, TRANSFER } from '../../utils/constants';
+
 import Confirmation from './Confirmation';
 import Acting from './Acting';
 import Transfer from './Transfer';
@@ -68,19 +70,19 @@ class NewApplication extends React.Component {
                     </Select>
                 </Card>
 
-                {applicationType == 1 &&
+                {applicationType == ACTING &&
                     <Acting viewType="add" />
                 }
-                {applicationType == 2 &&
+                {applicationType == PROMOTION &&
                     <Promotion viewType="add" />
                 }
-                {applicationType == 3 &&
+                {applicationType == CONFIRMATION &&
                     <Confirmation viewType="add" />
                 }
-                {applicationType == 7 &&
+                {applicationType == TRANSFER &&
                     <Transfer viewType="add" />
                 }
-                {applicationType == 8 &&
+                {applicationType == APPOINTMENT &&
                     <Appointment viewType="add" />
                 }
             </div>

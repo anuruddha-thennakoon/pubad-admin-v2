@@ -724,7 +724,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Consent letter of workplace"
+                            label="Consent letter of current workplace"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -764,7 +764,7 @@ class ApplicationForm extends React.Component {
                         <FormItem
                             labelCol={{ span: 24 }}
                         >
-                            <span>Consent letter should be provided by Head of Institute (Secretary of Ministry/ State Ministry/ Special Spending Unit, Chief Secretary of Privincila Council)</span>
+                            <span>Consent letters should be signed by Head of Institute (Eg: Secretary of Ministry/ State Ministry/ Special Spending Unit, Chief Secretary of Privincila Council)</span>
                         </FormItem>
 
 

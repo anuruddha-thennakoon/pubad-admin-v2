@@ -42,7 +42,7 @@ class ApplicationsDashboard extends React.Component {
             case 7:
                 return 'Transfer';
             case 8:
-                return 'Appointment';
+                return 'Appointment to Post';
             default:
                 return '';
         }

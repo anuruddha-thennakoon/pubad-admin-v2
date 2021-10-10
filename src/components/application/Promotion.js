@@ -658,7 +658,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>}
 
                         <FormItem
-                            label="Has the officer obtained no pay"
+                            label="Has the officer obtained no pay leave"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >

@@ -7,6 +7,8 @@ const { Title } = Typography;
 import ViewApplication from "./ViewApplication";
 import TableData from './TableData';
 
+import { ACTING, APPOINTMENT, PROMOTION, PUBAD } from '../../utils/constants';
+
 
 @inject('appStore', 'appState')
 @observer
@@ -100,7 +102,7 @@ class ApplicationList extends React.Component {
         const applicationType = this.props.applicationType;
         const applicationStatus = this.props.applicationStatus;
 
-        if (role === '2' && (applicationType === 2 || applicationType === 8) && applicationStatus === 400) {
+        if (role === PUBAD && (applicationType === PROMOTION || applicationType === APPOINTMENT) && applicationStatus === 400) {
             return true;
         } else {
             return false;
