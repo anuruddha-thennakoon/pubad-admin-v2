@@ -7,6 +7,7 @@ import { inject, observer } from 'mobx-react';
 import styled from 'styled-components'
 import moment from 'moment';
 import _get from "lodash/get";
+import { ADD, EDIT, INSTITUTE, PSC, PUBAD, VIEW } from '../../utils/constants';
 
 const ApplicationContainer = styled.div`
     .ant-form-item-label{
@@ -110,7 +111,7 @@ class ApplicationForm extends React.Component {
 
     getApplicationConditions = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             this.setState({
                 disabled: true,
@@ -128,7 +129,7 @@ class ApplicationForm extends React.Component {
 
     loadFiles = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             let documents = JSON.parse(application.documents);
 
@@ -146,19 +147,19 @@ class ApplicationForm extends React.Component {
 
     setEditable = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             const status = _get(this.props.application, "status", null);
             const role = this.props.appState.getUserRole();
 
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100 || status == 201) {
                         this.setState({ viewType: 'edit', disabled: false });
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     if (status == 101) {
                         this.setState({ viewType: 'edit', disabled: false });
                     }
@@ -169,7 +170,7 @@ class ApplicationForm extends React.Component {
 
     getApplicationItem = (key) => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             return _get(application, key, null);
         }
@@ -177,7 +178,7 @@ class ApplicationForm extends React.Component {
 
     openAttachment = (key) => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             let documents = JSON.parse(application.documents);
             let link = null;
@@ -333,30 +334,30 @@ class ApplicationForm extends React.Component {
         const role = this.props.appState.getUserRole();
         let buttons = [];
 
-        if (viewType == 'add') {
+        if (viewType == ADD) {
             buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>);
-        } else if (viewType == 'view') {
+        } else if (viewType == VIEW) {
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     } else if (status == 201) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     if (status == 200 || status == 300) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     }
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     break;
                 default:
                     break;
             }
-        } else if (viewType == 'edit') {
+        } else if (viewType == EDIT) {
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Approve</Button>);
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Approve</Button>);
@@ -364,9 +365,9 @@ class ApplicationForm extends React.Component {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     if (status == 101) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
                     }
@@ -393,7 +394,7 @@ class ApplicationForm extends React.Component {
         const applicationType = this.props.applicationType;
         const applicationStatus = this.props.applicationStatus;
 
-        if (role === '2' && applicationType === 2 && applicationStatus === 400) {
+        if (role === PUBAD && applicationType === 2 && applicationStatus === 400) {
             return true;
         } else {
             return false;
@@ -504,7 +505,7 @@ class ApplicationForm extends React.Component {
                         style={{ margin: '0px 25px 25px 25px' }}
                         layout={"vertical"}
                     >
-                        {viewType == 'add' && <FormItem
+                        {viewType == ADD && <FormItem
                             label="NIC"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -520,7 +521,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {viewType == 'view' || viewType == 'edit' && <FormItem
+                        {(viewType == VIEW || viewType == EDIT) && <FormItem
                             label="NIC"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}

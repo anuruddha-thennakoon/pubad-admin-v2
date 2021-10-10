@@ -695,7 +695,9 @@ class ActingForm extends React.Component {
                         >
                             {getFieldDecorator('workplace_of_acting_attend_to_duties', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('workplace_of_acting_attend_to_duties')
+                                initialValue: viewType == ADD ?
+                                    (officer.service_history ? this.getActive(officer.service_history).place_of_work : []) :
+                                    this.getApplicationItem('workplace_of_acting_attend_to_duties')
                             })(
                                 <Select
                                     disabled={disabled}
