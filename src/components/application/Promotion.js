@@ -300,8 +300,73 @@ class ApplicationForm extends React.Component {
         });
     }
 
-    editApproveApplication = () => {
-        console.log('file --> ', this.state.fileList1);
+    updateApplication = (status) => {
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                const {
+                    c1, c2, c3, c4, table1, table2,
+                    officer, fileList1, fileList2, fileList3
+                } = this.state;
+                let application = this.props.application;
+
+                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0) {
+                    openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
+                }
+
+                this.setState({ confirmLoading: true });
+
+                var files = [
+                    { name: "class_2_application", file: fileList1[0] },
+                    { name: "last_salary_increment", file: fileList2[0] },
+                    { name: "last_performance_report", file: fileList3[0] }
+                ]
+
+                this.props.appStore.uploadFiles(files)
+                    .then(docs => {
+                        //consditions
+                        values.c1 = c1;
+                        values.c2 = c2;
+                        values.c3 = c3;
+                        values.c4 = c4;
+
+                        //documents
+                        values.documents = docs;
+
+                        //tables
+                        values.table1 = table1;
+                        values.table2 = table2;
+
+                        //application
+                        let applicationData = {
+                            id: application.id,
+                            nic: values.nic,
+                            officer_name: values.officer_name,
+                            designation: this.getActive(officer.service_history).designation,
+                            place_of_work: this.getActive(officer.service_history).place_of_work,
+                            mobile_number: values.mobile_number,
+                            application: JSON.stringify(values),
+                            reject_reason: null,
+                            status: status
+                        }
+
+                        this.props.appStore.updateApplication(applicationData)
+                            .then(sucess => {
+                                openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                                this.setState({ confirmLoading: false });
+                                this.props.closeApplication();
+                            })
+                            .catch(err => {
+                                this.setState({ confirmLoading: false });
+                                openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                            });
+
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                    });
+            }
+        })
     }
 
     showAction = () => {
@@ -342,7 +407,7 @@ class ApplicationForm extends React.Component {
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
                 case PSC:
@@ -360,16 +425,16 @@ class ApplicationForm extends React.Component {
                 case PUBAD:
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Approve</Button>);
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Approve</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Update and Approve</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
                 case PSC:
                     break;
                 case INSTITUTE:
                     if (status == 101) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(100)}>Re Submit</Button>);
                     }
                     break;
                 default:

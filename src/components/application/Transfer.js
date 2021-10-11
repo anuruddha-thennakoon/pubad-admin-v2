@@ -248,7 +248,6 @@ class ApplicationForm extends React.Component {
     }
 
     updateApplication = (status) => {
-
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const { fileList1, fileList2, fileList3 } = this.state;
@@ -403,7 +402,7 @@ class ApplicationForm extends React.Component {
             buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>);
         } else if (viewType == 'view') {
             switch (role) {
-                case '2'://pubad
+                case PUBAD://pubad
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     } else if (status == 201) {
