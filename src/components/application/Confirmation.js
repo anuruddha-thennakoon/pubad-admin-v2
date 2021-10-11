@@ -275,8 +275,77 @@ class ApplicationForm extends React.Component {
         });
     }
 
-    editApproveApplication = () => {
-        console.log('observeDOM');
+    updateApplication = (status) => {
+
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                const {
+                    c1, c2, c3, c4,
+                    fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8
+                } = this.state;
+                let application = this.props.application;
+
+                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0 || fileList4[0].length == 0 ||
+                    fileList5[0].length == 0 || fileList6[0].length == 0 || fileList7[0].length == 0 || fileList8[0].length == 0) {
+                    openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
+                }
+
+                this.setState({ confirmLoading: true });
+
+                var files = [
+                    { name: "recommendation_letter_issued_by_department_of_head", file: fileList1[0] },
+                    { name: "certified_copy_of_duty_assume_letter", file: fileList2[0] },
+                    { name: "certified_copy_of_induction_training_completion_letter", file: fileList3[0] },
+                    { name: "certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)", file: fileList4[0] },
+                    { name: "certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)", file: fileList5[0] },
+                    { name: "certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)", file: fileList6[0] },
+                    { name: "certified_copy_of_efficiency_bar_result_sheet", file: fileList7[0] },
+                    { name: "certified_copy_of_medical_certificate", file: fileList8[0] }
+                ]
+
+                this.props.appStore.uploadFiles(files)
+                    .then(docs => {
+
+                        //consditions
+                        values.c1 = c1;
+                        values.c2 = c2;
+                        values.c3 = c3;
+                        values.c4 = c4;
+
+                        //documents
+                        values.documents = docs;
+
+                        //application
+                        let applicationData = {
+                            id: application.id,
+                            nic: values.nic,
+                            officer_name: values.officer_name,
+                            designation: values.designation,
+                            place_of_work: values.place_of_work,
+                            mobile_number: values.mobile_number,
+                            application: JSON.stringify(values),
+                            reject_reason: null,
+                            status: status
+                        }
+
+                        this.props.appStore.updateApplication(applicationData)
+                            .then(sucess => {
+                                openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                                this.setState({ confirmLoading: false });
+                                this.props.closeApplication();
+                            })
+                            .catch(err => {
+                                this.setState({ confirmLoading: false });
+                                openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                            });
+
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                    });
+            }
+        })
     }
 
     setEditable = () => {
@@ -340,7 +409,7 @@ class ApplicationForm extends React.Component {
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
                 case PSC:
@@ -358,16 +427,16 @@ class ApplicationForm extends React.Component {
                 case PUBAD:
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Approve</Button>);
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Approve</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Update and Approve</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.updateApplication}>Re Submit</Button>);
                     }
                     break;
                 case PSC:
                     break;
                 case INSTITUTE:
                     if (status == 101) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(100)}>Re Submit</Button>);
                     }
                     break;
                 default:

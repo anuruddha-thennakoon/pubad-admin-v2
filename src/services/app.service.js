@@ -462,7 +462,7 @@ class AppService {
         });
     }
 
-    updateApplicationStatus(data) {
+    updateApplication(data) {
         return new Promise((resolve, reject) => {
             axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
             axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');

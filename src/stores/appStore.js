@@ -425,8 +425,8 @@ class AppStore {
             }))
     }
 
-    @action updateApplicationStatus(data) {
-        return appService.updateApplicationStatus(data)
+    @action updateApplication(data) {
+        return appService.updateApplication(data)
             .then(data => {
                 return data;
             })
