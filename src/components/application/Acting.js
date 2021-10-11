@@ -326,7 +326,7 @@ class ActingForm extends React.Component {
                             status: status
                         }
 
-                        this.props.appStore.addApplication(applicationData)
+                        this.props.appStore.updateApplication(applicationData)
                             .then(sucess => {
                                 openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
                                 this.setState({ confirmLoading: false });

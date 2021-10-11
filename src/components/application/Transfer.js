@@ -7,6 +7,7 @@ import { inject, observer } from 'mobx-react';
 import styled from 'styled-components'
 import moment from 'moment';
 import _get from "lodash/get";
+import { PUBAD } from '../../utils/constants';
 
 const ApplicationContainer = styled.div`
     .ant-form-item-label{
@@ -246,22 +247,61 @@ class ApplicationForm extends React.Component {
         });
     }
 
-    editApproveApplication = () => {
-        // const { officer, fileList1, fileList2, fileList3 } = this.state;
-        // var files = [
-        //     { name: "request_letter_of_officer", file: fileList1[0] },
-        //     { name: "consent_letter_of_workplace", file: fileList2[0] },
-        //     { name: "consent_letter_of_new_workplace", file: fileList3[0] }
-        // ]
+    updateApplication = (status) => {
 
-        // console.log('docs', files);
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                const { fileList1, fileList2, fileList3 } = this.state;
+                let application = this.props.application;
 
-        // this.props.appStore.uploadFiles(files)
-        //     .then(docs => {
-        //         console.log('docs', docs);
-        //     })
-        //     .catch(err => {
-        //     });
+                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0) {
+                    openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
+                }
+
+                this.setState({ confirmLoading: true });
+
+                var files = [
+                    { name: "request_letter_of_officer", file: fileList1[0] },
+                    { name: "consent_letter_of_workplace", file: fileList2[0] },
+                    { name: "consent_letter_of_new_workplace", file: fileList3[0] }
+                ]
+
+                this.props.appStore.uploadFiles(files)
+                    .then(docs => {
+                        //documents
+                        values.documents = docs;
+
+                        //application
+                        let applicationData = {
+                            id: application.id,
+                            nic: values.nic,
+                            officer_name: values.officer_name,
+                            designation: values.current_designation,
+                            place_of_work: values.place_of_work,
+                            mobile_number: values.mobile_number,
+                            application: JSON.stringify(values),
+                            reject_reason: null,
+                            status: status
+                        }
+
+                        this.props.appStore.updateApplication(applicationData)
+                            .then(sucess => {
+                                openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                                this.setState({ confirmLoading: false });
+                                this.props.closeApplication();
+                            })
+                            .catch(err => {
+                                this.setState({ confirmLoading: false });
+                                openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                            });
+
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                    });
+            }
+        })
     }
 
     getGradeName = (id) => {
@@ -335,7 +375,7 @@ class ApplicationForm extends React.Component {
         let enable = false;
 
         switch (role) {
-            case '2'://pubad
+            case PUBAD://pubad
                 if (status == 100 || status == 201) {
                     enable = true;
                 }
@@ -367,7 +407,7 @@ class ApplicationForm extends React.Component {
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
                 case '3'://psc
@@ -385,16 +425,16 @@ class ApplicationForm extends React.Component {
                 case '2'://pubad
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Approve</Button>);
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Approve</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Update and Approve</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
                 case '3'://psc
                     break;
                 case '4'://institute
                     if (status == 101) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(100)}>Re Submit</Button>);
                     }
                     break;
                 default:
