@@ -341,8 +341,8 @@ class ApplicationForm extends React.Component {
                             id: application.id,
                             nic: values.nic,
                             officer_name: values.officer_name,
-                            designation: this.getActive(officer.service_history).designation,
-                            place_of_work: this.getActive(officer.service_history).place_of_work,
+                            designation: application.designation,
+                            place_of_work: application.place_of_work,
                             mobile_number: values.mobile_number,
                             application: JSON.stringify(values),
                             reject_reason: null,
@@ -724,7 +724,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>}
 
                         <FormItem
-                            label="Has the officer obtained no pay leave"
+                            label="Has the officer obtained No Pay Leave"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -883,7 +883,7 @@ class ApplicationForm extends React.Component {
                             </FormItem>}
 
                         <FormItem
-                            label="Have the salary increments and performance appraisal reports been presented for 06 years immediately preceding the date of promoting to Grade II"
+                            label="Have the salary increments and performance appraisal reports been produced for 06 years immediately preceding the date of promoting to Grade II"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
