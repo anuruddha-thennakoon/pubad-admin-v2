@@ -467,7 +467,7 @@ class AppService {
             axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
             axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
             axios
-                .post(api.UPDATE_APPLICATIONS_STATUS, data)
+                .post(api.UPDATE_APPLICATION, data)
                 .then(result => {
                     if (result.data.success) {
                         resolve(result.data.data)

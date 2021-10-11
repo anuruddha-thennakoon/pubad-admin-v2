@@ -208,7 +208,7 @@ class ActingForm extends React.Component {
                             nic: values.nic,
                             officer_name: values.officer_name,
                             designation: values.current_designation,
-                            place_of_work: values.current_place_of_work_type,
+                            place_of_work: values.current_place_of_work,
                             mobile_number: values.mobile_number,
                             application: JSON.stringify(values),
                             application_type: 1,
@@ -669,6 +669,30 @@ class ActingForm extends React.Component {
                         </FormItem>
 
                         <FormItem
+                            label="Current place of work"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('current_place_of_work', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: viewType == 'add' ?
+                                    (officer.service_history ? this.getActive(officer.service_history).place_of_work : []) :
+                                    this.getApplicationItem('current_place_of_work')
+                            })(
+                                <Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>
+                            )}
+                        </FormItem>
+
+                        <FormItem
                             label="Post of Acting/ Attend to duties"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -696,9 +720,7 @@ class ActingForm extends React.Component {
                         >
                             {getFieldDecorator('workplace_of_acting_attend_to_duties', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: viewType == ADD ?
-                                    (officer.service_history ? this.getActive(officer.service_history).place_of_work : []) :
-                                    this.getApplicationItem('workplace_of_acting_attend_to_duties')
+                                initialValue: this.getApplicationItem('workplace_of_acting_attend_to_duties')
                             })(
                                 <Select
                                     disabled={disabled}
