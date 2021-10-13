@@ -60,7 +60,11 @@ class ApplicationList extends React.Component {
             dataIndex: 'mobile_number',
             key: 'mobile_number',
             width: '10%',
-
+        },
+        {
+            title: 'Submitted by',
+            dataIndex: 'submited_by',
+            key: 'submited_by',
         },
         {
             title: '',
