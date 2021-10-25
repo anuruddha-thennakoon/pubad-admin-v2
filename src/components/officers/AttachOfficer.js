@@ -51,23 +51,26 @@ class AttachOfficerForm extends Component {
             dataIndex: 'designation',
             key: 'designation',
         },
-        {
-            title: 'Start Date',
-            dataIndex: 'start_date',
-            key: 'start_date',
-            width: '15%'
-        },
-        {
-            title: 'End Date',
-            dataIndex: 'end_date',
-            key: 'end_date',
-            width: '15%'
-        },
+        // {
+        //     title: 'Start Date',
+        //     dataIndex: 'start_date',
+        //     key: 'start_date',
+        //     width: '15%'
+        // },
+        // {
+        //     title: 'End Date',
+        //     dataIndex: 'end_date',
+        //     key: 'end_date',
+        //     width: '15%'
+        // },
         {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            width: '10%'
+            width: '10%',
+            render: (text, record) => (
+                <span>{record.status == 1 ? 'Current' : 'Past'}</span>
+            ),
         }
     ];
 
@@ -86,7 +89,6 @@ class AttachOfficerForm extends Component {
 
             this.props.appStore.attachOfficer(data)
                 .then(sucess => {
-
                     this.setState({ confirmLoading: false });
                     this.props.form.resetFields();
                     openNotificationWithIcon('success', 'Success', 'Officer attached successfully!');
@@ -130,6 +132,20 @@ class AttachOfficerForm extends Component {
                 this.setState({ confirmLoading: false });
                 openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
             });
+    }
+
+    getGradeName = (grades_id) => {
+        if (grades_id == 1) {
+            return 'Special Grade';
+        } else if (grades_id == 2) {
+            return 'Grade I';
+        } else if (grades_id == 3) {
+            return 'Grade II';
+        } else if (grades_id == 4) {
+            return 'Grade III';
+        } else {
+            return '';
+        }
     }
 
     render() {
@@ -227,21 +243,37 @@ class AttachOfficerForm extends Component {
                                 <Text strong>{officerSearchData.name}</Text>
                             </FormItem>
 
-                            {/* <FormItem
-                                label="Present Designation"
+                            <FormItem
+                                label="NIC"
+                                labelCol={{ span: 8 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                <Text strong>{officerSearchData.nic}</Text>
+                            </FormItem>
+
+                            <FormItem
+                                label="Current Grade"
+                                labelCol={{ span: 8 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                <Text strong>{officerSearchData.service_history.length != 0 ? this.getGradeName(officerSearchData.service_history[officerSearchData.service_history.length - 1].grades_id) : 'No data found'}</Text>
+                            </FormItem>
+
+                            <FormItem
+                                label="Current Designation"
+                                labelCol={{ span: 8 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                <Text strong>{officerSearchData.service_history.length != 0 ? officerSearchData.service_history[officerSearchData.service_history.length - 1].designation : 'No data found'}</Text>
+                            </FormItem>
+
+                            <FormItem
+                                label="Current Workplace"
                                 labelCol={{ span: 8 }}
                                 wrapperCol={{ span: 12 }}
                             >
                                 <Text strong>{officerSearchData.service_history.length != 0 ? officerSearchData.service_history[officerSearchData.service_history.length - 1].name : 'No data found'}</Text>
                             </FormItem>
-
-                            <FormItem
-                                label="Current Institute"
-                                labelCol={{ span: 8 }}
-                                wrapperCol={{ span: 12 }}
-                            >
-                                <Text strong>{officerSearchData.service_history.length != 0 ? officerSearchData.service_history[officerSearchData.service_history.length - 1].name : 'No data found'}</Text>
-                            </FormItem> */}
 
                             <FormItem
                                 label="Service History"
@@ -257,12 +289,12 @@ class AttachOfficerForm extends Component {
                             </FormItem>
 
                             <FormItem
-                                label="New Institute"
+                                label="New Workplace"
                                 labelCol={{ span: 8 }}
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('new_institute', {
-                                    rules: [{ required: true, message: 'Please input institute' }]
+                                    rules: [{ required: true, message: 'Please input workplace' }]
                                 })(
                                     <Select
                                         showSearch
@@ -318,6 +350,8 @@ class AttachOfficerForm extends Component {
                                         <Option value="Cabinet - Attending to Duties in Post">Cabinet - Attending to Duties in Post</Option>
                                         <Option value="PSC - Acting in Post – Full Time">PSC - Acting in Post – Full Time</Option>
                                         <Option value="PSC - Acting in Post – Part Time">PSC - Acting in Post – Part Time</Option>
+                                        <Option value="PSC - Attending to Duties in Post – Full Time">PSC - Attending to Duties in Post – Full Time</Option>
+                                        <Option value="PSC - Attending to Duties in Post – Part Time">PSC - Attending to Duties in Post – Part Time</Option>
                                         <Option value="Below Post Staying">Below Post Staying</Option>
                                         <Option value="PubAd Pool Attachment">PubAd Pool Attachment</Option>
                                         <Option value="No Pay Leave">No Pay Leave</Option>

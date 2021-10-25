@@ -588,6 +588,16 @@ class AppStore {
                 return err;
             }))
     }
+
+    @action generateReports(data) {
+        return appService.generateReports(data)
+            .then(data => {
+                return data;
+            })
+            .catch(action(err => {
+                return err;
+            }))
+    }
 }
 
 export default new AppStore();
