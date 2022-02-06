@@ -369,7 +369,7 @@ class ApplicationForm extends React.Component {
         })
     }
 
-    showAction = () => {
+    showRejectAction = () => {
         const status = _get(this.props.application, "status", null);
         const role = this.props.appState.getUserRole();
         let enable = false;
@@ -987,6 +987,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Class 2 application"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -1006,6 +1007,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Last salary increment"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -1025,6 +1027,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Last performance report"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -1043,7 +1046,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
 
-                        {(this.showAction()) && <FormItem
+                        {(this.showRejectAction()) && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1065,7 +1068,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {(approved == 0 && this.showAction()) && <FormItem
+                        {(approved == 0 && this.showRejectAction()) && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}

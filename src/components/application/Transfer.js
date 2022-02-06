@@ -1,11 +1,9 @@
 import React from 'react';
 import {
-    Form, Select, Radio, Button, Upload, Input, Result, Row, Col, Modal, notification, DatePicker,
-    Card, Breadcrumb, Icon, Typography, InputNumber, Divider
+    Form, Select, Button, Upload, Input, notification, DatePicker, Card, Icon, Typography
 } from 'antd';
 import { inject, observer } from 'mobx-react';
-import styled from 'styled-components'
-import moment from 'moment';
+import styled from 'styled-components';
 import _get from "lodash/get";
 import { PUBAD } from '../../utils/constants';
 
@@ -26,6 +24,90 @@ const RightButtons = styled.div`
     float: right;
     text-align:right;
 `
+
+const generatePrintDoc = (props) => {
+    return `
+    <!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Transfer Confirmation</title>
+        <style>
+            body {
+                font-size: 14px;
+                font-family: "Segoe UI";
+            }
+            .title {
+                text-align: center;
+            }
+            table {
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
+            table th{
+                text-align: center;
+                padding: 3px;
+                border: 1px solid #cfcfcf;
+            }
+            table td {
+                text-align: left;
+                padding: 3px;
+                border: 1px solid #cfcfcf;
+            }
+            .margin {
+                margin-top: 2rem;
+            }
+        </style>
+    </head>
+    
+    <body onload="window.print()">
+        <div style="width: 1000px; margin: 0 auto">
+            <div class="officer margin">
+                <div></div>
+                <div>through</div>
+                <div>Secretary to the President, President’s Secretariat</div>
+            </div>
+    
+            <div class="title margin"><u>Transfers of Sri Lanka Administrative Service</u></div>
+    
+            <div class="description margin">
+                You are transferred to the Service Station mentioned below until further notice
+                and I should be informed through the relevant Head of the Department on Assumption
+                of Duties.
+            </div>
+    
+            <table width="100%" class="margin">
+                <tbody>
+                    <tr>
+                        <th width="20%">Name of the Officer</th>
+                        <th width="20%">Service Station and the Post held at Present</th>
+                        <th width="20%">Service Station to which the Officer is Transferred and the Post</th>
+                        <th width="20%">Date of Transfer</th>
+                        <th width="20%">Subsistence Allowance</th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+    
+            <div class="signature margin">
+                <div>G.I. Lakmali Fernando - For Information</div>
+                <div>Assistant Director (S.L.A.S)</div>
+                <div>For Secretary Ministry of Public Services</div>
+                <div>Provincial Councils and Local Government</div>
+            </div>
+        </div>
+    </body>
+    
+    </html>
+    `
+}
 
 const { Title, Text } = Typography;
 const FormItem = Form.Item;
@@ -54,7 +136,7 @@ class ApplicationForm extends React.Component {
             officer: {},
             confirmLoading: false,
             applicationStatus: 0,
-            fileList1: [], fileList2: [], fileList3: []
+            fileList1: [], fileList2: [], fileList3: [], fileList4: []
         };
 
         this.props.appStore.getInstitutes();
@@ -143,11 +225,15 @@ class ApplicationForm extends React.Component {
             let documents = JSON.parse(application.documents);
             let link = null;
 
-            documents.forEach(element => {
-                if (element.name === key) {
-                    link = element.url;
-                }
-            });
+            if (key === 'approval_document') {
+                link = JSON.parse(this.props.application.approval_document)[0].url;
+            } else {
+                documents.forEach(element => {
+                    if (element.name === key) {
+                        link = element.url;
+                    }
+                });
+            }
 
             window.open(link, '_blank');
         }
@@ -160,7 +246,7 @@ class ApplicationForm extends React.Component {
                 const { officer, fileList1, fileList2, fileList3 } = this.state;
                 let userData = this.props.appState.getUserData();
 
-                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0) {
+                if (fileList1.length == 0 || fileList2.length == 0 || fileList3.length == 0) {
                     openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
                 }
 
@@ -219,29 +305,48 @@ class ApplicationForm extends React.Component {
     approveApplication = () => {
         const { approved } = this.state;
         let role = this.props.appState.getUserRole();
+        const { fileList4 } = this.state;
 
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                this.setState({ confirmLoading: true });
-
-                let approveData = {
-                    application_id: this.props.application.id,
-                    application_type: this.props.application.application_type,
-                    approved: approved,
-                    user_role: role,
-                    status: this.props.application.status,
-                    reject_reason: values.reject_reason ? values.reject_reason : null
+                if (fileList4.length === 0) {
+                    openNotificationWithIcon('error', 'Oops', 'Please upload approval document!');
                 }
 
-                this.props.appStore.approveApplication(approveData)
-                    .then(response => {
-                        openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
-                        this.setState({ confirmLoading: false });
-                        this.props.closeApplication();
+                var files = [
+                    { name: "approval_document", file: fileList4[0] }
+                ]
+
+                this.setState({ confirmLoading: true });
+
+                this.props.appStore.uploadFiles(files)
+                    .then(docs => {
+
+                        let approveData = {
+                            application_id: this.props.application.id,
+                            application_type: this.props.application.application_type,
+                            approved: approved,
+                            user_role: role,
+                            status: this.props.application.status,
+                            reject_reason: values.reject_reason ? values.reject_reason : null,
+                            approval_document: docs
+                        }
+
+                        this.props.appStore.approveApplication(approveData)
+                            .then(response => {
+                                openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                                this.setState({ confirmLoading: false });
+                                this.props.closeApplication();
+                            })
+                            .catch(err => {
+                                this.setState({ confirmLoading: false });
+                                openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+                            });
+
                     })
                     .catch(err => {
                         this.setState({ confirmLoading: false });
-                        openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
                     });
             }
         });
@@ -357,7 +462,7 @@ class ApplicationForm extends React.Component {
                     enable = true;
                 }
                 break;
-            case '4':
+            case '4'://institute
                 if (status == 101) {
                     enable = true;
                 }
@@ -368,7 +473,7 @@ class ApplicationForm extends React.Component {
         return enable;
     }
 
-    showAction = () => {
+    showRejectAction = () => {
         const status = _get(this.props.application, "status", null);
         const role = this.props.appState.getUserRole();
         let enable = false;
@@ -384,7 +489,35 @@ class ApplicationForm extends React.Component {
                     enable = true;
                 }
                 break;
-            case '4':
+            case '4'://institute
+                break;
+            default:
+                break;
+        }
+        return enable;
+    }
+
+    showApprovalDocument = () => {
+        const status = _get(this.props.application, "status", null);
+        const role = this.props.appState.getUserRole();
+        let enable = { view: false, edit: false };
+
+        switch (role) {
+            case PUBAD://pubad
+                if (status == 100) {
+                    enable = { view: false, edit: true };
+                } else if (status == 400) {
+                    enable = { view: true, edit: false };
+                }
+                break;
+            case '3'://psc
+                break;
+            case '4'://institute
+                if (status == 100) {
+                    enable = { view: false, edit: false };
+                } else if (status == 400) {
+                    enable = { view: true, edit: false };
+                }
                 break;
             default:
                 break;
@@ -415,6 +548,9 @@ class ApplicationForm extends React.Component {
                     }
                     break;
                 case '4'://institute
+                    if (status == 400) {
+                        buttons.push(<Button type="primary" icon="printer" loading={confirmLoading} onClick={this.printDocument}>Print</Button>);
+                    }
                     break;
                 default:
                     break;
@@ -424,7 +560,7 @@ class ApplicationForm extends React.Component {
                 case '2'://pubad
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Approve</Button>);
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Update and Approve</Button>);
+                        // buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Update and Approve</Button>);
                     } else if (status == 201) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
@@ -434,6 +570,8 @@ class ApplicationForm extends React.Component {
                 case '4'://institute
                     if (status == 101) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(100)}>Re Submit</Button>);
+                    } else if (status == 400) {
+                        buttons.push(<Button type="primary" icon="printer" loading={confirmLoading} onClick={this.printDocument}>Print</Button>);
                     }
                     break;
                 default:
@@ -443,6 +581,13 @@ class ApplicationForm extends React.Component {
         return buttons;
     }
 
+    printDocument = () => {
+        let printWindow = window.open('', '_blank', 'resizable=1,scrollbars=yes,menubar=no,toolbar=no,location=no,status=no,titlebar=no');
+        printWindow.document.open();
+        printWindow.document.write(generatePrintDoc());
+        printWindow.document.close();
+    }
+
     removeFile = (fileList) => {
         this.setState({ [fileList]: [] });
     }
@@ -450,7 +595,8 @@ class ApplicationForm extends React.Component {
     render() {
         const { getFieldDecorator } = this.props.form;
         const { institutes, designations } = this.props.appStore;
-        const { officer, viewType, disabled, approved, applicationStatus, rejectReason, fileList1, fileList2, fileList3 } = this.state;
+        const { officer, viewType, disabled, approved, applicationStatus, rejectReason, fileList1, fileList2, fileList3, fileList4 } = this.state;
+        const status = _get(this.props.application, "status", null);
 
         const props1 = {
             showUploadList: false,
@@ -516,6 +662,28 @@ class ApplicationForm extends React.Component {
             },
             fileList3,
             defaultFileList: [...fileList3],
+        }
+
+        const props4 = {
+            showUploadList: false,
+            onRemove: file => {
+                this.setState(state => {
+                    const index = state.fileList4.indexOf(file);
+                    const newFileList = state.fileList4.slice();
+                    newFileList.splice(index, 1);
+                    return {
+                        fileList4: newFileList,
+                    };
+                });
+            },
+            beforeUpload: file => {
+                this.setState(state => ({
+                    fileList4: [...state.fileList4, file],
+                }));
+                return false;
+            },
+            fileList4,
+            defaultFileList: [...fileList4],
         }
 
         let instituteValues = [];
@@ -745,6 +913,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Request letter of officer"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -764,6 +933,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Consent letter of current workplace"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -783,6 +953,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Consent letter of new workplace"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -807,7 +978,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
 
-                        {this.showAction() && <FormItem
+                        {this.showRejectAction() && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -829,7 +1000,27 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {(approved == 0 && this.showAction()) && <FormItem
+                        {approved === 1 && (this.showApprovalDocument().view || this.showApprovalDocument().edit) && <FormItem
+                            label="Approval Document"
+                            required={true}
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {/* {getFieldDecorator('certified_copy_of_duty_assume_letter', {
+                                rules: [{ required: true, message: 'Please input relevant data' }]
+                            })( */}
+                            {this.showApprovalDocument().edit && <Upload {...props4} disabled={disabled}>
+                                {fileList4.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('approval_document')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList4')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
+                            </Upload>}
+                            {/*)} */}
+
+                            {this.showApprovalDocument().view && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('approval_document')}>Attachment</Button>}
+                        </FormItem>}
+
+                        {(approved === 0 && this.showRejectAction()) && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -841,7 +1032,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {rejectReason && <FormItem
+                        {rejectReason && (status != 400 && status != 100) && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -857,7 +1048,7 @@ class ApplicationForm extends React.Component {
                         <ButtonContainer>
                             <RightButtons>
                                 {this.renderRightButtons().map((element, index) => {
-                                    return <span key={index}>{element}</span>;
+                                    return <span key={index} style={{ marginRight: 6 }}>{element}</span>;
                                 })}
                             </RightButtons>
                         </ButtonContainer>
