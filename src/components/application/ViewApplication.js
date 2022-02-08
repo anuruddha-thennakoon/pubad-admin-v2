@@ -1,25 +1,13 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import '../../styles/styles.scss';
-import {
-    Modal, Alert, Button, notification, Input, Form, Link, Radio, Tag, Select, Divider, Card, Upload, Icon, Statistic
-} from 'antd';
+import { Modal, Button, Form } from 'antd';
 
 import Confirmation from './Confirmation';
 import Transfer from './Transfer';
 import Appointment from './Appointment';
 import Promotion from './Promotion';
 import Acting from './Acting';
-
-const FormItem = Form.Item;
-
-const openNotificationWithIcon = (type, title, msg) => {
-    notification[type]({
-        placement: 'topRight',
-        message: title,
-        description: msg,
-    });
-}
 
 @inject('appStore')
 @observer
@@ -41,8 +29,6 @@ class ViewApplicationForm extends Component {
 
     render() {
         const { visible } = this.state;
-
-        let role = localStorage.getItem('role');
 
         return (
             <div style={{ display: 'inline' }}>

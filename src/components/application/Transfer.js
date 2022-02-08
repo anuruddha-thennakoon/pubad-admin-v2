@@ -15,103 +15,14 @@ const ApplicationContainer = styled.div`
 const ButtonContainer = styled.div`
     margin-top:20px;
 `
-const LeftButtons = styled.div`
-    width: 50%; 
-    float: left;
-`
+
 const RightButtons = styled.div`
     width: 50%; 
     float: right;
     text-align:right;
 `
 
-const generatePrintDoc = (props) => {
-    return `
-    <!DOCTYPE html>
-    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-    
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Transfer Confirmation</title>
-        <style>
-            body {
-                font-size: 14px;
-                font-family: "Segoe UI";
-            }
-            .title {
-                text-align: center;
-            }
-            table {
-                border-collapse: collapse;
-                table-layout: fixed;
-            }
-            table th{
-                text-align: center;
-                padding: 3px;
-                border: 1px solid #cfcfcf;
-            }
-            table td {
-                text-align: left;
-                padding: 3px;
-                border: 1px solid #cfcfcf;
-            }
-            .margin {
-                margin-top: 2rem;
-            }
-        </style>
-    </head>
-    
-    <body onload="window.print()">
-        <div style="width: 1000px; margin: 0 auto">
-            <div class="officer margin">
-                <div></div>
-                <div>through</div>
-                <div>Secretary to the President, President’s Secretariat</div>
-            </div>
-    
-            <div class="title margin"><u>Transfers of Sri Lanka Administrative Service</u></div>
-    
-            <div class="description margin">
-                You are transferred to the Service Station mentioned below until further notice
-                and I should be informed through the relevant Head of the Department on Assumption
-                of Duties.
-            </div>
-    
-            <table width="100%" class="margin">
-                <tbody>
-                    <tr>
-                        <th width="20%">Name of the Officer</th>
-                        <th width="20%">Service Station and the Post held at Present</th>
-                        <th width="20%">Service Station to which the Officer is Transferred and the Post</th>
-                        <th width="20%">Date of Transfer</th>
-                        <th width="20%">Subsistence Allowance</th>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
-    
-            <div class="signature margin">
-                <div>G.I. Lakmali Fernando - For Information</div>
-                <div>Assistant Director (S.L.A.S)</div>
-                <div>For Secretary Ministry of Public Services</div>
-                <div>Provincial Councils and Local Government</div>
-            </div>
-        </div>
-    </body>
-    
-    </html>
-    `
-}
-
-const { Title, Text } = Typography;
 const FormItem = Form.Item;
-const { RangePicker } = DatePicker;
 const Option = Select.Option;
 const { Search, TextArea } = Input;
 
@@ -213,8 +124,13 @@ class ApplicationForm extends React.Component {
     getApplicationItem = (key) => {
         const { viewType } = this.state;
         if (viewType != 'add') {
-            let application = JSON.parse(this.props.application.application);
-            return _get(application, key, null);
+            if (key === 'notice_current_work_place' || key === 'notice_new_work_place' || key === 'inform_1' || key === 'inform_2' || key === 'inform_3') {
+                let application = JSON.parse(this.props.application.approval_details);
+                return _get(application, key, null);
+            } else {
+                let application = JSON.parse(this.props.application.application);
+                return _get(application, key, null);
+            }
         }
     }
 
@@ -300,56 +216,85 @@ class ApplicationForm extends React.Component {
                     });
             }
         })
-    };
+    }
 
     approveApplication = () => {
         const { approved } = this.state;
         let role = this.props.appState.getUserRole();
-        const { fileList4 } = this.state;
 
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                if (fileList4.length === 0) {
-                    openNotificationWithIcon('error', 'Oops', 'Please upload approval document!');
-                }
-
-                var files = [
-                    { name: "approval_document", file: fileList4[0] }
-                ]
-
                 this.setState({ confirmLoading: true });
 
-                this.props.appStore.uploadFiles(files)
-                    .then(docs => {
+                let approveDetails = {
+                    notice_current_work_place: values.notice_current_work_place,
+                    notice_new_work_place: values.notice_new_work_place,
+                    inform_1: values.inform_1,
+                    inform_2: values.inform_2,
+                    inform_3: values.inform_3
+                }
 
-                        let approveData = {
-                            application_id: this.props.application.id,
-                            application_type: this.props.application.application_type,
-                            approved: approved,
-                            user_role: role,
-                            status: this.props.application.status,
-                            reject_reason: values.reject_reason ? values.reject_reason : null,
-                            approval_document: docs
-                        }
+                let approveData = {
+                    application_id: this.props.application.id,
+                    application_type: this.props.application.application_type,
+                    approved: approved,
+                    user_role: role,
+                    status: this.props.application.status,
+                    reject_reason: values.reject_reason ? values.reject_reason : null,
+                    approval_details: JSON.stringify(approveDetails)
+                }
 
-                        this.props.appStore.approveApplication(approveData)
-                            .then(response => {
-                                openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
-                                this.setState({ confirmLoading: false });
-                                this.props.closeApplication();
-                            })
-                            .catch(err => {
-                                this.setState({ confirmLoading: false });
-                                openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
-                            });
-
+                this.props.appStore.approveApplication(approveData)
+                    .then(response => {
+                        openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                        this.setState({ confirmLoading: false });
+                        this.props.closeApplication();
                     })
                     .catch(err => {
                         this.setState({ confirmLoading: false });
-                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
                     });
             }
         });
+    }
+
+    submitApprovalDocument = () => {
+        const { fileList4 } = this.state;
+
+        if (fileList4.length === 0) {
+            openNotificationWithIcon('error', 'Oops', 'Please upload approval document!');
+        }
+
+        var files = [
+            { name: "approval_document", file: fileList4[0] }
+        ]
+
+        this.setState({ confirmLoading: true });
+
+        this.props.appStore.uploadFiles(files)
+            .then(docs => {
+
+                let approveData = {
+                    application_id: this.props.application.id,
+                    approval_document: docs
+                }
+
+                this.props.appStore.submitApprovalDocument(approveData)
+                    .then(response => {
+                        openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                        this.setState({ confirmLoading: false });
+                        this.props.closeApplication();
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+                    });
+
+            })
+            .catch(err => {
+                this.setState({ confirmLoading: false });
+                openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+            });
     }
 
     updateApplication = (status) => {
@@ -504,20 +449,37 @@ class ApplicationForm extends React.Component {
 
         switch (role) {
             case PUBAD://pubad
-                if (status == 100) {
+                if (status == 400 && !this.props.application.approval_document) {
                     enable = { view: false, edit: true };
-                } else if (status == 400) {
+                } else if (status == 400 && this.props.application.approval_document) {
                     enable = { view: true, edit: false };
                 }
                 break;
             case '3'://psc
                 break;
             case '4'://institute
-                if (status == 100) {
-                    enable = { view: false, edit: false };
-                } else if (status == 400) {
+                if (status == 400) {
                     enable = { view: true, edit: false };
                 }
+                break;
+            default:
+                break;
+        }
+        return enable;
+    }
+
+    showApprovalContent = () => {
+        const status = _get(this.props.application, "status", null);
+        const role = this.props.appState.getUserRole();
+        let enable = false;
+
+        switch (role) {
+            case PUBAD://pubad
+                enable = true;
+                break;
+            case '3'://psc
+                break;
+            case '4'://institute
                 break;
             default:
                 break;
@@ -536,10 +498,14 @@ class ApplicationForm extends React.Component {
         } else if (viewType == 'view') {
             switch (role) {
                 case PUBAD://pubad
-                    if (status == 100) {
+                    if (status === 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
-                    } else if (status == 201) {
+                    } else if (status === 201) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
+                    } else if (status === 400 && !this.props.application.approval_document) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => null}>Submit</Button>);
+                    } else if (status === 400 && this.props.application.approval_document) {
+                        // buttons.push(<Button type="primary" icon="printer" loading={confirmLoading} onClick={this.printDocument}>Print</Button>);
                     }
                     break;
                 case '3'://psc
@@ -548,9 +514,6 @@ class ApplicationForm extends React.Component {
                     }
                     break;
                 case '4'://institute
-                    if (status == 400) {
-                        buttons.push(<Button type="primary" icon="printer" loading={confirmLoading} onClick={this.printDocument}>Print</Button>);
-                    }
                     break;
                 default:
                     break;
@@ -570,8 +533,6 @@ class ApplicationForm extends React.Component {
                 case '4'://institute
                     if (status == 101) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(100)}>Re Submit</Button>);
-                    } else if (status == 400) {
-                        buttons.push(<Button type="primary" icon="printer" loading={confirmLoading} onClick={this.printDocument}>Print</Button>);
                     }
                     break;
                 default:
@@ -579,13 +540,6 @@ class ApplicationForm extends React.Component {
             }
         }
         return buttons;
-    }
-
-    printDocument = () => {
-        let printWindow = window.open('', '_blank', 'resizable=1,scrollbars=yes,menubar=no,toolbar=no,location=no,status=no,titlebar=no');
-        printWindow.document.open();
-        printWindow.document.write(generatePrintDoc());
-        printWindow.document.close();
     }
 
     removeFile = (fileList) => {
@@ -1000,7 +954,114 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {approved === 1 && (this.showApprovalDocument().view || this.showApprovalDocument().edit) && <FormItem
+                        {approved == 1 && this.showApprovalContent() && <div>
+                            <FormItem
+                                label="Notice for current workplace"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('notice_current_work_place', {
+                                    rules: [{ required: true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('notice_current_work_place')
+                                })(
+                                    <TextArea placeholder='Enter notice' disabled={disabled} rows={4} style={{ width: '100%' }} />
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label="Notice for new workplace"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('notice_new_work_place', {
+                                    rules: [{ required: true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('notice_new_work_place')
+                                })(
+                                    <TextArea placeholder='Enter notice' disabled={disabled} rows={4} style={{ width: '100%' }} />
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label="Inform 1"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_1', {
+                                    rules: [{ required: true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_1') ? this.getApplicationItem('inform_1') : []
+                                })(
+                                    <Select
+                                        disabled={disabled}
+                                        showSearch
+                                        style={{ width: '100%' }}
+                                        placeholder="Select"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        {instituteValues}
+                                    </Select>
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label="Inform 2"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_2', {
+                                    rules: [{ required: true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_2') ? this.getApplicationItem('inform_2') : []
+                                })(
+                                    <Select
+                                        disabled={disabled}
+                                        showSearch
+                                        style={{ width: '100%' }}
+                                        placeholder="Select"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        {instituteValues}
+                                    </Select>
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label="Inform 3"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_3', {
+                                    rules: [{ required: true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_3') ? this.getApplicationItem('inform_3') : []
+                                })(
+                                    <Select
+                                        disabled={disabled}
+                                        showSearch
+                                        style={{ width: '100%' }}
+                                        placeholder="Select"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        {instituteValues}
+                                    </Select>
+                                )}
+                            </FormItem>
+                        </div>}
+
+                        {rejectReason && (status != 400 && status != 100) && <FormItem
+                            label="Reject reason"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('reject_reason', {
+                                rules: [{ required: !true, message: 'Please input relevant data' }],
+                                initialValue: rejectReason
+                            })(
+                                <TextArea disabled={true} rows={4} style={{ width: '100%' }} />
+                            )}
+                        </FormItem>}
+
+                        {(this.showApprovalDocument().view || this.showApprovalDocument().edit) && <FormItem
                             label="Approval Document"
                             required={true}
                             labelCol={{ span: 10 }}
@@ -1018,31 +1079,6 @@ class ApplicationForm extends React.Component {
                             {/*)} */}
 
                             {this.showApprovalDocument().view && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('approval_document')}>Attachment</Button>}
-                        </FormItem>}
-
-                        {(approved === 0 && this.showRejectAction()) && <FormItem
-                            label="Reject reason"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('reject_reason', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
-                            })(
-                                <TextArea rows={4} style={{ width: '100%' }} />
-                            )}
-                        </FormItem>}
-
-                        {rejectReason && (status != 400 && status != 100) && <FormItem
-                            label="Reject reason"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('reject_reason', {
-                                rules: [{ required: !true, message: 'Please input relevant data' }],
-                                initialValue: rejectReason
-                            })(
-                                <TextArea disabled={true} rows={4} style={{ width: '100%' }} />
-                            )}
                         </FormItem>}
 
                         <ButtonContainer>

@@ -598,6 +598,16 @@ class AppStore {
                 return err;
             }))
     }
+
+    @action submitApprovalDocument(data) {
+        return appService.submitApprovalDocument(data)
+            .then(data => {
+                return data;
+            })
+            .catch(action(err => {
+                return err;
+            }))
+    }
 }
 
 export default new AppStore();

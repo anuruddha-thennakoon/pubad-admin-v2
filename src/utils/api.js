@@ -48,6 +48,7 @@ class Api {
     APPROVE_USER = this.URL + 'approve-user';
     GET_CADRES = this.URL + 'cadres';
     GENERATE_REPORTS = this.URL + 'generate-reports';
+    UPDATE_APPROVAL_DOCUMENT = this.URL + 'update-approval-documents';
 
     SERVICE_HISTORY(data) {
         return this.URL + 'service-history/' + data.id;
