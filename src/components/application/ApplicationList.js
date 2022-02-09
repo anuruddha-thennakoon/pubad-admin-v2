@@ -236,7 +236,7 @@ class ApplicationList extends React.Component {
             inform2Head: this.filterData(institutes, 'name',approvalDetails.inform_2).department_head,
             inform2Institute: approvalDetails.inform_2,
             inform3Head: this.filterData(institutes, 'name',approvalDetails.inform_3).department_head,
-            inform3Institute: approvalDetails.inform_2,
+            inform3Institute: approvalDetails.inform_3,
         }
 
         let printWindow = window.open('', '_blank', 'resizable=1,scrollbars=yes,menubar=no,toolbar=no,location=no,status=no,titlebar=no');
