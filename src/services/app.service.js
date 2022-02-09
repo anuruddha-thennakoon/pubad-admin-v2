@@ -702,6 +702,23 @@ class AppService {
                 .catch(error => reject(error));
         });
     }
+
+    editInstitute(data) {
+        return new Promise((resolve, reject) => {
+            axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
+            axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
+            axios
+                .post(api.UPDATE_INSTITUTE, data)
+                .then(result => {
+                    if (result.data.success) {
+                        resolve(result.data.data)
+                    } else {
+                        reject(result.data)
+                    }
+                })
+                .catch(error => reject(error));
+        });
+    }
 }
 
 export default new AppService();

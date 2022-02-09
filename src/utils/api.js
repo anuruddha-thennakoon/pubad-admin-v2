@@ -49,6 +49,7 @@ class Api {
     GET_CADRES = this.URL + 'cadres';
     GENERATE_REPORTS = this.URL + 'generate-reports';
     UPDATE_APPROVAL_DOCUMENT = this.URL + 'update-approval-documents';
+    UPDATE_INSTITUTE = this.URL + 'update-institute';
 
     SERVICE_HISTORY(data) {
         return this.URL + 'service-history/' + data.id;

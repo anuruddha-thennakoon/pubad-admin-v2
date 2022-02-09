@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { Modal, Button, notification, Input, Form, InputNumber, Switch, DatePicker } from 'antd';
+import { Modal, Button, notification, Form, InputNumber } from 'antd';
 
-import moment from 'moment';
-
-const { TextArea } = Input;
 const FormItem = Form.Item;
 
 const openNotificationWithIcon = (type, title, msg) => {

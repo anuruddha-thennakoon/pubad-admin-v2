@@ -608,6 +608,16 @@ class AppStore {
                 return err;
             }))
     }
+
+    @action editInstitute(data) {
+        return appService.editInstitute(data)
+            .then(data => {
+                return data;
+            })
+            .catch(action(err => {
+                return err;
+            }))
+    }
 }
 
 export default new AppStore();
