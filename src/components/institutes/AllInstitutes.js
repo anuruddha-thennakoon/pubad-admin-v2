@@ -32,6 +32,12 @@ class AllInstitutes extends React.Component {
             dataIndex: 'institute_name',
             key: 'institute_name',
         },
+        {
+            title: 'Head of Department',
+            dataIndex: 'department_head',
+            key: 'department_head',
+            width: '15%'
+        },
         // {
         //     title: 'Parent Institue',
         //     dataIndex: 'ministry_name',
@@ -123,6 +129,7 @@ class AllInstitutes extends React.Component {
                         rowKey={record => record.id}
                         columns={this.columns}
                         scroll={{ x: 1400 }}
+                        pagination={false}
                         dataSource={allinstitutes} />}
 
                     {!allinstitutes && <Table
