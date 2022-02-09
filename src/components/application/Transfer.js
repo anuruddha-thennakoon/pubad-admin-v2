@@ -503,7 +503,7 @@ class ApplicationForm extends React.Component {
                     } else if (status === 201) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     } else if (status === 400 && !this.props.application.approval_document) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => null}>Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApprovalDocument}>Submit</Button>);
                     } else if (status === 400 && this.props.application.approval_document) {
                         // buttons.push(<Button type="primary" icon="printer" loading={confirmLoading} onClick={this.printDocument}>Print</Button>);
                     }
@@ -1070,7 +1070,7 @@ class ApplicationForm extends React.Component {
                             {/* {getFieldDecorator('certified_copy_of_duty_assume_letter', {
                                 rules: [{ required: true, message: 'Please input relevant data' }]
                             })( */}
-                            {this.showApprovalDocument().edit && <Upload {...props4} disabled={disabled}>
+                            {this.showApprovalDocument().edit && <Upload {...props4} disabled={this.showApprovalDocument().view}>
                                 {fileList4.length == 1 ?
                                     <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('approval_document')}>Attachment</Button>
                                         <Icon type="delete" onClick={() => this.removeFile('fileList4')} /></span> :
