@@ -229,9 +229,14 @@ class ApplicationForm extends React.Component {
                 let approveDetails = {
                     notice_current_work_place: values.notice_current_work_place,
                     notice_new_work_place: values.notice_new_work_place,
-                    inform_1: values.inform_1,
-                    inform_2: values.inform_2,
-                    inform_3: values.inform_3
+                    inform_1: values.inform_1.length ? values.inform_1 : null,
+                    inform_2: values.inform_2.length ? values.inform_2 : null,
+                    inform_3: values.inform_3.length ? values.inform_3 : null,
+                    inform_4: values.inform_4.length ? values.inform_4 : null,
+                    inform_5: values.inform_5.length ? values.inform_5 : null,
+                    inform_6: values.inform_6.length ? values.inform_6 : null,
+                    inform_7: values.inform_7.length ? values.inform_7 : null,
+                    inform_8: values.inform_8.length ? values.inform_8 : null,
                 }
 
                 let approveData = {
@@ -987,7 +992,7 @@ class ApplicationForm extends React.Component {
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('inform_1', {
-                                    rules: [{ required: true, message: 'Please input relevant data' }],
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
                                     initialValue: this.getApplicationItem('inform_1') ? this.getApplicationItem('inform_1') : []
                                 })(
                                     <Select
@@ -1009,7 +1014,7 @@ class ApplicationForm extends React.Component {
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('inform_2', {
-                                    rules: [{ required: true, message: 'Please input relevant data' }],
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
                                     initialValue: this.getApplicationItem('inform_2') ? this.getApplicationItem('inform_2') : []
                                 })(
                                     <Select
@@ -1031,8 +1036,118 @@ class ApplicationForm extends React.Component {
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('inform_3', {
-                                    rules: [{ required: true, message: 'Please input relevant data' }],
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
                                     initialValue: this.getApplicationItem('inform_3') ? this.getApplicationItem('inform_3') : []
+                                })(
+                                    <Select
+                                        disabled={disabled}
+                                        showSearch
+                                        style={{ width: '100%' }}
+                                        placeholder="Select"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        {instituteValues}
+                                    </Select>
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label="Inform 4"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_4', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_4') ? this.getApplicationItem('inform_4') : []
+                                })(
+                                    <Select
+                                        disabled={disabled}
+                                        showSearch
+                                        style={{ width: '100%' }}
+                                        placeholder="Select"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        {instituteValues}
+                                    </Select>
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label="Inform 5"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_5', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_5') ? this.getApplicationItem('inform_5') : []
+                                })(
+                                    <Select
+                                        disabled={disabled}
+                                        showSearch
+                                        style={{ width: '100%' }}
+                                        placeholder="Select"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        {instituteValues}
+                                    </Select>
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label="Inform 6"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_6', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_6') ? this.getApplicationItem('inform_6') : []
+                                })(
+                                    <Select
+                                        disabled={disabled}
+                                        showSearch
+                                        style={{ width: '100%' }}
+                                        placeholder="Select"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        {instituteValues}
+                                    </Select>
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label="Inform 7"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_7', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_7') ? this.getApplicationItem('inform_7') : []
+                                })(
+                                    <Select
+                                        disabled={disabled}
+                                        showSearch
+                                        style={{ width: '100%' }}
+                                        placeholder="Select"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        {instituteValues}
+                                    </Select>
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label="Inform 8"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_8', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_8') ? this.getApplicationItem('inform_8') : []
                                 })(
                                     <Select
                                         disabled={disabled}
