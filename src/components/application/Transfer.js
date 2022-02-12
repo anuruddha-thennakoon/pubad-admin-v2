@@ -1,10 +1,11 @@
 import React from 'react';
 import {
-    Form, Select, Button, Upload, Input, notification, DatePicker, Card, Icon, Typography
+    Form, Select, Button, Upload, Input, notification, Card, Icon, Typography, Table
 } from 'antd';
 import { inject, observer } from 'mobx-react';
 import styled from 'styled-components';
 import _get from "lodash/get";
+import moment from 'moment';
 import { PUBAD } from '../../utils/constants';
 
 const ApplicationContainer = styled.div`
@@ -47,7 +48,7 @@ class ApplicationForm extends React.Component {
             officer: {},
             confirmLoading: false,
             applicationStatus: 0,
-            fileList1: [], fileList2: [], fileList3: [], fileList4: []
+            fileList1: [], fileList2: [], fileList3: [], fileList4: [],
         };
 
         this.props.appStore.getInstitutes();
@@ -119,6 +120,10 @@ class ApplicationForm extends React.Component {
                 this.setState({ [`fileList${index + 1}`]: [img] });
             });
         }
+    }
+
+    setInform = (key, value) => {
+        this.setState({ [`${key}`]: value });
     }
 
     getApplicationItem = (key) => {
@@ -227,16 +232,17 @@ class ApplicationForm extends React.Component {
                 this.setState({ confirmLoading: true });
 
                 let approveDetails = {
-                    notice_current_work_place: values.notice_current_work_place,
-                    notice_new_work_place: values.notice_new_work_place,
-                    inform_1: values.inform_1.length ? values.inform_1 : null,
-                    inform_2: values.inform_2.length ? values.inform_2 : null,
-                    inform_3: values.inform_3.length ? values.inform_3 : null,
-                    inform_4: values.inform_4.length ? values.inform_4 : null,
-                    inform_5: values.inform_5.length ? values.inform_5 : null,
-                    inform_6: values.inform_6.length ? values.inform_6 : null,
-                    inform_7: values.inform_7.length ? values.inform_7 : null,
-                    inform_8: values.inform_8.length ? values.inform_8 : null,
+                    myNo: values.my_no,
+                    yourNo: values.your_no,
+                    approvedDate: moment().format("DD/MM/YYYY"),
+                    print_format: values.print_format,
+                    inform_1: { institute: this.state.inform_1, note: values.inform_1 },
+                    inform_2: { institute: this.state.inform_2, note: values.inform_2 },
+                    inform_3: { institute: this.state.inform_3, note: values.inform_3 },
+                    inform_4: { institute: this.state.inform_4, note: values.inform_4 },
+                    inform_5: { institute: this.state.inform_5, note: values.inform_5 },
+                    inform_6: { institute: this.state.inform_6, note: values.inform_6 },
+                    inform_7: { institute: this.state.inform_7, note: values.inform_7 }
                 }
 
                 let approveData = {
@@ -447,6 +453,31 @@ class ApplicationForm extends React.Component {
         return enable;
     }
 
+    showRejectReason = () => {
+        //(rejectReason || approved == 0 ) && (status != 400 && status != 100)
+        const status = _get(this.props.application, "status", null);
+        const role = this.props.appState.getUserRole();
+        let enable = false;
+
+        switch (role) {
+            case PUBAD://pubad
+                if (status == 100) {
+                    enable = true;
+                }
+                break;
+            case '3'://psc
+                break;
+            case '4'://institute
+                if (status == 100) {
+                    enable = true;
+                }
+                break;
+            default:
+                break;
+        }
+        return enable;
+    }
+
     showApprovalDocument = () => {
         const status = _get(this.props.application, "status", null);
         const role = this.props.appState.getUserRole();
@@ -480,7 +511,9 @@ class ApplicationForm extends React.Component {
 
         switch (role) {
             case PUBAD://pubad
-                enable = true;
+                if (status === 100) {
+                    enable = true;
+                }
                 break;
             case '3'://psc
                 break;
@@ -869,7 +902,6 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>
 
-
                         <FormItem
                             label="Request letter of officer"
                             required={true}
@@ -936,7 +968,6 @@ class ApplicationForm extends React.Component {
                             <span>Consent letters should be signed by Head of Institute (Eg: Secretary of Ministry/ State Ministry/ Special Spending Unit, Chief Secretary of Privincila Council)</span>
                         </FormItem>
 
-
                         {this.showRejectAction() && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
@@ -961,209 +992,223 @@ class ApplicationForm extends React.Component {
 
                         {approved == 1 && this.showApprovalContent() && <div>
                             <FormItem
-                                label="Notice for current workplace"
+                                label="My No"
                                 labelCol={{ span: 10 }}
                                 wrapperCol={{ span: 12 }}
                             >
-                                {getFieldDecorator('notice_current_work_place', {
+                                {getFieldDecorator('my_no', {
                                     rules: [{ required: true, message: 'Please input relevant data' }],
-                                    initialValue: this.getApplicationItem('notice_current_work_place')
+                                    initialValue: viewType == 'add' ?
+                                        (officer.profile ? officer.profile.mobile : null) :
+                                        this.getApplicationItem('my_no')
                                 })(
-                                    <TextArea placeholder='Enter notice' disabled={disabled} rows={4} style={{ width: '100%' }} />
+                                    <Input disabled={disabled} style={{ width: '250px' }} />
                                 )}
                             </FormItem>
 
                             <FormItem
-                                label="Notice for new workplace"
+                                label="Your No"
                                 labelCol={{ span: 10 }}
                                 wrapperCol={{ span: 12 }}
                             >
-                                {getFieldDecorator('notice_new_work_place', {
+                                {getFieldDecorator('your_no', {
                                     rules: [{ required: true, message: 'Please input relevant data' }],
-                                    initialValue: this.getApplicationItem('notice_new_work_place')
+                                    initialValue: viewType == 'add' ?
+                                        (officer.profile ? officer.profile.mobile : null) :
+                                        this.getApplicationItem('your_no')
                                 })(
-                                    <TextArea placeholder='Enter notice' disabled={disabled} rows={4} style={{ width: '100%' }} />
+                                    <Input disabled={disabled} style={{ width: '250px' }} />
                                 )}
                             </FormItem>
 
                             <FormItem
-                                label="Inform 1"
+                                label="Print format"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('print_format', {
+                                    rules: [{ required: true, message: 'Please input relevant data' }]
+                                })(
+                                    <Select
+                                        showSearch
+                                        disabled={disabled}
+                                        style={{ width: 250 }}
+                                        placeholder="Select"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        <Option value={1}>Format 1</Option>
+                                        <Option value={2}>Format 2</Option>
+                                        <Option value={3}>Format 3</Option>
+                                        <Option value={4}>Format 4</Option>
+                                    </Select>
+                                )}
+                            </FormItem>
+
+                            <div style={{ marginBottom: 14 }}>Copies :</div>
+                            <FormItem
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_1', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
                                 labelCol={{ span: 10 }}
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('inform_1', {
                                     rules: [{ required: !true, message: 'Please input relevant data' }],
-                                    initialValue: this.getApplicationItem('inform_1') ? this.getApplicationItem('inform_1') : []
+                                    initialValue: this.getApplicationItem('inform_1') ? this.getApplicationItem('inform_1') : null
                                 })(
-                                    <Select
-                                        disabled={disabled}
-                                        showSearch
-                                        style={{ width: '100%' }}
-                                        placeholder="Select"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                    >
-                                        {instituteValues}
-                                    </Select>
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
                                 )}
                             </FormItem>
 
                             <FormItem
-                                label="Inform 2"
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_2', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
                                 labelCol={{ span: 10 }}
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('inform_2', {
                                     rules: [{ required: !true, message: 'Please input relevant data' }],
-                                    initialValue: this.getApplicationItem('inform_2') ? this.getApplicationItem('inform_2') : []
+                                    initialValue: this.getApplicationItem('inform_2') ? this.getApplicationItem('inform_2') : null
                                 })(
-                                    <Select
-                                        disabled={disabled}
-                                        showSearch
-                                        style={{ width: '100%' }}
-                                        placeholder="Select"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                    >
-                                        {instituteValues}
-                                    </Select>
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
                                 )}
                             </FormItem>
 
                             <FormItem
-                                label="Inform 3"
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_3', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
                                 labelCol={{ span: 10 }}
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('inform_3', {
                                     rules: [{ required: !true, message: 'Please input relevant data' }],
-                                    initialValue: this.getApplicationItem('inform_3') ? this.getApplicationItem('inform_3') : []
+                                    initialValue: this.getApplicationItem('inform_3') ? this.getApplicationItem('inform_3') : null
                                 })(
-                                    <Select
-                                        disabled={disabled}
-                                        showSearch
-                                        style={{ width: '100%' }}
-                                        placeholder="Select"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                    >
-                                        {instituteValues}
-                                    </Select>
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
                                 )}
                             </FormItem>
 
                             <FormItem
-                                label="Inform 4"
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_4', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
                                 labelCol={{ span: 10 }}
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('inform_4', {
                                     rules: [{ required: !true, message: 'Please input relevant data' }],
-                                    initialValue: this.getApplicationItem('inform_4') ? this.getApplicationItem('inform_4') : []
+                                    initialValue: this.getApplicationItem('inform_4') ? this.getApplicationItem('inform_4') : null
                                 })(
-                                    <Select
-                                        disabled={disabled}
-                                        showSearch
-                                        style={{ width: '100%' }}
-                                        placeholder="Select"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                    >
-                                        {instituteValues}
-                                    </Select>
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
                                 )}
                             </FormItem>
 
                             <FormItem
-                                label="Inform 5"
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_5', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
                                 labelCol={{ span: 10 }}
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('inform_5', {
                                     rules: [{ required: !true, message: 'Please input relevant data' }],
-                                    initialValue: this.getApplicationItem('inform_5') ? this.getApplicationItem('inform_5') : []
+                                    initialValue: this.getApplicationItem('inform_5') ? this.getApplicationItem('inform_5') : null
                                 })(
-                                    <Select
-                                        disabled={disabled}
-                                        showSearch
-                                        style={{ width: '100%' }}
-                                        placeholder="Select"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                    >
-                                        {instituteValues}
-                                    </Select>
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
                                 )}
                             </FormItem>
 
                             <FormItem
-                                label="Inform 6"
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_6', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
                                 labelCol={{ span: 10 }}
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('inform_6', {
                                     rules: [{ required: !true, message: 'Please input relevant data' }],
-                                    initialValue: this.getApplicationItem('inform_6') ? this.getApplicationItem('inform_6') : []
+                                    initialValue: this.getApplicationItem('inform_6') ? this.getApplicationItem('inform_6') : null
                                 })(
-                                    <Select
-                                        disabled={disabled}
-                                        showSearch
-                                        style={{ width: '100%' }}
-                                        placeholder="Select"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                    >
-                                        {instituteValues}
-                                    </Select>
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
                                 )}
                             </FormItem>
 
                             <FormItem
-                                label="Inform 7"
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_7', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
                                 labelCol={{ span: 10 }}
                                 wrapperCol={{ span: 12 }}
                             >
                                 {getFieldDecorator('inform_7', {
                                     rules: [{ required: !true, message: 'Please input relevant data' }],
-                                    initialValue: this.getApplicationItem('inform_7') ? this.getApplicationItem('inform_7') : []
+                                    initialValue: this.getApplicationItem('inform_7') ? this.getApplicationItem('inform_7') : null
                                 })(
-                                    <Select
-                                        disabled={disabled}
-                                        showSearch
-                                        style={{ width: '100%' }}
-                                        placeholder="Select"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                    >
-                                        {instituteValues}
-                                    </Select>
-                                )}
-                            </FormItem>
-
-                            <FormItem
-                                label="Inform 8"
-                                labelCol={{ span: 10 }}
-                                wrapperCol={{ span: 12 }}
-                            >
-                                {getFieldDecorator('inform_8', {
-                                    rules: [{ required: !true, message: 'Please input relevant data' }],
-                                    initialValue: this.getApplicationItem('inform_8') ? this.getApplicationItem('inform_8') : []
-                                })(
-                                    <Select
-                                        disabled={disabled}
-                                        showSearch
-                                        style={{ width: '100%' }}
-                                        placeholder="Select"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                    >
-                                        {instituteValues}
-                                    </Select>
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
                                 )}
                             </FormItem>
                         </div>}
 
-                        {rejectReason && (status != 400 && status != 100) && <FormItem
+                        {approved == 0 && this.showRejectReason() && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1172,7 +1217,7 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: !true, message: 'Please input relevant data' }],
                                 initialValue: rejectReason
                             })(
-                                <TextArea disabled={true} rows={4} style={{ width: '100%' }} />
+                                <TextArea disabled={disabled} rows={4} style={{ width: '100%' }} />
                             )}
                         </FormItem>}
 

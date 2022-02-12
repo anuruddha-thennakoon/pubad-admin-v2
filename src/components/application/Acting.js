@@ -7,7 +7,6 @@ import { inject, observer } from 'mobx-react';
 import styled from 'styled-components'
 import moment from 'moment';
 import _get from "lodash/get";
-import { ADD } from '../../utils/constants';
 
 const ApplicationContainer = styled.div`
     .ant-form-item-label{
