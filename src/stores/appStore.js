@@ -265,8 +265,7 @@ class AppStore {
     }
 
     @action getCadrePositions(grade, institute, type) {
-        // console.log('grade', grade);
-        // console.log('institute', institute);
+        this.cadrePositions = null;
 
         return appService.getCadrePositions()
             .then((data) => {
@@ -426,8 +425,8 @@ class AppStore {
             }))
     }
 
-    @action updateApplicationStatus(data) {
-        return appService.updateApplicationStatus(data)
+    @action updateApplication(data) {
+        return appService.updateApplication(data)
             .then(data => {
                 return data;
             })
@@ -582,6 +581,36 @@ class AppStore {
 
     @action getCadres(data) {
         return appService.getCadres(data)
+            .then(data => {
+                return data;
+            })
+            .catch(action(err => {
+                return err;
+            }))
+    }
+
+    @action generateReports(data) {
+        return appService.generateReports(data)
+            .then(data => {
+                return data;
+            })
+            .catch(action(err => {
+                return err;
+            }))
+    }
+
+    @action submitApprovalDocument(data) {
+        return appService.submitApprovalDocument(data)
+            .then(data => {
+                return data;
+            })
+            .catch(action(err => {
+                return err;
+            }))
+    }
+
+    @action editInstitute(data) {
+        return appService.editInstitute(data)
             .then(data => {
                 return data;
             })

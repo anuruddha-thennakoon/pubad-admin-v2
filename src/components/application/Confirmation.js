@@ -7,6 +7,7 @@ import { inject, observer } from 'mobx-react';
 import styled from 'styled-components';
 import moment from 'moment';
 import _get from "lodash/get";
+import { ADD, EDIT, INSTITUTE, PSC, PUBAD, VIEW } from '../../utils/constants';
 
 const ApplicationContainer = styled.div`
     .ant-form-item-label{
@@ -51,7 +52,7 @@ class ApplicationForm extends React.Component {
             viewType: this.props.viewType,
             rejectReason: null,
             officer: {},
-            c1: false, c2: false, c3: false,
+            c1: false, c2: false, c3: false, c4: false,
             confirmLoading: false,
             applicationStatus: 0,
             fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
@@ -108,7 +109,7 @@ class ApplicationForm extends React.Component {
 
     getApplicationConditions = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             this.setState({
                 disabled: true,
@@ -117,7 +118,6 @@ class ApplicationForm extends React.Component {
                 c2: application.c2,
                 c3: application.c3,
                 c4: application.c4,
-                c5: application.c5,
                 rejectReason: this.props.application.reject_reason
             });
         }
@@ -125,7 +125,7 @@ class ApplicationForm extends React.Component {
 
     loadFiles = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             let documents = JSON.parse(application.documents);
 
@@ -169,7 +169,7 @@ class ApplicationForm extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const {
-                    c1, c2, c3,
+                    c1, c2, c3, c4,
                     officer, fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8
                 } = this.state;
                 let userData = this.props.appState.getUserData();
@@ -199,6 +199,7 @@ class ApplicationForm extends React.Component {
                         values.c1 = c1;
                         values.c2 = c2;
                         values.c3 = c3;
+                        values.c4 = c4;
 
                         //documents
                         values.documents = docs;
@@ -222,7 +223,7 @@ class ApplicationForm extends React.Component {
                             .then(sucess => {
                                 this.setState({
                                     officer: {},
-                                    c1: false, c2: false, c3: false, c4: false, c5: false,
+                                    c1: false, c2: false, c3: false, c4: false,
                                     confirmLoading: false,
                                     fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [], fileList6: [], fileList7: [], fileList8: []
                                 });
@@ -274,25 +275,94 @@ class ApplicationForm extends React.Component {
         });
     }
 
-    editApproveApplication = () => {
-        console.log('observeDOM');
+    updateApplication = (status) => {
+
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                const {
+                    c1, c2, c3, c4,
+                    fileList1, fileList2, fileList3, fileList4, fileList5, fileList6, fileList7, fileList8
+                } = this.state;
+                let application = this.props.application;
+
+                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0 || fileList4[0].length == 0 ||
+                    fileList5[0].length == 0 || fileList6[0].length == 0 || fileList7[0].length == 0 || fileList8[0].length == 0) {
+                    openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
+                }
+
+                this.setState({ confirmLoading: true });
+
+                var files = [
+                    { name: "recommendation_letter_issued_by_department_of_head", file: fileList1[0] },
+                    { name: "certified_copy_of_duty_assume_letter", file: fileList2[0] },
+                    { name: "certified_copy_of_induction_training_completion_letter", file: fileList3[0] },
+                    { name: "certified_copy_of_annual_review_report_for_1st_Year_(APPENDIX_05,_PSC_Rules)", file: fileList4[0] },
+                    { name: "certified_copy_of_annual_review_report_for_2nd_Year_(APPENDIX_05,_PSC_Rules)", file: fileList5[0] },
+                    { name: "certified_copy_of_annual_review_report_for_3rd_Year_(APPENDIX_05,_PSC_Rules)", file: fileList6[0] },
+                    { name: "certified_copy_of_efficiency_bar_result_sheet", file: fileList7[0] },
+                    { name: "certified_copy_of_medical_certificate", file: fileList8[0] }
+                ]
+
+                this.props.appStore.uploadFiles(files)
+                    .then(docs => {
+
+                        //consditions
+                        values.c1 = c1;
+                        values.c2 = c2;
+                        values.c3 = c3;
+                        values.c4 = c4;
+
+                        //documents
+                        values.documents = docs;
+
+                        //application
+                        let applicationData = {
+                            id: application.id,
+                            nic: values.nic,
+                            officer_name: values.officer_name,
+                            designation: values.designation,
+                            place_of_work: values.place_of_work,
+                            mobile_number: values.mobile_number,
+                            application: JSON.stringify(values),
+                            reject_reason: null,
+                            status: status
+                        }
+
+                        this.props.appStore.updateApplication(applicationData)
+                            .then(sucess => {
+                                openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                                this.setState({ confirmLoading: false });
+                                this.props.closeApplication();
+                            })
+                            .catch(err => {
+                                this.setState({ confirmLoading: false });
+                                openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                            });
+
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                    });
+            }
+        })
     }
 
     setEditable = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             const status = _get(this.props.application, "status", null);
             const role = this.props.appState.getUserRole();
 
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100 || status == 201) {
                         this.setState({ viewType: 'edit', disabled: false });
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     if (status == 101) {
                         this.setState({ viewType: 'edit', disabled: false });
                     }
@@ -301,23 +371,23 @@ class ApplicationForm extends React.Component {
         }
     }
 
-    showAction = () => {
+    showRejectAction = () => {
         const status = _get(this.props.application, "status", null);
         const role = this.props.appState.getUserRole();
         let enable = false;
 
         switch (role) {
-            case '2'://pubad
+            case PUBAD:
                 if (status == 100 || status == 201) {
                     enable = true;
                 }
                 break;
-            case '3'://psc
+            case PSC:
                 if (status == 200 || status == 300) {
                     enable = true;
                 }
                 break;
-            case '4':
+            case INSTITUTE:
                 break;
             default:
                 break;
@@ -331,42 +401,42 @@ class ApplicationForm extends React.Component {
         const role = this.props.appState.getUserRole();
         let buttons = [];
 
-        if (viewType == 'add') {
+        if (viewType == ADD) {
             buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>);
-        } else if (viewType == 'view') {
+        } else if (viewType == VIEW) {
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     if (status == 200 || status == 300) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     }
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     break;
                 default:
                     break;
             }
-        } else if (viewType == 'edit') {
+        } else if (viewType == EDIT) {
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Approve</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Update and Approve</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     if (status == 101) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(100)}>Re Submit</Button>);
                     }
                     break;
                 default:
@@ -757,7 +827,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Has the officer completed the induction training program in SLIDA"
+                            label="Has the officer completed the induction training program on time in SLIDA"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -770,25 +840,12 @@ class ApplicationForm extends React.Component {
                                     style={{ width: 250 }}
                                     placeholder="Select"
                                     optionFilterProp="children"
+                                    onChange={(e) => this.changeCondition('c4', e)}
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     <Option value="Yes">Yes</Option>
                                     <Option value="No">No</Option>
                                 </Select>
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            label="Period to be extended by failing to complete the Induction training on time"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time', {
-                                rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: (this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time'))
-                                    ? [moment(this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time')[0]), moment(this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time')[1])] : null
-                            })(
-                                <RangePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
 
@@ -804,6 +861,20 @@ class ApplicationForm extends React.Component {
                                 <DatePicker disabled={disabled} style={{ width: 250 }} />
                             )}
                         </FormItem>
+
+                        {!this.state.c4 && <FormItem
+                            label="Period to be extended by failing to complete the induction training on time"
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {getFieldDecorator('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time', {
+                                rules: [{ required: true, message: 'Please input relevant data' }],
+                                initialValue: (this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time'))
+                                    ? [moment(this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time')[0]), moment(this.getApplicationItem('period_to_be_extended_by_failing_to_complete_the_induction_training_on_time')[1])] : null
+                            })(
+                                <RangePicker disabled={disabled} style={{ width: 250 }} />
+                            )}
+                        </FormItem>}
 
                         <FormItem
                             label="Has the officer completed the 1st Efficiency Bar (EB)"
@@ -1114,7 +1185,7 @@ class ApplicationForm extends React.Component {
                             {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('certified_copy_of_medical_certificate')}>Attachment</Button>}
                         </FormItem>
 
-                        {(this.showAction()) && <FormItem
+                        {(this.showRejectAction()) && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -1136,7 +1207,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {(approved == 0 && this.showAction()) && <FormItem
+                        {(approved == 0 && this.showRejectAction()) && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}

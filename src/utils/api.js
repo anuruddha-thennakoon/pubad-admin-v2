@@ -38,7 +38,7 @@ class Api {
     GET_APPLICATIONS_COUNT = this.URL + 'get-applications-count';
     GET_APPLICATIONS = this.URL + 'get-applications';
     APPROVE_APPLICATION = this.URL + 'approve-application';
-    UPDATE_APPLICATIONS_STATUS = this.URL + 'update-application-status';
+    UPDATE_APPLICATION = this.URL + 'update-application';
     FILE_UPLOAD = this.URL + 'upload';
     VIEW_OFFICER = this.URL + 'view-officer';
     UPDATE_OFFICER = this.URL + 'update-officer';
@@ -47,6 +47,9 @@ class Api {
     ALL_USERS = this.URL + 'all-users';
     APPROVE_USER = this.URL + 'approve-user';
     GET_CADRES = this.URL + 'cadres';
+    GENERATE_REPORTS = this.URL + 'generate-reports';
+    UPDATE_APPROVAL_DOCUMENT = this.URL + 'update-approval-documents';
+    UPDATE_INSTITUTE = this.URL + 'update-institute';
 
     SERVICE_HISTORY(data) {
         return this.URL + 'service-history/' + data.id;

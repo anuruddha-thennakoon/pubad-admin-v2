@@ -5,7 +5,6 @@ import { AppContainer } from 'react-hot-loader';
 import { rehydrate, hotRehydrate } from 'rfx-core';
 import { RouterStore, syncHistoryWithStore } from 'mobx-react-router';
 import createBrowserHistory from 'history/createBrowserHistory';
-import { isProduction } from './utils/constants';
 
 import Page from './components/Page';
 import Login from './components/login/Login';

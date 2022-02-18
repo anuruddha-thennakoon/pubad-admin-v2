@@ -7,6 +7,7 @@ import { inject, observer } from 'mobx-react';
 import styled from 'styled-components'
 import moment from 'moment';
 import _get from "lodash/get";
+import { ADD, EDIT, INSTITUTE, PSC, PUBAD, VIEW } from '../../utils/constants';
 
 const ApplicationContainer = styled.div`
     .ant-form-item-label{
@@ -110,7 +111,7 @@ class ApplicationForm extends React.Component {
 
     getApplicationConditions = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             this.setState({
                 disabled: true,
@@ -128,7 +129,7 @@ class ApplicationForm extends React.Component {
 
     loadFiles = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             let documents = JSON.parse(application.documents);
 
@@ -146,19 +147,19 @@ class ApplicationForm extends React.Component {
 
     setEditable = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             const status = _get(this.props.application, "status", null);
             const role = this.props.appState.getUserRole();
 
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100 || status == 201) {
                         this.setState({ viewType: 'edit', disabled: false });
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     if (status == 101) {
                         this.setState({ viewType: 'edit', disabled: false });
                     }
@@ -169,7 +170,7 @@ class ApplicationForm extends React.Component {
 
     getApplicationItem = (key) => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             return _get(application, key, null);
         }
@@ -177,7 +178,7 @@ class ApplicationForm extends React.Component {
 
     openAttachment = (key) => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             let application = JSON.parse(this.props.application.application);
             let documents = JSON.parse(application.documents);
             let link = null;
@@ -299,11 +300,76 @@ class ApplicationForm extends React.Component {
         });
     }
 
-    editApproveApplication = () => {
-        console.log('file --> ', this.state.fileList1);
+    updateApplication = (status) => {
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                const {
+                    c1, c2, c3, c4, table1, table2,
+                    officer, fileList1, fileList2, fileList3
+                } = this.state;
+                let application = this.props.application;
+
+                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0) {
+                    openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
+                }
+
+                this.setState({ confirmLoading: true });
+
+                var files = [
+                    { name: "class_2_application", file: fileList1[0] },
+                    { name: "last_salary_increment", file: fileList2[0] },
+                    { name: "last_performance_report", file: fileList3[0] }
+                ]
+
+                this.props.appStore.uploadFiles(files)
+                    .then(docs => {
+                        //consditions
+                        values.c1 = c1;
+                        values.c2 = c2;
+                        values.c3 = c3;
+                        values.c4 = c4;
+
+                        //documents
+                        values.documents = docs;
+
+                        //tables
+                        values.table1 = table1;
+                        values.table2 = table2;
+
+                        //application
+                        let applicationData = {
+                            id: application.id,
+                            nic: values.nic,
+                            officer_name: values.officer_name,
+                            designation: application.designation,
+                            place_of_work: application.place_of_work,
+                            mobile_number: values.mobile_number,
+                            application: JSON.stringify(values),
+                            reject_reason: null,
+                            status: status
+                        }
+
+                        this.props.appStore.updateApplication(applicationData)
+                            .then(sucess => {
+                                openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                                this.setState({ confirmLoading: false });
+                                this.props.closeApplication();
+                            })
+                            .catch(err => {
+                                this.setState({ confirmLoading: false });
+                                openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                            });
+
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                    });
+            }
+        })
     }
 
-    showAction = () => {
+    showRejectAction = () => {
         const status = _get(this.props.application, "status", null);
         const role = this.props.appState.getUserRole();
         let enable = false;
@@ -333,42 +399,42 @@ class ApplicationForm extends React.Component {
         const role = this.props.appState.getUserRole();
         let buttons = [];
 
-        if (viewType == 'add') {
+        if (viewType == ADD) {
             buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>);
-        } else if (viewType == 'view') {
+        } else if (viewType == VIEW) {
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     if (status == 200 || status == 300) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     }
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     break;
                 default:
                     break;
             }
-        } else if (viewType == 'edit') {
+        } else if (viewType == EDIT) {
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Approve</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Update and Approve</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     if (status == 101) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(100)}>Re Submit</Button>);
                     }
                     break;
                 default:
@@ -393,7 +459,7 @@ class ApplicationForm extends React.Component {
         const applicationType = this.props.applicationType;
         const applicationStatus = this.props.applicationStatus;
 
-        if (role === '2' && applicationType === 2 && applicationStatus === 400) {
+        if (role === PUBAD && applicationType === 2 && applicationStatus === 400) {
             return true;
         } else {
             return false;
@@ -504,7 +570,7 @@ class ApplicationForm extends React.Component {
                         style={{ margin: '0px 25px 25px 25px' }}
                         layout={"vertical"}
                     >
-                        {viewType == 'add' && <FormItem
+                        {viewType == ADD && <FormItem
                             label="NIC"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -520,7 +586,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {viewType == 'view' || viewType == 'edit' && <FormItem
+                        {(viewType == VIEW || viewType == EDIT) && <FormItem
                             label="NIC"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -658,7 +724,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>}
 
                         <FormItem
-                            label="Has the officer obtained no pay"
+                            label="Has the officer obtained No Pay Leave"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -817,7 +883,7 @@ class ApplicationForm extends React.Component {
                             </FormItem>}
 
                         <FormItem
-                            label="Have the salary increments and performance appraisal reports been presented for 06 years immediately preceding the date of promoting to Grade II"
+                            label="Have the salary increments and performance appraisal reports been produced for 06 years immediately preceding the date of promoting to Grade II"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -921,6 +987,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Class 2 application"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -940,6 +1007,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Last salary increment"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -959,6 +1027,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Last performance report"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -977,7 +1046,7 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
 
-                        {(this.showAction()) && <FormItem
+                        {(this.showRejectAction()) && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -999,7 +1068,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {(approved == 0 && this.showAction()) && <FormItem
+                        {(approved == 0 && this.showRejectAction()) && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}

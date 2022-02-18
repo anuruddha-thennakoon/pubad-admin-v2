@@ -8,6 +8,8 @@ import styled from 'styled-components'
 import moment from 'moment';
 import _get from "lodash/get";
 
+import { ADD, EDIT, INSTITUTE, PSC, PUBAD, VIEW } from '../../utils/constants';
+
 const ApplicationContainer = styled.div`
     .ant-form-item-label{
         margin-right:16px !important;
@@ -54,7 +56,7 @@ class ApplicationForm extends React.Component {
             confirmLoading: false,
             applicationStatus: 0,
             fileList1: [], fileList2: [], fileList3: [], fileList4: [], fileList5: [],
-            workType:''
+            workType: ''
         };
 
         this.props.appStore.getInstitutes();
@@ -104,6 +106,7 @@ class ApplicationForm extends React.Component {
             let application = JSON.parse(this.props.application.application);
             this.setState({
                 disabled: true,
+                workType: application.workType,
                 applicationStatus: this.props.application.status,
                 rejectReason: this.props.application.reject_reason
             });
@@ -157,7 +160,7 @@ class ApplicationForm extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const {
-                    officer, fileList1, fileList2, fileList3, fileList4, fileList5
+                    officer, fileList1, fileList2, fileList3, fileList4, fileList5, workType
                 } = this.state;
                 let userData = this.props.appState.getUserData();
 
@@ -181,14 +184,17 @@ class ApplicationForm extends React.Component {
                         //documents
                         values.documents = docs;
 
+                        //conditions
+                        values.workType = workType;
+
                         //application
                         let applicationData = {
                             institutes_id: userData.institutes_id,
                             officers_id: officer ? officer.id : null,
                             nic: values.nic,
                             officer_name: values.officer_name,
-                            designation: values.designation,
-                            place_of_work: values.place_of_work,
+                            designation: values.previous_designation,
+                            place_of_work: values.previous_place_of_work,
                             mobile_number: values.mobile_number,
                             application: JSON.stringify(values),
                             application_type: 8,
@@ -251,25 +257,86 @@ class ApplicationForm extends React.Component {
         });
     }
 
-    editApproveApplication = () => {
-        console.log('file --> ', this.state.fileList1);
+    updateApplication = (status) => {
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                const {
+                    fileList1, fileList2, fileList3, fileList4, fileList5, workType
+                } = this.state;
+                let application = this.props.application;
+
+                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0
+                    || fileList4[0].length == 0 || fileList5[0].length == 0) {
+                    openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
+                }
+
+                this.setState({ confirmLoading: true });
+
+                var files = [
+                    { name: "covering_letter_of_the_institute", file: fileList1[0] },
+                    { name: "officer_duty_assume_letter", file: fileList2[0] },
+                    { name: "cadre_approval_letter", file: fileList3[0] },
+                    { name: "est_12", file: fileList4[0] },
+                    { name: "nic", file: fileList5[0] },
+                ]
+
+                this.props.appStore.uploadFiles(files)
+                    .then(docs => {
+                        //documents
+                        values.documents = docs;
+
+                        //conditions
+                        values.workType = workType;
+
+                        //application
+                        let applicationData = {
+                            id: application.id,
+                            nic: values.nic,
+                            officer_name: values.officer_name,
+                            designation: values.previous_designation,
+                            place_of_work: values.previous_place_of_work,
+                            mobile_number: values.mobile_number,
+                            application: JSON.stringify(values),
+                            reject_reason: null,
+                            status: status
+                        }
+
+                        this.props.appStore.updateApplication(applicationData)
+                            .then(sucess => {
+                                openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                                this.setState({ confirmLoading: false });
+                                this.props.closeApplication();
+                            })
+                            .catch(err => {
+                                this.setState({ confirmLoading: false });
+                                openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                            });
+
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                    });
+            }
+        })
     }
+
 
     setEditable = () => {
         const { viewType } = this.state;
-        if (viewType != 'add') {
+        if (viewType != ADD) {
             const status = _get(this.props.application, "status", null);
             const role = this.props.appState.getUserRole();
 
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100 || status == 201) {
                         this.setState({ viewType: 'edit', disabled: false });
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     if (status == 101) {
                         this.setState({ viewType: 'edit', disabled: false });
                     }
@@ -278,23 +345,23 @@ class ApplicationForm extends React.Component {
         }
     }
 
-    showAction = () => {
+    showRejectAction = () => {
         const status = _get(this.props.application, "status", null);
         const role = this.props.appState.getUserRole();
         let enable = false;
 
         switch (role) {
-            case '2'://pubad
+            case PUBAD:
                 if (status == 100 || status == 201) {
                     enable = true;
                 }
                 break;
-            case '3'://psc
+            case PSC:
                 if (status == 200 || status == 300) {
                     enable = true;
                 }
                 break;
-            case '4':
+            case INSTITUTE:
                 break;
             default:
                 break;
@@ -308,42 +375,42 @@ class ApplicationForm extends React.Component {
         const role = this.props.appState.getUserRole();
         let buttons = [];
 
-        if (viewType == 'add') {
+        if (viewType == ADD) {
             buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>);
-        } else if (viewType == 'view') {
+        } else if (viewType == VIEW) {
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     if (status == 200 || status == 300) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
                     }
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     break;
                 default:
                     break;
             }
-        } else if (viewType == 'edit') {
+        } else if (viewType === EDIT) {
             switch (role) {
-                case '2'://pubad
+                case PUBAD:
                     if (status == 100) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Approve</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Update and Approve</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
-                case '3'://psc
+                case PSC:
                     break;
-                case '4'://institute
+                case INSTITUTE:
                     if (status == 101) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(100)}>Re Submit</Button>);
                     }
                     break;
                 default:
@@ -370,6 +437,10 @@ class ApplicationForm extends React.Component {
             default:
                 return null;
         }
+    }
+
+    changeWorkType = (c) => {
+        this.setState({ workType: c });
     }
 
     render() {
@@ -622,9 +693,11 @@ class ApplicationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('place_of_work', {
+                            {getFieldDecorator('previous_place_of_work', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('previous_place_of_work')
+                                initialValue: viewType == 'add' ?
+                                    (officer.service_history ? this.getActive(officer.service_history).place_of_work : []) :
+                                    this.getApplicationItem('previous_place_of_work')
                             })(
                                 <Select
                                     disabled={disabled}
@@ -644,9 +717,11 @@ class ApplicationForm extends React.Component {
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
-                            {getFieldDecorator('current_designation', {
+                            {getFieldDecorator('previous_designation', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: this.getApplicationItem('previous_designation')
+                                initialValue: viewType == 'add' ?
+                                    (officer.service_history ? this.getActive(officer.service_history).designation : []) :
+                                    this.getApplicationItem('previous_designation')
                             })(
                                 <Select
                                     showSearch
@@ -667,9 +742,7 @@ class ApplicationForm extends React.Component {
                         >
                             {getFieldDecorator('current_designation', {
                                 rules: [{ required: true, message: 'Please input relevant data' }],
-                                initialValue: viewType == 'add' ?
-                                    (officer.service_history ? this.getActive(officer.service_history).designation : []) :
-                                    this.getApplicationItem('current_designation')
+                                initialValue: this.getApplicationItem('current_designation')
                             })(
                                 <Select
                                     showSearch
@@ -697,6 +770,7 @@ class ApplicationForm extends React.Component {
                                     disabled={disabled}
                                     style={{ width: 250 }}
                                     placeholder="Select"
+                                    onChange={(e) => this.changeWorkType(e)}
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
@@ -707,7 +781,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>
 
-                        {this.state.workType == 'Cabinet Ministry' &&<FormItem
+                        {this.state.workType == 'Cabinet Ministry' && <FormItem
                             label="Place of work"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -729,7 +803,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {this.state.workType == 'State Ministry' &&<FormItem
+                        {this.state.workType == 'State Ministry' && <FormItem
                             label="Place of work"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -751,7 +825,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {this.state.workType == 'Department or Other Institute' &&<FormItem
+                        {this.state.workType == 'Department or Other Institute' && <FormItem
                             label="Place of work"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -773,7 +847,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {this.state.workType == 'Department or Other Institute' &&<FormItem
+                        {this.state.workType == 'Department or Other Institute' && <FormItem
                             label="Name of the cabinet ministry/state ministry"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -811,6 +885,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Covering letter of the institute"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -830,6 +905,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Officer’s Duty Assume letter"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -849,6 +925,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Cadre approval letter"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -868,6 +945,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="EST 12"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -887,6 +965,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="NIC"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -904,7 +983,7 @@ class ApplicationForm extends React.Component {
                             {viewType == 'view' && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('nic')}>Attachment</Button>}
                         </FormItem>
 
-                        {(this.showAction()) && <FormItem
+                        {(this.showRejectAction()) && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -926,7 +1005,7 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {(approved == 0 && this.showAction()) && <FormItem
+                        {(approved == 0 && this.showRejectAction()) && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}

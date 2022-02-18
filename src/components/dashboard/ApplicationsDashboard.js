@@ -42,7 +42,7 @@ class ApplicationsDashboard extends React.Component {
             case 7:
                 return 'Transfer';
             case 8:
-                return 'Appointment';
+                return 'Appointment to Post';
             default:
                 return '';
         }
@@ -141,14 +141,14 @@ class ApplicationsDashboard extends React.Component {
                             />
                         </Card>
                     </Col>}
-                    {(role == '2' || role == '4') && <Col span={6}>
+                    {/* {(role == '2' || role == '4') && <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication(6)}>
                             <Meta
                                 avatar={<Icon type="shop" theme="twoTone" style={{ fontSize: '36px', padding: 10 }} />}
                                 title={<div style={{ marginTop: '14px' }}>Retirement</div>}
                             />
                         </Card>
-                    </Col>}
+                    </Col>} */}
                     {/* {(role == '2' || role == '4') && <Col span={6}>
                         <Card className='card-style' onClick={() => this.selectApplication(4)}>
                             <Meta

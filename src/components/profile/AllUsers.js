@@ -70,7 +70,18 @@ class AllUsers extends React.Component {
             dataIndex: 'mobile',
             key: 'mobile',
             width: '10%',
-
+        },
+        {
+            title: 'User Name',
+            dataIndex: 'user_name',
+            key: 'user_name',
+            width: '10%',
+        },
+        {
+            title: 'Password',
+            dataIndex: 'password',
+            key: 'password',
+            width: '10%',
         },
         {
             title: '',
@@ -128,11 +139,14 @@ class AllUsers extends React.Component {
                 <Card className="card-magrin">
 
                     {users.length != 0 && <Table
+                        scroll={{ x: true }}
                         size={"small"}
                         loading={this.state.tableLoading}
                         rowKey={record => record.id}
                         columns={this.columns}
-                        dataSource={users} />}
+                        dataSource={users}
+                        pagination={false}
+                    />}
 
                     {users.length == 0 && <Table
                         size={"small"}
@@ -140,6 +154,7 @@ class AllUsers extends React.Component {
                         rowKey={record => record.id}
                         columns={this.columns}
                         dataSource={null}
+                        pagination={false}
                     />}
 
                 </Card>

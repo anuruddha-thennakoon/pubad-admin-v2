@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-    Form, Select, Radio, Button, Upload, Input, Result, Row, Col, Modal, notification, DatePicker,
-    Card, Breadcrumb, Icon, Typography, InputNumber, Divider
+    Form, Select, Button, Upload, Input, notification, Card, Icon, Typography, Table
 } from 'antd';
 import { inject, observer } from 'mobx-react';
-import styled from 'styled-components'
-import moment from 'moment';
+import styled from 'styled-components';
 import _get from "lodash/get";
+import moment from 'moment';
+import { PUBAD } from '../../utils/constants';
 
 const ApplicationContainer = styled.div`
     .ant-form-item-label{
@@ -16,19 +16,14 @@ const ApplicationContainer = styled.div`
 const ButtonContainer = styled.div`
     margin-top:20px;
 `
-const LeftButtons = styled.div`
-    width: 50%; 
-    float: left;
-`
+
 const RightButtons = styled.div`
     width: 50%; 
     float: right;
     text-align:right;
 `
 
-const { Title, Text } = Typography;
 const FormItem = Form.Item;
-const { RangePicker } = DatePicker;
 const Option = Select.Option;
 const { Search, TextArea } = Input;
 
@@ -53,7 +48,7 @@ class ApplicationForm extends React.Component {
             officer: {},
             confirmLoading: false,
             applicationStatus: 0,
-            fileList1: [], fileList2: [], fileList3: []
+            fileList1: [], fileList2: [], fileList3: [], fileList4: [],
         };
 
         this.props.appStore.getInstitutes();
@@ -127,11 +122,20 @@ class ApplicationForm extends React.Component {
         }
     }
 
+    setInform = (key, value) => {
+        this.setState({ [`${key}`]: value });
+    }
+
     getApplicationItem = (key) => {
         const { viewType } = this.state;
         if (viewType != 'add') {
-            let application = JSON.parse(this.props.application.application);
-            return _get(application, key, null);
+            if (key === 'notice_current_work_place' || key === 'notice_new_work_place' || key === 'inform_1' || key === 'inform_2' || key === 'inform_3') {
+                let application = JSON.parse(this.props.application.approval_details);
+                return _get(application, key, null);
+            } else {
+                let application = JSON.parse(this.props.application.application);
+                return _get(application, key, null);
+            }
         }
     }
 
@@ -142,11 +146,15 @@ class ApplicationForm extends React.Component {
             let documents = JSON.parse(application.documents);
             let link = null;
 
-            documents.forEach(element => {
-                if (element.name === key) {
-                    link = element.url;
-                }
-            });
+            if (key === 'approval_document') {
+                link = JSON.parse(this.props.application.approval_document)[0].url;
+            } else {
+                documents.forEach(element => {
+                    if (element.name === key) {
+                        link = element.url;
+                    }
+                });
+            }
 
             window.open(link, '_blank');
         }
@@ -159,7 +167,7 @@ class ApplicationForm extends React.Component {
                 const { officer, fileList1, fileList2, fileList3 } = this.state;
                 let userData = this.props.appState.getUserData();
 
-                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0) {
+                if (fileList1.length == 0 || fileList2.length == 0 || fileList3.length == 0) {
                     openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
                 }
 
@@ -213,7 +221,7 @@ class ApplicationForm extends React.Component {
                     });
             }
         })
-    };
+    }
 
     approveApplication = () => {
         const { approved } = this.state;
@@ -223,13 +231,28 @@ class ApplicationForm extends React.Component {
             if (!err) {
                 this.setState({ confirmLoading: true });
 
+                let approveDetails = {
+                    myNo: values.my_no,
+                    yourNo: values.your_no,
+                    approvedDate: moment().format("DD/MM/YYYY"),
+                    print_format: values.print_format,
+                    inform_1: { institute: this.state.inform_1, note: values.inform_1 },
+                    inform_2: { institute: this.state.inform_2, note: values.inform_2 },
+                    inform_3: { institute: this.state.inform_3, note: values.inform_3 },
+                    inform_4: { institute: this.state.inform_4, note: values.inform_4 },
+                    inform_5: { institute: this.state.inform_5, note: values.inform_5 },
+                    inform_6: { institute: this.state.inform_6, note: values.inform_6 },
+                    inform_7: { institute: this.state.inform_7, note: values.inform_7 }
+                }
+
                 let approveData = {
                     application_id: this.props.application.id,
                     application_type: this.props.application.application_type,
                     approved: approved,
                     user_role: role,
                     status: this.props.application.status,
-                    reject_reason: values.reject_reason ? values.reject_reason : null
+                    reject_reason: values.reject_reason ? values.reject_reason : null,
+                    approval_details: JSON.stringify(approveDetails)
                 }
 
                 this.props.appStore.approveApplication(approveData)
@@ -246,22 +269,99 @@ class ApplicationForm extends React.Component {
         });
     }
 
-    editApproveApplication = () => {
-        // const { officer, fileList1, fileList2, fileList3 } = this.state;
-        // var files = [
-        //     { name: "request_letter_of_officer", file: fileList1[0] },
-        //     { name: "consent_letter_of_workplace", file: fileList2[0] },
-        //     { name: "consent_letter_of_new_workplace", file: fileList3[0] }
-        // ]
+    submitApprovalDocument = () => {
+        const { fileList4 } = this.state;
 
-        // console.log('docs', files);
+        if (fileList4.length === 0) {
+            openNotificationWithIcon('error', 'Oops', 'Please upload approval document!');
+        }
 
-        // this.props.appStore.uploadFiles(files)
-        //     .then(docs => {
-        //         console.log('docs', docs);
-        //     })
-        //     .catch(err => {
-        //     });
+        var files = [
+            { name: "approval_document", file: fileList4[0] }
+        ]
+
+        this.setState({ confirmLoading: true });
+
+        this.props.appStore.uploadFiles(files)
+            .then(docs => {
+
+                let approveData = {
+                    application_id: this.props.application.id,
+                    approval_document: docs
+                }
+
+                this.props.appStore.submitApprovalDocument(approveData)
+                    .then(response => {
+                        openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                        this.setState({ confirmLoading: false });
+                        this.props.closeApplication();
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong!');
+                    });
+
+            })
+            .catch(err => {
+                this.setState({ confirmLoading: false });
+                openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+            });
+    }
+
+    updateApplication = (status) => {
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                const { fileList1, fileList2, fileList3 } = this.state;
+                let application = this.props.application;
+
+                if (fileList1[0].length == 0 || fileList2[0].length == 0 || fileList3[0].length == 0) {
+                    openNotificationWithIcon('error', 'Oops', 'One or more files required to submit the application!');
+                }
+
+                this.setState({ confirmLoading: true });
+
+                var files = [
+                    { name: "request_letter_of_officer", file: fileList1[0] },
+                    { name: "consent_letter_of_workplace", file: fileList2[0] },
+                    { name: "consent_letter_of_new_workplace", file: fileList3[0] }
+                ]
+
+                this.props.appStore.uploadFiles(files)
+                    .then(docs => {
+                        //documents
+                        values.documents = docs;
+
+                        //application
+                        let applicationData = {
+                            id: application.id,
+                            nic: values.nic,
+                            officer_name: values.officer_name,
+                            designation: values.current_designation,
+                            place_of_work: values.place_of_work,
+                            mobile_number: values.mobile_number,
+                            application: JSON.stringify(values),
+                            reject_reason: null,
+                            status: status
+                        }
+
+                        this.props.appStore.updateApplication(applicationData)
+                            .then(sucess => {
+                                openNotificationWithIcon('success', 'Success', 'Application updated successfully!');
+                                this.setState({ confirmLoading: false });
+                                this.props.closeApplication();
+                            })
+                            .catch(err => {
+                                this.setState({ confirmLoading: false });
+                                openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                            });
+
+                    })
+                    .catch(err => {
+                        this.setState({ confirmLoading: false });
+                        openNotificationWithIcon('error', 'Oops', 'Something went wrong in application submission!');
+                    });
+            }
+        })
     }
 
     getGradeName = (id) => {
@@ -318,7 +418,7 @@ class ApplicationForm extends React.Component {
                     enable = true;
                 }
                 break;
-            case '4':
+            case '4'://institute
                 if (status == 101) {
                     enable = true;
                 }
@@ -329,13 +429,13 @@ class ApplicationForm extends React.Component {
         return enable;
     }
 
-    showAction = () => {
+    showRejectAction = () => {
         const status = _get(this.props.application, "status", null);
         const role = this.props.appState.getUserRole();
         let enable = false;
 
         switch (role) {
-            case '2'://pubad
+            case PUBAD://pubad
                 if (status == 100 || status == 201) {
                     enable = true;
                 }
@@ -345,7 +445,79 @@ class ApplicationForm extends React.Component {
                     enable = true;
                 }
                 break;
-            case '4':
+            case '4'://institute
+                break;
+            default:
+                break;
+        }
+        return enable;
+    }
+
+    showRejectReason = () => {
+        //(rejectReason || approved == 0 ) && (status != 400 && status != 100)
+        const status = _get(this.props.application, "status", null);
+        const role = this.props.appState.getUserRole();
+        let enable = false;
+
+        switch (role) {
+            case PUBAD://pubad
+                if (status == 100) {
+                    enable = true;
+                }
+                break;
+            case '3'://psc
+                break;
+            case '4'://institute
+                if (status == 100) {
+                    enable = true;
+                }
+                break;
+            default:
+                break;
+        }
+        return enable;
+    }
+
+    showApprovalDocument = () => {
+        const status = _get(this.props.application, "status", null);
+        const role = this.props.appState.getUserRole();
+        let enable = { view: false, edit: false };
+
+        switch (role) {
+            case PUBAD://pubad
+                if (status == 400 && !this.props.application.approval_document) {
+                    enable = { view: false, edit: true };
+                } else if (status == 400 && this.props.application.approval_document) {
+                    enable = { view: true, edit: false };
+                }
+                break;
+            case '3'://psc
+                break;
+            case '4'://institute
+                if (status == 400) {
+                    enable = { view: true, edit: false };
+                }
+                break;
+            default:
+                break;
+        }
+        return enable;
+    }
+
+    showApprovalContent = () => {
+        const status = _get(this.props.application, "status", null);
+        const role = this.props.appState.getUserRole();
+        let enable = false;
+
+        switch (role) {
+            case PUBAD://pubad
+                if (status === 100) {
+                    enable = true;
+                }
+                break;
+            case '3'://psc
+                break;
+            case '4'://institute
                 break;
             default:
                 break;
@@ -363,11 +535,15 @@ class ApplicationForm extends React.Component {
             buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApplication}>Submit</Button>);
         } else if (viewType == 'view') {
             switch (role) {
-                case '2'://pubad
-                    if (status == 100) {
+                case PUBAD://pubad
+                    if (status === 100) {
                         buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
-                    } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                    } else if (status === 201) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
+                    } else if (status === 400 && !this.props.application.approval_document) {
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.submitApprovalDocument}>Submit</Button>);
+                    } else if (status === 400 && this.props.application.approval_document) {
+                        // buttons.push(<Button type="primary" icon="printer" loading={confirmLoading} onClick={this.printDocument}>Print</Button>);
                     }
                     break;
                 case '3'://psc
@@ -384,17 +560,17 @@ class ApplicationForm extends React.Component {
             switch (role) {
                 case '2'://pubad
                     if (status == 100) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Submit</Button>);
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Update and Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.approveApplication}>Approve</Button>);
+                        // buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Update and Approve</Button>);
                     } else if (status == 201) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(200)}>Re Submit</Button>);
                     }
                     break;
                 case '3'://psc
                     break;
                 case '4'://institute
                     if (status == 101) {
-                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={this.editApproveApplication}>Re Submit</Button>);
+                        buttons.push(<Button type="primary" loading={confirmLoading} onClick={() => this.updateApplication(100)}>Re Submit</Button>);
                     }
                     break;
                 default:
@@ -411,7 +587,8 @@ class ApplicationForm extends React.Component {
     render() {
         const { getFieldDecorator } = this.props.form;
         const { institutes, designations } = this.props.appStore;
-        const { officer, viewType, disabled, approved, applicationStatus, rejectReason, fileList1, fileList2, fileList3 } = this.state;
+        const { officer, viewType, disabled, approved, applicationStatus, rejectReason, fileList1, fileList2, fileList3, fileList4 } = this.state;
+        const status = _get(this.props.application, "status", null);
 
         const props1 = {
             showUploadList: false,
@@ -477,6 +654,28 @@ class ApplicationForm extends React.Component {
             },
             fileList3,
             defaultFileList: [...fileList3],
+        }
+
+        const props4 = {
+            showUploadList: false,
+            onRemove: file => {
+                this.setState(state => {
+                    const index = state.fileList4.indexOf(file);
+                    const newFileList = state.fileList4.slice();
+                    newFileList.splice(index, 1);
+                    return {
+                        fileList4: newFileList,
+                    };
+                });
+            },
+            beforeUpload: file => {
+                this.setState(state => ({
+                    fileList4: [...state.fileList4, file],
+                }));
+                return false;
+            },
+            fileList4,
+            defaultFileList: [...fileList4],
         }
 
         let instituteValues = [];
@@ -703,9 +902,9 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>
 
-
                         <FormItem
                             label="Request letter of officer"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -724,7 +923,8 @@ class ApplicationForm extends React.Component {
                         </FormItem>
 
                         <FormItem
-                            label="Consent letter of workplace"
+                            label="Consent letter of current workplace"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -744,6 +944,7 @@ class ApplicationForm extends React.Component {
 
                         <FormItem
                             label="Consent letter of new workplace"
+                            required={true}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
                         >
@@ -764,11 +965,10 @@ class ApplicationForm extends React.Component {
                         <FormItem
                             labelCol={{ span: 24 }}
                         >
-                            <span>Consent letter should be provided by Head of Institute (Secretary of Ministry/ State Ministry/ Special Spending Unit, Chief Secretary of Privincila Council)</span>
+                            <span>Consent letters should be signed by Head of Institute (Eg: Secretary of Ministry/ State Ministry/ Special Spending Unit, Chief Secretary of Privincila Council)</span>
                         </FormItem>
 
-
-                        {this.showAction() && <FormItem
+                        {this.showRejectAction() && <FormItem
                             label="Action"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -790,19 +990,225 @@ class ApplicationForm extends React.Component {
                             )}
                         </FormItem>}
 
-                        {(approved == 0 && this.showAction()) && <FormItem
-                            label="Reject reason"
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 12 }}
-                        >
-                            {getFieldDecorator('reject_reason', {
-                                rules: [{ required: true, message: 'Please input relevant data' }]
-                            })(
-                                <TextArea rows={4} style={{ width: '100%' }} />
-                            )}
-                        </FormItem>}
+                        {approved == 1 && this.showApprovalContent() && <div>
+                            <FormItem
+                                label="My No"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('my_no', {
+                                    rules: [{ required: true, message: 'Please input relevant data' }],
+                                    initialValue: viewType == 'add' ?
+                                        (officer.profile ? officer.profile.mobile : null) :
+                                        this.getApplicationItem('my_no')
+                                })(
+                                    <Input disabled={disabled} style={{ width: '250px' }} />
+                                )}
+                            </FormItem>
 
-                        {rejectReason && <FormItem
+                            <FormItem
+                                label="Your No"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('your_no', {
+                                    rules: [{ required: true, message: 'Please input relevant data' }],
+                                    initialValue: viewType == 'add' ?
+                                        (officer.profile ? officer.profile.mobile : null) :
+                                        this.getApplicationItem('your_no')
+                                })(
+                                    <Input disabled={disabled} style={{ width: '250px' }} />
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label="Print format"
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('print_format', {
+                                    rules: [{ required: true, message: 'Please input relevant data' }]
+                                })(
+                                    <Select
+                                        showSearch
+                                        disabled={disabled}
+                                        style={{ width: 250 }}
+                                        placeholder="Select"
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        <Option value={1}>Appointment to posts in Grade I/ Special grade</Option>
+                                        <Option value={2}>Transfers in Grade II/ Grade III</Option>
+                                        <Option value={3}>Transfers on the basis of performing duties full time</Option>
+                                        <Option value={4}>Releasing to provincial councils</Option>
+                                    </Select>
+                                )}
+                            </FormItem>
+
+                            <div style={{ marginBottom: 14 }}>Copies :</div>
+                            <FormItem
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_1', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_1', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_1') ? this.getApplicationItem('inform_1') : null
+                                })(
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_2', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_2', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_2') ? this.getApplicationItem('inform_2') : null
+                                })(
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_3', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_3', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_3') ? this.getApplicationItem('inform_3') : null
+                                })(
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_4', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_4', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_4') ? this.getApplicationItem('inform_4') : null
+                                })(
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_5', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_5', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_5') ? this.getApplicationItem('inform_5') : null
+                                })(
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_6', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_6', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_6') ? this.getApplicationItem('inform_6') : null
+                                })(
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
+                                )}
+                            </FormItem>
+
+                            <FormItem
+                                label={<Select
+                                    disabled={disabled}
+                                    showSearch
+                                    style={{ width: '100%' }}
+                                    placeholder="Select"
+                                    optionFilterProp="children"
+                                    onChange={(e) => this.setInform('inform_7', e)}
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {instituteValues}
+                                </Select>}
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 12 }}
+                            >
+                                {getFieldDecorator('inform_7', {
+                                    rules: [{ required: !true, message: 'Please input relevant data' }],
+                                    initialValue: this.getApplicationItem('inform_7') ? this.getApplicationItem('inform_7') : null
+                                })(
+                                    <TextArea placeholder='Enter note' disabled={disabled} rows={3} style={{ width: '100%' }} />
+                                )}
+                            </FormItem>
+                        </div>}
+
+                        {approved == 0 && this.showRejectReason() && <FormItem
                             label="Reject reason"
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 12 }}
@@ -811,14 +1217,34 @@ class ApplicationForm extends React.Component {
                                 rules: [{ required: !true, message: 'Please input relevant data' }],
                                 initialValue: rejectReason
                             })(
-                                <TextArea disabled={true} rows={4} style={{ width: '100%' }} />
+                                <TextArea disabled={disabled} rows={4} style={{ width: '100%' }} />
                             )}
+                        </FormItem>}
+
+                        {(this.showApprovalDocument().view || this.showApprovalDocument().edit) && <FormItem
+                            label="Approval Document"
+                            required={true}
+                            labelCol={{ span: 10 }}
+                            wrapperCol={{ span: 12 }}
+                        >
+                            {/* {getFieldDecorator('certified_copy_of_duty_assume_letter', {
+                                rules: [{ required: true, message: 'Please input relevant data' }]
+                            })( */}
+                            {this.showApprovalDocument().edit && <Upload {...props4} disabled={this.showApprovalDocument().view}>
+                                {fileList4.length == 1 ?
+                                    <span><Button style={{ paddingLeft: 0 }} icon="paper-clip" type="link" onClick={() => this.openAttachment('approval_document')}>Attachment</Button>
+                                        <Icon type="delete" onClick={() => this.removeFile('fileList4')} /></span> :
+                                    <Button><Icon type={'upload'} />Upload</Button>}
+                            </Upload>}
+                            {/*)} */}
+
+                            {this.showApprovalDocument().view && <Button icon="paper-clip" type="link" onClick={() => this.openAttachment('approval_document')}>Attachment</Button>}
                         </FormItem>}
 
                         <ButtonContainer>
                             <RightButtons>
                                 {this.renderRightButtons().map((element, index) => {
-                                    return <span key={index}>{element}</span>;
+                                    return <span key={index} style={{ marginRight: 6 }}>{element}</span>;
                                 })}
                             </RightButtons>
                         </ButtonContainer>

@@ -462,12 +462,12 @@ class AppService {
         });
     }
 
-    updateApplicationStatus(data) {
+    updateApplication(data) {
         return new Promise((resolve, reject) => {
             axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
             axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
             axios
-                .post(api.UPDATE_APPLICATIONS_STATUS, data)
+                .post(api.UPDATE_APPLICATION, data)
                 .then(result => {
                     if (result.data.success) {
                         resolve(result.data.data)
@@ -658,6 +658,57 @@ class AppService {
             axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
             axios
                 .post(api.GET_CADRES, data)
+                .then(result => {
+                    if (result.data.success) {
+                        resolve(result.data.data)
+                    } else {
+                        reject(result.data)
+                    }
+                })
+                .catch(error => reject(error));
+        });
+    }
+
+    generateReports(data) {
+        return new Promise((resolve, reject) => {
+            axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
+            axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
+            axios
+                .post(api.GENERATE_REPORTS, data)
+                .then(result => {
+                    if (result.data.success) {
+                        resolve(result.data.data)
+                    } else {
+                        reject(result.data)
+                    }
+                })
+                .catch(error => reject(error));
+        });
+    }
+
+    submitApprovalDocument(data) {
+        return new Promise((resolve, reject) => {
+            axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
+            axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
+            axios
+                .post(api.UPDATE_APPROVAL_DOCUMENT, data)
+                .then(result => {
+                    if (result.data.success) {
+                        resolve(result.data.data)
+                    } else {
+                        reject(result.data)
+                    }
+                })
+                .catch(error => reject(error));
+        });
+    }
+
+    editInstitute(data) {
+        return new Promise((resolve, reject) => {
+            axios.defaults.headers.common['app-token'] = api.APP_TOKEN;
+            axios.defaults.headers.common['session-token'] = window.localStorage.getItem('jwt');
+            axios
+                .post(api.UPDATE_INSTITUTE, data)
                 .then(result => {
                     if (result.data.success) {
                         resolve(result.data.data)

@@ -40,6 +40,8 @@ import GradeIIIOfficers from './reports/GradeIIIOfficers';
 import NewApplication from './application/NewApplication';
 import AllUsers from './profile/AllUsers';
 import Cadre from './dashboard/Cadre';
+import OfficerPlacement from './reportsV2/OfficerPlacement';
+import OfficerReports from './reportsV2/OfficerReports';
 
 const { Content, Footer } = Layout;
 
@@ -95,6 +97,7 @@ class Page extends Component {
                             {(role == '1') && <Route path="/retire-officer" component={RetireOfficer} />}
                             {(role == '1') && <Route path="/edit-officer" component={EditOfficer} />}
                             {(role == '1') && <Route path="/view-officer" component={ViewOfficer} />}
+                            {(role == '1') && <Route path="/officer-placement/:grade" component={OfficerPlacement} />}
 
                             {/* Reports */}
                             {(role == '1') && <Route path="/grades-vacancy" component={GradeVise} />}
@@ -111,7 +114,8 @@ class Page extends Component {
                             {(role == '1') && <Route path="/grade-ii-officers" component={GradeIIOfficers} />}
                             {(role == '1') && <Route path="/grade-iii-officers" component={GradeIIIOfficers} />}
                             {(role == '1') && <Route path="/summary" component={SummaryReport} />}
-                            {(role == '1') && <Route path="/officer-report" component={OfficerReport} />}
+                            {/* {(role == '1') && <Route path="/officer-report" component={OfficerReport} />} */}
+                            {(role == '1') && <Route path="/officer-reports/:grade" component={OfficerReports} />}
 
                             {/* MasterData */}
                             {(role == '1') && <Route path="/designations" component={Designations} />}

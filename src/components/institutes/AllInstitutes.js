@@ -1,6 +1,7 @@
 import React from 'react';
 import { inject, observer } from 'mobx-react';
 import { Table, Button, Card, Breadcrumb, Typography } from 'antd';
+import EditInstitute from './EditInstitute';
 
 const { Title } = Typography;
 
@@ -32,6 +33,12 @@ class AllInstitutes extends React.Component {
             dataIndex: 'institute_name',
             key: 'institute_name',
         },
+        {
+            title: 'Head of Department',
+            dataIndex: 'department_head',
+            key: 'department_head',
+            // width: '15%'
+        },
         // {
         //     title: 'Parent Institue',
         //     dataIndex: 'ministry_name',
@@ -42,41 +49,50 @@ class AllInstitutes extends React.Component {
             title: 'Address',
             dataIndex: 'address',
             key: 'address',
-            width: '15%'
+            // width: '15%'
         },
         {
             title: 'Telephone No',
             dataIndex: 'telephone',
             key: 'telephone',
-            width: '10%'
+            width: '120px'
         },
         {
             title: 'Fax No',
             dataIndex: 'fax_no',
             key: 'fax_no',
-            width: '10%'
+            width: '120px'
         },
         {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
+            width: '150px'
         },
         {
             title: 'Contact Person',
             dataIndex: 'contact_person_name',
             key: 'contact_person_name',
-            width: '15%'
+            // width: '15%'
         },
         {
             title: 'Contact Telephone',
             dataIndex: 'contact_person_telphone',
             key: 'contact_person_telphone',
-            width: '10%'
+            width: '120px'
         },
         {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+        },
+        {
+            title: '',
+            key: '',
+            dataIndex: '',
+            render: (text, record) => (
+                <EditInstitute institute={record}/>
+            ),
         },
         // {
         //     title: '',
@@ -88,15 +104,15 @@ class AllInstitutes extends React.Component {
         // }
     ];
 
-    showDetails = (record) => {
+    // showDetails = (record) => {
         // this.props.appStore.getDealDetails(record.id)
         //     .then(sucess => {
-        this.props.history.push('/view-institute')
+        // this.props.history.push('/view-institute')
         // })
         // .catch(err => {
         //     openNotificationWithIcon('error', 'Oops', err.data);
         // });
-    }
+    // }
 
     render() {
         let { allinstitutes } = this.props.appStore;
@@ -123,6 +139,7 @@ class AllInstitutes extends React.Component {
                         rowKey={record => record.id}
                         columns={this.columns}
                         scroll={{ x: 1400 }}
+                        pagination={false}
                         dataSource={allinstitutes} />}
 
                     {!allinstitutes && <Table
