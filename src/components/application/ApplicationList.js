@@ -107,17 +107,17 @@ const generatePrintDoc = (props) => {
                 </div>
         
                 <div class="title margin"><u>
-                ${props.printFormat === 1 && "Appointment to a post in Grade I/Special Grade of Sri Lanka Administrative Service"}
-                ${props.printFormat === 2 && "Transfers in Grade II/ Grade III of Sri Lanka Administrative Service"}
-                ${props.printFormat === 3 && "Transfers in Sri Lanka Administrative Service on the basis of performing duties full time"}
-                ${props.printFormat === 4 && "Releasing to the Provincial Councils"}
+                ${props.printFormat === 1 ? "Appointment to a post in Grade I/Special Grade of Sri Lanka Administrative Service":""}
+                ${props.printFormat === 2 ? "Transfers in Grade II/ Grade III of Sri Lanka Administrative Service":""}
+                ${props.printFormat === 3 ? "Transfers in Sri Lanka Administrative Service on the basis of performing duties full time":""}
+                ${props.printFormat === 4 ? "Releasing to the Provincial Councils":""}
                 </u></div>
         
                 <div class="description margin">
-                ${props.printFormat === 1 && "You are appointed to a post in Grade I/Special Grade of the Sri Lanka Administrative Service at the following new workplace until further order on service exigency subject to the covering approval of the Public Service Commission. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution."}
-                ${props.printFormat === 2 && "You are transferred to the Service Station mentioned below until further notice. I should be informed through the relevant Head of the Department on Assumption of Duties and the draft of the gazette notification prepared in all three languages on the appointment should be sent to me through the new Head of the Department."}
-                ${props.printFormat === 3 && "You are transferred to the following new workplace until further order and appointed subject to the covering approval of the Public Service Commission to perform duties full time, as mentioned below as per Section 118 of the Procedural Rules of the Public Service Commission in terms of the letter of the Secretary of the Public Service Commission No. PSC/EST/05-03/08/2018 dated 13.09.2018. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution."}
-                ${props.printFormat === 4 && "You are temporarily released with immediate effect to the below mentioned work station on service exigency subject to the covering approval of the Public Service Commission. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution."}
+                ${props.printFormat === 1 ? "You are appointed to a post in Grade I/Special Grade of the Sri Lanka Administrative Service at the following new workplace until further order on service exigency subject to the covering approval of the Public Service Commission. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution.":""}
+                ${props.printFormat === 2 ? "You are transferred to the Service Station mentioned below until further notice. I should be informed through the relevant Head of the Department on Assumption of Duties and the draft of the gazette notification prepared in all three languages on the appointment should be sent to me through the new Head of the Department.":""}
+                ${props.printFormat === 3 ? "You are transferred to the following new workplace until further order and appointed subject to the covering approval of the Public Service Commission to perform duties full time, as mentioned below as per Section 118 of the Procedural Rules of the Public Service Commission in terms of the letter of the Secretary of the Public Service Commission No. PSC/EST/05-03/08/2018 dated 13.09.2018. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution.":""}
+                ${props.printFormat === 4 ? "You are temporarily released with immediate effect to the below mentioned work station on service exigency subject to the covering approval of the Public Service Commission. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution.":""}
                 </div>
         
                 <table width="100%" class="margin">
