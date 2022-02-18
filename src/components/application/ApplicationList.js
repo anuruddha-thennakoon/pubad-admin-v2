@@ -64,19 +64,8 @@ const generatePrintDoc = (props) => {
         </head>
         
         <!-- <body onload="window.print()"> -->
-        
         <body onload="window.print()">
-            <div style="width: 1000px; margin: 0 auto;top: 2rem;">
-                <div class="letter-head">
-                    <div><img src=${logo} alt="logo" height="110"></div>
-                    <div style="font-size: 24px;">රාජ්‍ය සේවා, පළාත් සභා හා පළාත් පාලන අමාත්‍යාංශය</div>
-                    <div style="font-size: 20px;">அரச சேவைகள், மாகாண சபை௧ள் மற்றும் உள்ளூராட்சி அமைச்சு</div>
-                    <div style="font-size: 20px;">Ministry of Public Services, Provincial Councils and Local Government</div>
-                    <div style="font-size: 16px;">නිදහස් චතුරශ්‍රය, කොළඹ 07, ශ්‍රී ලංකාව.</div>
-                    <div style="font-size: 16px;">சுதந்திர சதுக்கம், கொழும்பு 07, இலங்கை.</div>
-                    <div style="font-size: 16px;">Independence Square, Colombo 07, Sri Lanka.</div>
-                    <hr />
-                </div>
+            <div style="width: 926px; margin: 240px 48px 20px 144px">
         
                 <div style="display: flex;align-items: center;justify-content:space-between;font-size: 14px;">
                     <div style="display: flex;align-items: center;justify-content:space-between">
@@ -117,36 +106,44 @@ const generatePrintDoc = (props) => {
                     <div>${props.currentInstituteHead}, ${props.currentInstitute}</div>
                 </div>
         
-                <div class="title margin"><u>Transfers of Sri Lanka Administrative Service</u></div>
+                <div class="title margin"><u>
+                ${props.printFormat === 1 && "Appointment to a post in Grade I/Special Grade of Sri Lanka Administrative Service"}
+                ${props.printFormat === 2 && "Transfers in Grade II/ Grade III of Sri Lanka Administrative Service"}
+                ${props.printFormat === 3 && "Transfers in Sri Lanka Administrative Service on the basis of performing duties full time"}
+                ${props.printFormat === 4 && "Releasing to the Provincial Councils"}
+                </u></div>
         
                 <div class="description margin">
-                ${props.printFormat === 1 && "You are transferred to the Service Station mentioned below until further notice and I should be informed through the relevant Head of the Department on Assumption of Duties."}
+                ${props.printFormat === 1 && "You are appointed to a post in Grade I/Special Grade of the Sri Lanka Administrative Service at the following new workplace until further order on service exigency subject to the covering approval of the Public Service Commission. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution."}
+                ${props.printFormat === 2 && "You are transferred to the Service Station mentioned below until further notice. I should be informed through the relevant Head of the Department on Assumption of Duties and the draft of the gazette notification prepared in all three languages on the appointment should be sent to me through the new Head of the Department."}
+                ${props.printFormat === 3 && "You are transferred to the following new workplace until further order and appointed subject to the covering approval of the Public Service Commission to perform duties full time, as mentioned below as per Section 118 of the Procedural Rules of the Public Service Commission in terms of the letter of the Secretary of the Public Service Commission No. PSC/EST/05-03/08/2018 dated 13.09.2018. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution."}
+                ${props.printFormat === 4 && "You are temporarily released with immediate effect to the below mentioned work station on service exigency subject to the covering approval of the Public Service Commission. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution."}
                 </div>
         
                 <table width="100%" class="margin">
                     <tbody>
                         <tr>
                             <th width="20%">Name of the Officer</th>
-                            <th width="30%">Service Station and the Post held at Present</th>
-                            <th width="30%">Service Station to which the Officer is Transferred and the Post</th>
-                            <th width="10%">Date of Transfer</th>
-                            <th width="10%">Subsistence Allowance</th>
+                            <th width="30%">Current workplace and post</th>
+                            <th width="30%">Workplace to which the officer is transferred ${props.printFormat != 3 && "/released"}</th>
+                            <th width="10%">${props.printFormat === 3 ? "Post to which the officer is appointed to perform duties full time" : "Date of transfer/ release"}</th>
+                            <th width="10%">${props.printFormat === 3 ? "Period to which approval is granted" : "Subsistence allowance"}</th>
                         </tr>
                         <tr>
                             <td>${props.applicantName} <br /> (${props.currentGrade} of S.L.A.S)</td>
                             <td>${props.currentInstitute} - <br /> ${props.currentPost}</td>
-                            <td>${props.newInstitute} - <br /> ${props.newPost}</td>
-                            <td></td>
-                            <td></td>
+                            <td>${props.newInstitute} </td>
+                            <td>${props.printFormat != 3 ? "With immediate effect" : props.newPost}</td>
+                            <td>${props.printFormat === 3 ? "One year or until" : "Not paid"}</td>
                         </tr>
                     </tbody>
                 </table>
         
                 <div class="signature margin-3x">
-                    <div>G.I. Lakmali Fernando - For Information</div>
-                    <div>Assistant Director (S.L.A.S)</div>
-                    <div>For Secretary Ministry of Public Services</div>
-                    <div>Provincial Councils and Local Government</div>
+                    <div>K.D.N. Ranjith Asoka</div>
+                    <div>Additional Secretary (Public Administration)</div>
+                    <div>For Secretary</div>
+                    <div>Ministry of Public Services, Provincial Councils and Local Government</div>
                 </div>
         
                 <div class="margin" style="margin-bottom: 6px;">Copies:</div>
@@ -190,52 +187,6 @@ const generatePrintDoc = (props) => {
                     </tbody>
                 </table>
         
-                <div class="footer">
-                    <hr />
-                    <div style="display: flex;align-items: center;justify-content:space-between;font-size: 14px;">
-                        <div style="display: flex;align-items: center;justify-content:space-between">
-                            <span style="margin-right: 1rem;">
-                                <div>දුරකථන</div>
-                                <div>தொலைபேசி</div>
-                                <div>Telephone</div>
-                            </span>
-                            <span>
-                                <div>011-2696211-13</div>
-                                <div>011-2166000</div>
-                            </span>
-                        </div>
-                        <div style="display: flex;align-items: center;justify-content:space-between">
-                            <span style="margin-right: 1rem;">
-                                <div>ෆැක්ස්</div>
-                                <div>தொலைநகல்</div>
-                                <div>Fax</div>
-                            </span>
-                            <span>
-                                <div>011-2695279</div>
-                            </span>
-                        </div>
-                        <div style="display: flex;align-items: center;justify-content:space-between">
-                            <span style="margin-right: 1rem;">
-                                <div>ඊ-මේල්</div>
-                                <div>மின்னஞ்சல்</div>
-                                <div>Email</div>
-                            </span>
-                            <span>
-                                <div style="color: blue;"><u>information@pubad.gov.lk</u></div>
-                            </span>
-                        </div>
-                        <div style="display: flex;align-items: center;justify-content:space-between">
-                            <span style="margin-right: 1rem;">
-                                <div>වෙබ් අඩවිය</div>
-                                <div>இணையதளம்</div>
-                                <div>Website</div>
-                            </span>
-                            <span>
-                                <div style="color: blue;"><u>www.pubad.gov.lk</u></div>
-                            </span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </body>
         

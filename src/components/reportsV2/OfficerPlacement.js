@@ -61,6 +61,7 @@ class OfficerPlacement extends React.Component {
             title: 'Serial No',
             dataIndex: 'serial_no',
             key: 'serial_no',
+            width: '80px',
             render: (text, record, index) => (
                 <span>{index + 1}</span>
             ),
@@ -69,22 +70,26 @@ class OfficerPlacement extends React.Component {
             title: ' Seniority Number',
             dataIndex: 'seniority_no',
             key: 'seniority_no',
+            width: '80px',
         },
         {
             title: 'NIC',
             dataIndex: 'nic',
             key: 'nic',
-            align: 'center'
+            align: 'center',
+            width: '120px'
         },
         {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
+            width: '200px',
         },
         {
             title: 'Current Grade',
             dataIndex: 'grade_name',
             key: 'grade_name',
+            width:'120px',
             render: (text, record) => (
                 <div>{this.getGradeName(record)}</div>
             ),
@@ -93,25 +98,27 @@ class OfficerPlacement extends React.Component {
             title: 'Present Post',
             dataIndex: 'designation',
             key: 'designation',
+            width:'200px'
         },
         {
             title: 'Present Work Place',
             dataIndex: 'institute_name',
             key: 'institute_name',
-            width: '20%'
+            width: '260px'
         },
         {
             title: 'Contact Number',
             dataIndex: 'mobile',
             key: 'mobile',
-            align: 'center'
+            align: 'center',
+            width:'120px'
         },
         {
             title: 'DOB',
             dataIndex: 'dob',
             key: 'dob',
             align: 'center',
-            width: '10%'
+            width: '120px'
         },
         {
             title: <span>
@@ -122,7 +129,7 @@ class OfficerPlacement extends React.Component {
             dataIndex: 'grade_iii_entry',
             key: 'grade_iii_entry',
             align: 'center',
-            width: '10%'
+            width: '120px'
         },
         {
             title: <span>
@@ -133,7 +140,7 @@ class OfficerPlacement extends React.Component {
             dataIndex: 'grade_ii_promoted',
             key: 'grade_ii_promoted',
             align: 'center',
-            width: '10%'
+            width: '120px'
         },
         {
             title: <span>
@@ -144,7 +151,7 @@ class OfficerPlacement extends React.Component {
             dataIndex: 'grade_i_promoted',
             key: 'grade_i_promoted',
             align: 'center',
-            width: '10%'
+            width: '120px'
         },
         {
             title: <span>
@@ -155,12 +162,13 @@ class OfficerPlacement extends React.Component {
             dataIndex: 'special_grade_promoted',
             key: 'special_grade_promoted',
             align: 'center',
-            width: '10%'
+            width: '120px'
         },
         {
             title: 'File Number',
             dataIndex: 'file_no',
             key: 'file_no',
+            width:'100px'
         },
     ];
 
@@ -231,7 +239,7 @@ class OfficerPlacement extends React.Component {
                             loading={false}
                             rowKey={record => record.id}
                             columns={this.columns}
-                            scroll={{ x: 1400 }}
+                            scroll={{ x: 1800 }}
                             pagination={false}
                             dataSource={allOfficers} />}
 

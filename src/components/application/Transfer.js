@@ -1037,10 +1037,10 @@ class ApplicationForm extends React.Component {
                                         optionFilterProp="children"
                                         filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                     >
-                                        <Option value={1}>Format 1</Option>
-                                        <Option value={2}>Format 2</Option>
-                                        <Option value={3}>Format 3</Option>
-                                        <Option value={4}>Format 4</Option>
+                                        <Option value={1}>Appointment to posts in Grade I/ Special grade</Option>
+                                        <Option value={2}>Transfers in Grade II/ Grade III</Option>
+                                        <Option value={3}>Transfers on the basis of performing duties full time</Option>
+                                        <Option value={4}>Releasing to provincial councils</Option>
                                     </Select>
                                 )}
                             </FormItem>
