@@ -65,7 +65,7 @@ const generatePrintDoc = (props) => {
         
         <!-- <body onload="window.print()"> -->
         <body onload="window.print()">
-            <div style="width: 926px; margin: 240px 48px 20px 144px">
+            <div style="width: 930px; margin: 280px 70px 20px 80px">
         
                 <div style="display: flex;align-items: center;justify-content:space-between;font-size: 14px;">
                     <div style="display: flex;align-items: center;justify-content:space-between">
