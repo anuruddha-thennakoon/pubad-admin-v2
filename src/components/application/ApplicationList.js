@@ -7,8 +7,6 @@ import TableData from './TableData';
 
 import _get from "lodash/get";
 
-import logo from '../login/logo.png';
-
 import { APPOINTMENT, PROMOTION, PUBAD } from '../../utils/constants';
 
 const generatePrintDoc = (props) => {
@@ -19,9 +17,16 @@ const generatePrintDoc = (props) => {
         <head>
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <style>
+                @media print {
+                    body {
+                        margin-top: 146px;
+                        transform: scale(0.90);
+                    }
+                }
+                
                 body {
-                    font-size: 18px;
-                    font-family: "Segoe UI";
+                    font-size: 15px;
+                    font-family: "Serif";
                 }
         
                 .title {
@@ -44,9 +49,13 @@ const generatePrintDoc = (props) => {
                     padding: 5px;
                     border: 1px solid #cfcfcf;
                 }
-        
+
                 .margin {
-                    margin-top: 2rem;
+                    margin-top: 1rem;
+                }
+
+                .margin-2x {
+                    margin-top: 4rem;
                 }
         
                 .margin-3x {
@@ -65,69 +74,68 @@ const generatePrintDoc = (props) => {
         
         <!-- <body onload="window.print()"> -->
         <body onload="window.print()">
-            <div style="width: 930px; margin: 280px 70px 20px 80px">
-        
-                <div style="display: flex;align-items: center;justify-content:space-between;font-size: 14px;">
+            <!-- <div style="width: 700px; margin-top: 320px; margin-left:50px"> -->
+            <div>
+                <div style="display: flex;align-items: center;justify-content:space-between">
                     <div style="display: flex;align-items: center;justify-content:space-between">
                         <span style="margin-right: 1rem;">
-                            <div>මගේ අංකය</div>
-                            <div>எனது இல</div>
-                            <div>My No</div>
+                            <div style="font-size: 12px">මගේ අංකය</div>
+                            <div style="font-size: 11px">எனது இல</div>
+                            <div style="font-size: 11px">My No</div>
                         </span>
                         <span>
-                            <div>${props.myNo}</div>
+                            <div style="font-size: 12px">${props.myNo}</div>
                         </span>
                     </div>
                     <div style="display: flex;align-items: center;justify-content:space-between">
                         <span style="margin-right: 1rem;">
-                            <div>ඔබේ අංකය</div>
-                            <div>உமது இல</div>
-                            <div>Your No</div>
+                            <div style="font-size: 12px">ඔබේ අංකය</div>
+                            <div style="font-size: 11px">உமது இல</div>
+                            <div style="font-size: 11px">Your No</div>
                         </span>
                         <span>
-                            <div>${props.yourNo}</div>
+                            <div style="font-size: 12px">${props.yourNo}</div>
                         </span>
                     </div>
                     <div style="display: flex;align-items: center;justify-content:space-between">
                         <span style="margin-right: 1rem;">
-                            <div>දිනය</div>
-                            <div>திகதி</div>
-                            <div>Date</div>
+                            <div style="font-size: 12px">දිනය</div>
+                            <div style="font-size: 11px">திகதி</div>
+                            <div style="font-size: 11px">Date</div>
                         </span>
                         <span>
-                            <div>${props.date}</div>
+                            <div style="font-size: 12px">${props.date}</div>
                         </span>
                     </div>
                 </div>
         
-                <div class="officer margin-3x">
-                    <div>${props.applicantName} (${props.currentGrade} of S.L.A.S)</div>
-                    <div>through</div>
-                    <div>${props.currentInstituteHead}, ${props.currentInstitute}</div>
+                <div class="officer" style="margin-top:2rem">
+                    <div>${props.applicantName} (${props.currentGrade} of S.L.A.S) <span style="font-style: italic;">through</span></div>
+                    <div>${props.currentInstituteHead ? props.currentInstituteHead : '.................................'}, ${props.currentInstitute}</div>
                 </div>
         
-                <div class="title margin"><u>
-                ${props.printFormat === 1 ? "Appointment to a post in Grade I/Special Grade of Sri Lanka Administrative Service":""}
-                ${props.printFormat === 2 ? "Transfers in Grade II/ Grade III of Sri Lanka Administrative Service":""}
-                ${props.printFormat === 3 ? "Transfers in Sri Lanka Administrative Service on the basis of performing duties full time":""}
-                ${props.printFormat === 4 ? "Releasing to the Provincial Councils":""}
+                <div class="title margin" style="font-weight: bold"><u>
+                ${props.printFormat === 1 ? "Appointment to a post in Grade I/Special Grade of Sri Lanka Administrative Service" : ""}
+                ${props.printFormat === 2 ? "Transfers in Grade II/ Grade III of Sri Lanka Administrative Service" : ""}
+                ${props.printFormat === 3 ? "Transfers in Sri Lanka Administrative Service on the basis of performing duties full time" : ""}
+                ${props.printFormat === 4 ? "Releasing to the Provincial Councils" : ""}
                 </u></div>
         
-                <div class="description margin">
-                ${props.printFormat === 1 ? "You are appointed to a post in Grade I/Special Grade of the Sri Lanka Administrative Service at the following new workplace until further order on service exigency subject to the covering approval of the Public Service Commission. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution.":""}
-                ${props.printFormat === 2 ? "You are transferred to the Service Station mentioned below until further notice. I should be informed through the relevant Head of the Department on Assumption of Duties and the draft of the gazette notification prepared in all three languages on the appointment should be sent to me through the new Head of the Department.":""}
-                ${props.printFormat === 3 ? "You are transferred to the following new workplace until further order and appointed subject to the covering approval of the Public Service Commission to perform duties full time, as mentioned below as per Section 118 of the Procedural Rules of the Public Service Commission in terms of the letter of the Secretary of the Public Service Commission No. PSC/EST/05-03/08/2018 dated 13.09.2018. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution.":""}
-                ${props.printFormat === 4 ? "You are temporarily released with immediate effect to the below mentioned work station on service exigency subject to the covering approval of the Public Service Commission. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution.":""}
+                <div class="description margin" style="text-align: justify;text-justify: inter-word;"><span style="margin-right: 3rem;"></span>
+                ${props.printFormat === 1 ? "You are appointed to a post in Grade I/Special Grade of the Sri Lanka Administrative Service at the following new workplace until further order on service exigency subject to the covering approval of the Public Service Commission. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution." : ""}
+                ${props.printFormat === 2 ? "You are transferred to the Service Station mentioned below until further notice. I should be informed through the relevant Head of the Department on Assumption of Duties and the draft of the gazette notification prepared in all three languages on the appointment should be sent to me through the new Head of the Department." : ""}
+                ${props.printFormat === 3 ? "You are transferred to the following new workplace until further order and appointed subject to the covering approval of the Public Service Commission to perform duties full time, as mentioned below as per Section 118 of the Procedural Rules of the Public Service Commission in terms of the letter of the Secretary of the Public Service Commission No. PSC/EST/05-03/08/2018 dated 13.09.2018. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution." : ""}
+                ${props.printFormat === 4 ? "You are temporarily released with immediate effect to the below mentioned work station on service exigency subject to the covering approval of the Public Service Commission. Kindly note that after assuming duties of the new post, you should report the same to me through the respective Head of the institution." : ""}
                 </div>
         
                 <table width="100%" class="margin">
                     <tbody>
                         <tr>
                             <th width="20%">Name of the Officer</th>
-                            <th width="30%">Current workplace and post</th>
-                            <th width="30%">Workplace to which the officer is transferred ${props.printFormat != 3 && "/released"}</th>
-                            <th width="10%">${props.printFormat === 3 ? "Post to which the officer is appointed to perform duties full time" : "Date of transfer/ release"}</th>
-                            <th width="10%">${props.printFormat === 3 ? "Period to which approval is granted" : "Subsistence allowance"}</th>
+                            <th width="25%">Current workplace and post</th>
+                            <th width="25%">Workplace to which the officer is transferred ${props.printFormat != 3 && "/released"}</th>
+                            <th width="15%">${props.printFormat === 3 ? "Post to which the officer is appointed to perform duties full time" : "Date of transfer/ release"}</th>
+                            <th width="15%">${props.printFormat === 3 ? "Period to which approval is granted" : "Subsistence allowance"}</th>
                         </tr>
                         <tr>
                             <td>${props.applicantName} <br /> (${props.currentGrade} of S.L.A.S)</td>
@@ -139,7 +147,7 @@ const generatePrintDoc = (props) => {
                     </tbody>
                 </table>
         
-                <div class="signature margin-3x">
+                <div class="signature margin-2x">
                     <div>K.D.N. Ranjith Asoka</div>
                     <div>Additional Secretary (Public Administration)</div>
                     <div>For Secretary</div>
@@ -150,37 +158,37 @@ const generatePrintDoc = (props) => {
                 <table width="100%">
                     <tbody>
                         <tr>
-                            <td width="40%" class="no-border margin">${props.inform1Head}${props.inform1Seperator}
+                            <td width="40%" class="no-border margin">${props.inform1Seperator != '' ? '1. ' : ''} ${props.inform1Head != null ? props.inform1Head : '....................................'}${props.inform1Seperator}
                                 ${props.inform1Institute}</td>
                             <td width="60%" class="no-border margin">${props.inform1Note}</td>
                         </tr>
                         <tr>
-                            <td width="40%" class="no-border margin">${props.inform2Head}${props.inform2Seperator}
+                            <td width="40%" class="no-border margin">${props.inform2Seperator != '' ? '2. ' : ''}${props.inform2Head != null ? props.inform2Head  : '....................................'}${props.inform2Seperator}
                                 ${props.inform2Institute}</td>
                             <td width="60%" class="no-border margin">${props.inform2Note}</td>
                         </tr>
                         <tr>
-                            <td width="40%" class="no-border margin">${props.inform3Head}${props.inform3Seperator}
+                            <td width="40%" class="no-border margin">${props.inform3Seperator != '' ? '3. ' : ''}${props.inform3Head != null ? props.inform3Head  : '....................................'}${props.inform3Seperator}
                                 ${props.inform3Institute}</td>
                             <td width="60%" class="no-border margin">${props.inform3Note}</td>
                         </tr>
                         <tr>
-                            <td width="40%" class="no-border margin">${props.inform4Head}${props.inform4Seperator}
+                            <td width="40%" class="no-border margin">${props.inform4Seperator != '' ? '4. ' : ''}${props.inform4Head != null ? props.inform4Head  : '....................................'}${props.inform4Seperator}
                                 ${props.inform4Institute}</td>
                             <td width="60%" class="no-border margin">${props.inform4Note}</td>
                         </tr>
                         <tr>
-                            <td width="40%" class="no-border margin">${props.inform5Head}${props.inform5Seperator}
+                            <td width="40%" class="no-border margin">${props.inform5Seperator != '' ? '5. ' : ''}${props.inform5Head != null ? props.inform5Head  : '....................................'}${props.inform5Seperator}
                                 ${props.inform5Institute}</td>
                             <td width="60%" class="no-border margin">${props.inform5Note}</td>
                         </tr>
                         <tr>
-                            <td width="40%" class="no-border margin">${props.inform6Head}${props.inform6Seperator}
+                            <td width="40%" class="no-border margin">${props.inform6Seperator != '' ? '6. ' : ''}${props.inform6Head != null ? props.inform6Head  : '....................................'}${props.inform6Seperator}
                                 ${props.inform6Institute}</td>
                             <td width="60%" class="no-border margin">${props.inform6Note}</td>
                         </tr>
                         <tr>
-                            <td width="40%" class="no-border margin">${props.inform7Head}${props.inform7Seperator}
+                            <td width="40%" class="no-border margin">${props.inform7Seperator != '' ? '7. ' : ''}${props.inform7Head != null ? props.inform7Head  : '....................................'}${props.inform7Seperator}
                                 ${props.inform7Institute}</td>
                             <td width="60%" class="no-border margin">${props.inform7Note}</td>
                         </tr>
